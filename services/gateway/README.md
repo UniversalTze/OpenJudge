@@ -2,7 +2,7 @@
 
 ASSIGNED TO: 
 
-## Built in  with FastAPI
+## Built in Python with FastAPI
 
 ### Getting Started
 

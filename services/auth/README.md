@@ -1,4 +1,4 @@
-# Code Submission Service
+# Authentication Service
 
 ASSIGNED TO: 
 
