@@ -1,0 +1,49 @@
+{
+  "name": "openjudge",
+  "version": "0.1.0",
+  "private": true,
+  "scripts": {
+    "dev": "next dev --turbopack",
+    "build": "next build",
+    "start": "next start",
+    "lint": "next lint"
+  },
+  "dependencies": {
+    "eslint-config-prettier": "^10.1.2",
+    "next": "15.3.2",
+    "prettier": "^3.5.3",
+    "prettier-plugin-tailwindcss": "^0.6.11",
+    "react": "^19.0.0",
+    "react-dom": "^19.0.0"
+  },
+  "devDependencies": {
+    "typescript": "^5",
+    "@types/node": "^20",
+    "@types/react": "^19",
+    "@types/react-dom": "^19",
+    "@tailwindcss/postcss": "^4",
+    "tailwindcss": "^4",
+    "eslint": "^9",
+    "eslint-config-next": "15.3.2",
+    "@eslint/eslintrc": "^3"
+  },
+  "postcss": {
+    "plugins": {
+      "@tailwindcss/postcss": {}
+    }
+  },
+  "prettier": {
+    "plugins": [
+      "prettier-plugin-tailwindcss"
+    ],
+    "tabWidth": 2,
+    "tailwindStylesheet": "./src/app/globals.css",
+    "semi": true,
+    "singleQuote": false,
+    "printWidth": 100,
+    "jsxSingleQuote": false,
+    "trailingComma": "none",
+    "bracketSpacing": true,
+    "bracketSameLine": true
+  }
+}
