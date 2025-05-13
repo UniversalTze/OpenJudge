@@ -1,1 +1,8 @@
 .env
+
+# Services:
+
+### Execution
+services/execution/.*
+services/execution/__pycache__/*
+**/**/.DS_Store
