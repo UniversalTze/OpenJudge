@@ -116,3 +116,8 @@ will remain in the database to indicate that the user's email is not verified. <
 
 **Description:** Used to delete a user's avatar </br></br>
 ...
+
+### POST `/validate`
+
+**Description:** Used to validate a user's JWT </br></br>
+...

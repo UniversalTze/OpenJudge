@@ -3,6 +3,8 @@ package config
 import (
 	"log"
 	"os"
+
+	"github.com/joho/godotenv"
 )
 
 type Config struct {
@@ -22,44 +24,49 @@ type Config struct {
  * Loads and validates the environment variables and sets a config struct
  */
 func Load() Config {
-	env, found := os.LookupEnv("ENV")
-	if !found || env == "" {
+	err := godotenv.Load()
+	if err != nil {
+			log.Println("Error: Failed to load .env file: ", err)
+	}
+
+	env := os.Getenv("ENV")
+	if env == "" {
 		log.Fatalf("Error: Environment variable 'ENV' is not set.")
 	}
-	asp, found := os.LookupEnv("AUTH_SERVICE_PORT")
-	if !found || asp == "" {
+	asp := os.Getenv("AUTH_SERVICE_PORT")
+	if asp == "" {
 		log.Fatalf("Error: Environment variable 'AUTH_SERVICE_PORT' is not set.")
 	}
-	jwt, found := os.LookupEnv("JWT_SECRET")
-	if !found || jwt == "" {
+	jwt := os.Getenv("JWT_SECRET")
+	if jwt == "" {
 		log.Fatalf("Error: Environment variable 'JWT_SECRET' is not set.")
 	}
-	udb, found := os.LookupEnv("USER_DATABASE_URL")
-	if !found || udb == "" {
+	udb := os.Getenv("USER_DATABASE_URL")
+	if udb == "" {
 		log.Fatalf("Error: Environment variable 'USER_DATABASE_URL' is not set.")
 	}
-	rkv, found := os.LookupEnv("REVOCATION_KV_STORE_URL")
-	if !found || rkv == "" {
+	rkv := os.Getenv("REVOCATION_KV_STORE_URL")
+	if rkv == "" {
 		log.Fatalf("Error: Environment variable 'REVOCATION_KV_STORE_URL' is not set.")
 	}
-	osu, found := os.LookupEnv("OBJECT_STORE_URL")
-	if !found || osu == "" {
+	osu := os.Getenv("OBJECT_STORE_URL")
+	if osu == "" {
 		log.Fatalf("Error: Environment variable 'OBJECT_STORE_URL' is not set.")
 	}
-	osb, found := os.LookupEnv("OBJECT_STORE_BUCKET")
-	if !found || osb == "" {
+	osb := os.Getenv("OBJECT_STORE_BUCKET")
+	if osb == "" {
 		log.Fatalf("Error: Environment variable 'OBJECT_STORE_BUCKET' is not set.")
 	}
-	osr, found := os.LookupEnv("OBJECT_STORE_REGION")
-	if !found || osr == "" {
+	osr := os.Getenv("OBJECT_STORE_REGION")
+	if osr == "" {
 		log.Fatalf("Error: Environment variable 'OBJECT_STORE_REGION' is not set.")
 	}
-	oss, found := os.LookupEnv("OBJECT_STORE_SECRET")
-	if !found || oss == "" {
+	oss := os.Getenv("OBJECT_STORE_SECRET")
+	if oss == "" {
 		log.Fatalf("Error: Environment variable 'OBJECT_STORE_SECRET' is not set.")
 	}
-	osk, found := os.LookupEnv("OBJECT_STORE_KEY")
-	if !found || osk == "" {
+	osk := os.Getenv("OBJECT_STORE_KEY")
+	if osk == "" {
 		log.Fatalf("Error: Environment variable 'OBJECT_STORE_KEY' is not set.")
 	}
 

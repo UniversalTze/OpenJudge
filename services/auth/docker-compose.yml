@@ -1,0 +1,27 @@
+services:
+  authentication_service:
+    build: .
+    container_name: authentication_service
+    restart: unless-stopped
+    ports:
+      - "${AUTH_SERVICE_PORT}:8080"
+    env_file:
+      - .env
+    depends_on:
+      - user_database
+
+  user_database:
+    image: postgres:15
+    container_name: user_database
+    restart: unless-stopped
+    ports:
+      - "${USER_DATABASE_PORT}:5432"
+    environment:
+      POSTGRES_USER: ${USER_DATABASE_USER}
+      POSTGRES_PASSWORD: ${USER_DATABASE_PASSWORD}
+      POSTGRES_DB: ${USER_DATABASE_NAME}
+    volumes:
+      - user_data:/var/lib/postgresql/data
+      
+volumes:
+  user_data:

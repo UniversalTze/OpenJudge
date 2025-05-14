@@ -25,9 +25,8 @@ func main() {
 	// TODO: Initialise object store connection
 	// TODO: Initialise revocation KV store connection
 
-	// Create fiber client w/ error handler & database connection
 	log.Println("Status: Initialising API")
 	api := api.InitialiseAPI(database, cfg)
 	log.Println("Status: API connection established")
-	log.Fatalf("Error: %v", api.Listen("0.0.0.0:6060")) 
+	log.Fatalf("Error: %v", api.Listen("0.0.0.0:8080")) 
 }
