@@ -14,8 +14,8 @@ email-based multi-factor authentication (MFA), rate-limitng, argon2 hashing, etc
 
 ## Access URL
 
-The service is accessible via the API Gateway `api.openjudge.com`. The base path for this service is 
-`/auth`.
+The service is accessible via the API Gateway `api.openjudge.com`. The base path for this service
+is `/auth`.
 
 ## Getting Started
 
