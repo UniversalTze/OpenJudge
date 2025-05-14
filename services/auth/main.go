@@ -1,52 +1,34 @@
 package main
 
 import (
+	"auth/config"
+	"auth/core"
 	"log"
+
+	"github.com/gofiber/fiber/v2"
 )
 
-/**
+/*
  * Entrypoint for the authentication service.
  */
 func main() {
 	log.Println("Status: Starting authentication service.")
 
-	/* Initialise database & defer closing the connection
-	log.Println("Status: Starting user database connection")
-	db, err := services.InitDB()
-	if err != nil {
-		log.Fatal(err)
-	}
-	defer db.Close()
-	log.Println("Status: Database connection pool established")
+	log.Println("Status: Loading environment variables.")
+	cfg := config.Load()
+	log.Println("Status: Environment variables loaded.")
 
-	// Initialise AWS SQS client
-	log.Println("Status: Connecting to AWS SQS")
-	sqsClient, err := services.InitSQSClient()
-	if err != nil {
-		log.Fatal(err)
-	}
-	queueURL := os.Getenv("SQS_QUEUE_URL")
-	if queueURL == "" {
-		log.Fatal("Error: SQS_QUEUE_URL environment variable is not set")
-	}
-	log.Println("Status: SQS client established")
+	log.Println("Status: Initialising user database connection")
+	database := core.InitialiseDatabase(cfg)
+	defer database.Close()
+	log.Println("Status: User database connection established")
 
-	// Initialise AWS S3 client
-	log.Println("Status: Connecting to AWS S3")
-	s3Client, err := services.InitS3Client()
-	if err != nil {
-		log.Fatal(err)
-	}
-	bucket := os.Getenv("S3_BUCKET")
-	if bucket == "" {
-		log.Fatal("Error: S3_BUCKET environment variable is not set")
-	}
-	log.Println("Status: S3 client established")
+	
 
 	// Create fiber client w/ error handler & database connection
-	log.Println("Status: Creating fiber client")
+	log.Println("Status: Initialising API")
 	app := fiber.New(fiber.Config{
-		AppName: "CoughOverflow",
+		AppName: "OpenJudge Authentication Service",
 		ErrorHandler: handlers.InternalServerError,
 	})
 	app.Use(func(c *fiber.Ctx) error {
@@ -73,5 +55,5 @@ func main() {
 
 	// Start server
 	log.Println("Status: Starting server on port :8080.")
-	log.Fatalf("Error: %v", app.Listen("0.0.0.0:8080")) */
+	log.Fatalf("Error: %v", app.Listen("0.0.0.0:8080")) 
 }
