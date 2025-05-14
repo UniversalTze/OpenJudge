@@ -9,6 +9,9 @@ import (
 	_ "github.com/lib/pq"
 )
 
+/*
+ * Initialises the database connection.
+ */
 func InitialiseDatabase(config config.Config) *ent.Client {
     client, err := ent.Open("postgres", config.USER_DATABASE_URL)
     if err != nil {
