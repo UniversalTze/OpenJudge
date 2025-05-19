@@ -19,6 +19,7 @@ type Config struct {
 	OBJECT_STORE_URL        string
 	OBJECT_STORE_BUCKET     string
 	OBJECT_STORE_REGION     string
+	OBJECT_STORE_TOKEN      string
 	OBJECT_STORE_KEY        string
 	OBJECT_STORE_SECRET     string
 	SMTP_HOST               string
@@ -81,6 +82,10 @@ func Load() Config {
 	if oss == "" {
 		log.Fatalf("Error: Environment variable 'OBJECT_STORE_SECRET' is not set.")
 	}
+	ost := os.Getenv("OBJECT_STORE_TOKEN")
+	if ost == "" {
+		log.Fatalf("Error: Environment variable 'OBJECT_STORE_TOKEN' is not set.")
+	}
 	osk := os.Getenv("OBJECT_STORE_KEY")
 	if osk == "" {
 		log.Fatalf("Error: Environment variable 'OBJECT_STORE_KEY' is not set.")
@@ -120,6 +125,7 @@ func Load() Config {
 		OBJECT_STORE_URL:        osu,
 		OBJECT_STORE_BUCKET:     osb,
 		OBJECT_STORE_REGION:     osr,
+		OBJECT_STORE_TOKEN:      ost,
 		OBJECT_STORE_SECRET:     oss,
 		OBJECT_STORE_KEY:        osk,
 		SMTP_HOST:               smtpHost,

@@ -26,12 +26,18 @@ func main() {
 	}
 	log.Println("Status: User database connection established")
 
-	log.Println("Status: Initialising object store connection")	
-	// TODO: Initialise object store connection
+	log.Println("Status: Initialising object store connection")
+	objectStore, err := core.InitialiseObjectStore(cfg)
+	if err != nil {
+		log.Fatalf("Error: Failed to initialise object store: %v", err)
+	}
 	log.Println("Status: Object store connection established")
 
 	log.Println("Status: Initialising revocation KV store connection")
-	// TODO: Initialise revocation KV store connection
+	revocationStore, err := core.InitialiseRevocationStore(cfg)
+	if err != nil {
+		log.Fatalf("Error: Failed to initialise revocation store: %v", err)
+	}
 	log.Println("Status: Revocation KV store connection established")
 
 	log.Println("Status: Initialising email service")
@@ -39,7 +45,7 @@ func main() {
 	log.Println("Status: Email service connection established")
 
 	log.Println("Status: Initialising API")
-	api := api.InitialiseAPI(database, cfg, emailClient)
+	api := api.InitialiseAPI(database, cfg, emailClient, objectStore, revocationStore)
 	log.Println("Status: API connection established")
 	log.Fatalf("Error: %v", api.Listen("0.0.0.0:8080")) 
 }
