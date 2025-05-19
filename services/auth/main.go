@@ -19,9 +19,13 @@ func main() {
 
 	log.Println("Status: Initialising user database connection")
 	database := core.InitialiseDatabase(cfg)
-	defer database.Close()
+	if sqlDB, err := database.DB(); err != nil {
+		log.Fatalf("Error: Failed to get database connection: %v", err)
+	} else {
+		defer sqlDB.Close()
+	}
 	log.Println("Status: User database connection established")
-
+	
 	// TODO: Initialise object store connection
 	// TODO: Initialise revocation KV store connection
 

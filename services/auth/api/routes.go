@@ -3,11 +3,11 @@ package api
 import (
 	"auth/api/auth"
 	"auth/config"
-	"auth/ent"
 	"fmt"
 	"log"
 
 	"github.com/gofiber/fiber/v2"
+	"gorm.io/gorm"
 )
 
 /*
@@ -38,7 +38,7 @@ func Health(c *fiber.Ctx) error {
  * Initialises the API.
  * TODO: Add objectStore *s3.Client and revocationKVStore *redis.Client
  */
-func InitialiseAPI(database *ent.Client, config config.Config) *fiber.App {
+func InitialiseAPI(database *gorm.DB, config config.Config) *fiber.App {
 	app := fiber.New(fiber.Config{
 		AppName: "OpenJudge Authentication Service",
 		ErrorHandler: InternalServerError,

@@ -1,17 +1,17 @@
 package auth
 
 import (
-	"auth/ent"
-	"auth/ent/user"
+	"auth/core"
 	"crypto/sha1"
 	"encoding/hex"
 	"io"
 	"net/http"
-	"regexp"
 	"strings"
 
 	"github.com/alexedwards/argon2id"
+	"github.com/dlclark/regexp2"
 	"github.com/gofiber/fiber/v2"
+	"gorm.io/gorm"
 )
 
 type RegisterRequestBody struct {
@@ -21,9 +21,9 @@ type RegisterRequestBody struct {
 	Password  string `json:"password"`
 }
 
-var passwordRegex = regexp.MustCompile(`^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{10,}$`)
+var passwordRegex = regexp2.MustCompile(`^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{10,}$`, 0)
 
-func isPasswordValid(password string) bool {
+func isPasswordValid(password string) (bool, error) {
 	return passwordRegex.MatchString(password)
 }
 
@@ -89,22 +89,25 @@ func Register(c *fiber.Ctx) error {
 	}
 
 	// Check if the user already exists
-	database := c.Locals("database").(*ent.Client)
-	if user, err := database.User.Query().Where(user.Email(body.Email)).All(c.Context()); err != nil {
-		return err
-	} else if len(user) > 0 {
-		return c.Status(fiber.StatusBadRequest).SendString("User already exists")
-	}
+	database := c.Locals("database").(*gorm.DB)
+	var user core.User
+    if err := database.Where("email = ?", body.Email).First(&user).Error; err == nil {
+        return c.Status(fiber.StatusBadRequest).SendString("User already exists")
+    } else if err != gorm.ErrRecordNotFound {
+        return c.Status(fiber.StatusInternalServerError).SendString("Failed to query database")
+    }
 
 	// Check if the password meets complexity requirements
-	if !isPasswordValid(body.Password) {
+	if strong, err := isPasswordValid(body.Password); err != nil {
+		return err
+	} else if !strong {
 		return c.Status(fiber.StatusBadRequest).SendString(
 			"Password must be at least 10 characters long and contain at least one uppercase letter, " +
 				"one lowercase letter, one number, and one special character")
 	}
-	if weak, err := checkPassword(body.Password); err != nil {
+	if leaked, err := checkPassword(body.Password); err != nil {
 		return err
-	} else if weak {
+	} else if leaked {
 		return c.Status(fiber.StatusBadRequest).SendString("Password has been subject to a data breach")
 	}
 
@@ -112,8 +115,14 @@ func Register(c *fiber.Ctx) error {
 	if hashedPassword, err := hashPassword(body.Password); err != nil {
 		return err
 	} else {
-		if _, err = database.User.Create().SetFirstName(body.FirstName).SetLastName(body.LastName).
-			SetEmail(body.Email).SetPassword(hashedPassword).Save(c.Context()); err != nil {
+		user = core.User{
+			FirstName: body.FirstName,
+			LastName:  body.LastName,
+			Email:     body.Email,
+			Password:  hashedPassword,
+		}
+
+		if err = database.Create(&user).Error; err != nil {
 			return err
 		}
 	}

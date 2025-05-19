@@ -7,7 +7,7 @@ email-based multi-factor authentication (MFA), rate-limitng, argon2 hashing, etc
 ## Technologies
 
 **Language:** Go </br>
-**Database:** PostgreSQL (deployed on the compatible AWS RDS infra) </br>
+**Database:** PostgreSQL (deployed on the compatible AWS RDS infra) using GORM </br>
 **Cache/Session Store:** Redis (deployed on the compatible AWS ElastiCache infra) </br>
 **Authentication Method:** JWTs </br>
 **Email Service:** ...?
