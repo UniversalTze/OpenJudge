@@ -2,13 +2,16 @@ package config
 
 import (
 	"log"
+	"net/url"
 	"os"
+	"strconv"
 
 	"github.com/joho/godotenv"
 )
 
 type Config struct {
 	ENV                     string
+	AUTH_SERVICE_URL        string
 	AUTH_SERVICE_PORT       string
 	JWT_SECRET              string
 	USER_DATABASE_URL       string
@@ -18,6 +21,11 @@ type Config struct {
 	OBJECT_STORE_REGION     string
 	OBJECT_STORE_KEY        string
 	OBJECT_STORE_SECRET     string
+	SMTP_HOST               string
+	SMTP_PORT               int
+	SMTP_USER               string
+	SMTP_PASSWORD           string
+	SMTP_FROM               string
 }
 
 /*
@@ -26,12 +34,20 @@ type Config struct {
 func Load() Config {
 	err := godotenv.Load()
 	if err != nil {
-			log.Println("Error: Failed to load .env file: ", err)
+		log.Println("Error: Failed to load .env file: ", err)
 	}
 
 	env := os.Getenv("ENV")
 	if env == "" {
 		log.Fatalf("Error: Environment variable 'ENV' is not set.")
+	}
+	asu := os.Getenv("AUTH_SERVICE_URL")
+	if asu == "" {
+		log.Fatalf("Error: Environment variable 'AUTH_SERVICE_URL' is not set.")
+	}
+	// Check if the URL is valid
+	if _, err := url.ParseRequestURI(asu); err != nil {
+		log.Fatalf("Error: Environment variable 'AUTH_SERVICE_URL' is not a valid URL.")
 	}
 	asp := os.Getenv("AUTH_SERVICE_PORT")
 	if asp == "" {
@@ -69,9 +85,34 @@ func Load() Config {
 	if osk == "" {
 		log.Fatalf("Error: Environment variable 'OBJECT_STORE_KEY' is not set.")
 	}
+	smtpHost := os.Getenv("SMTP_HOST")
+	if smtpHost == "" {
+		log.Fatalf("Error: Environment variable 'SMTP_HOST' is not set.")
+	}
+	smtpPort := os.Getenv("SMTP_PORT")
+	if smtpPort == "" {
+		log.Fatalf("Error: Environment variable 'SMTP_PORT' is not set.")
+	}
+	smtpPortInt, err := strconv.Atoi(smtpPort)
+	if err != nil {
+		log.Fatalf("Error: Environment variable 'SMTP_PORT' is not a valid integer.")
+	}
+	smtpUser := os.Getenv("SMTP_USER")
+	if smtpUser == "" {
+		log.Fatalf("Error: Environment variable 'SMTP_USER' is not set.")
+	}
+	smtpPassword := os.Getenv("SMTP_PASSWORD")
+	if smtpPassword == "" {
+		log.Fatalf("Error: Environment variable 'SMTP_PASSWORD' is not set.")
+	}
+	smtpFrom := os.Getenv("SMTP_FROM")
+	if smtpFrom == "" {
+		log.Fatalf("Error: Environment variable 'SMTP_FROM' is not set.")
+	}
 
 	return Config{
 		ENV:                     env,
+		AUTH_SERVICE_URL:        asu,
 		AUTH_SERVICE_PORT:       asp,
 		JWT_SECRET:              jwt,
 		USER_DATABASE_URL:       udb,
@@ -81,5 +122,10 @@ func Load() Config {
 		OBJECT_STORE_REGION:     osr,
 		OBJECT_STORE_SECRET:     oss,
 		OBJECT_STORE_KEY:        osk,
+		SMTP_HOST:               smtpHost,
+		SMTP_PORT:               smtpPortInt,
+		SMTP_USER:               smtpUser,
+		SMTP_PASSWORD:           smtpPassword,
+		SMTP_FROM:               smtpFrom,
 	}
 }

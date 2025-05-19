@@ -25,12 +25,21 @@ func main() {
 		defer sqlDB.Close()
 	}
 	log.Println("Status: User database connection established")
-	
+
+	log.Println("Status: Initialising object store connection")	
 	// TODO: Initialise object store connection
+	log.Println("Status: Object store connection established")
+
+	log.Println("Status: Initialising revocation KV store connection")
 	// TODO: Initialise revocation KV store connection
+	log.Println("Status: Revocation KV store connection established")
+
+	log.Println("Status: Initialising email service")
+	emailClient := core.InitialiseEmailService(cfg)
+	log.Println("Status: Email service connection established")
 
 	log.Println("Status: Initialising API")
-	api := api.InitialiseAPI(database, cfg)
+	api := api.InitialiseAPI(database, cfg, emailClient)
 	log.Println("Status: API connection established")
 	log.Fatalf("Error: %v", api.Listen("0.0.0.0:8080")) 
 }

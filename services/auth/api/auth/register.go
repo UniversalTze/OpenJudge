@@ -1,16 +1,19 @@
 package auth
 
 import (
+	"auth/config"
 	"auth/core"
 	"crypto/sha1"
 	"encoding/hex"
 	"io"
 	"net/http"
 	"strings"
+	"time"
 
 	"github.com/alexedwards/argon2id"
 	"github.com/dlclark/regexp2"
 	"github.com/gofiber/fiber/v2"
+	"gopkg.in/gomail.v2"
 	"gorm.io/gorm"
 )
 
@@ -91,11 +94,11 @@ func Register(c *fiber.Ctx) error {
 	// Check if the user already exists
 	database := c.Locals("database").(*gorm.DB)
 	var user core.User
-    if err := database.Where("email = ?", body.Email).First(&user).Error; err == nil {
-        return c.Status(fiber.StatusBadRequest).SendString("User already exists")
-    } else if err != gorm.ErrRecordNotFound {
-        return c.Status(fiber.StatusInternalServerError).SendString("Failed to query database")
-    }
+	if err := database.Where("email = ?", body.Email).First(&user).Error; err == nil {
+		return c.Status(fiber.StatusBadRequest).SendString("User already exists")
+	} else if err != gorm.ErrRecordNotFound {
+		return err
+	}
 
 	// Check if the password meets complexity requirements
 	if strong, err := isPasswordValid(body.Password); err != nil {
@@ -127,6 +130,23 @@ func Register(c *fiber.Ctx) error {
 		}
 	}
 
-	// TODO: Send verification email
+	// Create a verification token & send the verification email
+	token := core.Token{
+		UserID: user.ID,
+		Type:   "verify",
+		Expiry: time.Now().Add(24 * time.Hour),
+	}
+	err := database.Create(&token).Error
+	if err != nil {
+		return err
+	}
+	verificationLink :=
+		c.Locals("config").(config.Config).AUTH_SERVICE_URL + "/verify?token=" + token.ID.String()
+	message := core.ConstructVerificationEmail(verificationLink, c.Locals("config").(config.Config))
+	if err := core.SendEmail(message, body.Email, "Email Verification",
+		c.Locals("config").(config.Config), c.Locals("mailer").(*gomail.Dialer)); err != nil {
+		return err
+	}
+
 	return c.Status(fiber.StatusCreated).SendString("User created")
 }

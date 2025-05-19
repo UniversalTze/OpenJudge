@@ -7,6 +7,7 @@ import (
 	"log"
 
 	"github.com/gofiber/fiber/v2"
+	"gopkg.in/gomail.v2"
 	"gorm.io/gorm"
 )
 
@@ -38,7 +39,7 @@ func Health(c *fiber.Ctx) error {
  * Initialises the API.
  * TODO: Add objectStore *s3.Client and revocationKVStore *redis.Client
  */
-func InitialiseAPI(database *gorm.DB, config config.Config) *fiber.App {
+func InitialiseAPI(database *gorm.DB, config config.Config, emailClient *gomail.Dialer) *fiber.App {
 	app := fiber.New(fiber.Config{
 		AppName: "OpenJudge Authentication Service",
 		ErrorHandler: InternalServerError,
@@ -46,6 +47,7 @@ func InitialiseAPI(database *gorm.DB, config config.Config) *fiber.App {
 	app.Use(func(c *fiber.Ctx) error {
 		c.Locals("database", database)
 		c.Locals("config", config)
+		c.Locals("mailer", emailClient)
 		return c.Next()
 	})
 
@@ -54,7 +56,7 @@ func InitialiseAPI(database *gorm.DB, config config.Config) *fiber.App {
 	app.Get("/health", Health)
 	app.Post("/register", auth.Register)
 	app.Post("/login", Health)
-	app.Post("/verify", Health)
+	app.Get("/verify", auth.Verify)
 	app.Post("/refresh", Health)
 	app.Delete("/logout", Health)
 	app.Post("/forgot", Health)
