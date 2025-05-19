@@ -1,6 +1,7 @@
 package api
 
 import (
+	"auth/api/auth"
 	"auth/config"
 	"auth/ent"
 	"fmt"
@@ -30,7 +31,7 @@ func InternalServerError(c *fiber.Ctx, err error) error {
  * Health check endpoint.
  */
 func Health(c *fiber.Ctx) error {
-	return c.SendStatus(fiber.StatusOK)
+	return c.Status(fiber.StatusOK).SendString("Authentication service operational")
 }
 
 /*
@@ -51,7 +52,7 @@ func InitialiseAPI(database *ent.Client, config config.Config) *fiber.App {
 	// TODO: Add rate limiting middleware?
 	// TODO: Change to actual handlers
 	app.Get("/health", Health)
-	app.Post("/register", Health)
+	app.Post("/register", auth.Register)
 	app.Post("/login", Health)
 	app.Post("/verify", Health)
 	app.Post("/refresh", Health)
