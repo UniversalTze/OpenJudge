@@ -55,7 +55,7 @@ func InitialiseAPI(database *gorm.DB, config config.Config, emailClient *gomail.
 		return c.Next()
 	})
 
-	// TODO: Add rate limiting middleware?
+	// Define the routes
 	app.Get("/health", Health)
 	app.Post("/register", auth.Register)
 	app.Post("/login", auth.Login)

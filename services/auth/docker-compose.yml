@@ -5,12 +5,16 @@ services:
     restart: unless-stopped
     ports:
       - "${AUTH_SERVICE_PORT}:8080"
+    environment:
+      USER_DATABASE_URL: "postgres://${USER_DATABASE_USER}:${USER_DATABASE_PASSWORD}@user_database:5432/${USER_DATABASE_NAME}?sslmode=disable"
+      REVOCATION_KV_STORE_URL: "redis://trl:6379"
+      OBJECT_STORE_URL: "objectstorage:9000"
     env_file:
       - .env
     depends_on:
       - user_database
-      - token_revocation_list
-      - object_storage
+      - trl
+      - objectstorage
 
   user_database:
     image: postgres:15
@@ -25,18 +29,18 @@ services:
     volumes:
       - user_data:/var/lib/postgresql/data
   
-  token_revocation_list:
+  trl:
     image: redis:7
-    container_name: token_revocation_list
+    container_name: trl
     restart: unless-stopped
     ports:
       - "${REVOCATION_KV_STORE_PORT}:6379"
     volumes:
       - token_revocation_list:/data
 
-  object_storage:
+  objectstorage:
     image: minio/minio
-    container_name: object_storage
+    container_name: objectstorage
     restart: unless-stopped
     ports:
       - "${OBJECT_STORE_PORT}:9000"
@@ -46,7 +50,7 @@ services:
     environment:
       MINIO_ROOT_USER: ${OBJECT_STORE_KEY}
       MINIO_ROOT_PASSWORD: ${OBJECT_STORE_SECRET}
-    command: server --console-address ":9105" /data
+    command: server --console-address ":9001" /data
 
 volumes:
   user_data:

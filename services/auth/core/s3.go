@@ -14,16 +14,22 @@ import (
  * InitialiseObjectStore creates and returns a MinIO client for the object store
  */
 func InitialiseObjectStore(cfg config.Config) *minio.Client {
-	log.Println(cfg.OBJECT_STORE_URL)
-	client, err := minio.New(cfg.OBJECT_STORE_URL, &minio.Options{
-		Creds: credentials.NewStaticV4(
-			cfg.OBJECT_STORE_KEY, cfg.OBJECT_STORE_SECRET, cfg.OBJECT_STORE_TOKEN),
-		Secure: cfg.ENV == "production",
-		Region: cfg.OBJECT_STORE_REGION,
-	})
+	log.Println(cfg.OBJECT_STORE_URL, cfg.OBJECT_STORE_REGION, cfg.OBJECT_STORE_BUCKET, cfg.ENV)
+	opts := minio.Options{
+			Creds:  credentials.NewStaticV4(cfg.OBJECT_STORE_KEY, cfg.OBJECT_STORE_SECRET, cfg.OBJECT_STORE_TOKEN),
+			Secure: cfg.ENV == "production",
+			BucketLookup: minio.BucketLookupPath,
+	}
+	if cfg.ENV == "production" {
+			opts.Region = cfg.OBJECT_STORE_REGION
+	}
+
+	client, err := minio.New(cfg.OBJECT_STORE_URL, &opts)
 	if err != nil {
 		log.Fatalf("Error: Failed to initialize object store client: %v", err)
 	}
+
+	log.Println(client.EndpointURL())
 
 	if cfg.ENV != "production" {
 		exists, err := client.BucketExists(context.Background(), cfg.OBJECT_STORE_BUCKET)

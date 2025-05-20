@@ -20,6 +20,7 @@ type Config struct {
 	USER_DATABASE_URL       string
 	REVOCATION_KV_STORE_URL string
 	OBJECT_STORE_URL        string
+	OBJECT_STORE_PORT       string
 	OBJECT_STORE_BUCKET     string
 	OBJECT_STORE_REGION     string
 	OBJECT_STORE_TOKEN      string
@@ -38,7 +39,10 @@ type Config struct {
 func Load() Config {
 	err := godotenv.Load()
 	if err != nil {
-		log.Println("Error: Failed to load .env file: ", err)
+		log.Print(
+			"Warning: Failed to load .env file. If this is in a production environment or within a " +
+			"docker container, and environemnt variables have been declared elsewhere, you can " +
+			"disregard this warning.")
 	}
 	env := os.Getenv("ENV")
 	if env == "" {
@@ -96,6 +100,10 @@ func Load() Config {
 	if osr == "" {
 		log.Fatalf("Error: Environment variable 'OBJECT_STORE_REGION' is not set.")
 	}
+	osp := os.Getenv("OBJECT_STORE_PORT")
+	if osp == "" {
+		log.Fatalf("Error: Environment variable 'OBJECT_STORE_PORT' is not set.")
+	}
 	oss := os.Getenv("OBJECT_STORE_SECRET")
 	if oss == "" {
 		log.Fatalf("Error: Environment variable 'OBJECT_STORE_SECRET' is not set.")
@@ -140,6 +148,7 @@ func Load() Config {
 		REVOCATION_KV_STORE_URL: rkv,
 		OBJECT_STORE_URL:        osu,
 		OBJECT_STORE_BUCKET:     osb,
+		OBJECT_STORE_PORT:       osp,
 		OBJECT_STORE_REGION:     osr,
 		OBJECT_STORE_TOKEN:      ost,
 		OBJECT_STORE_SECRET:     oss,

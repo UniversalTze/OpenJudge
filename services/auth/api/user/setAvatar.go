@@ -2,6 +2,7 @@ package user
 
 import (
 	"auth/config"
+	"auth/core"
 	"bytes"
 	"context"
 	"fmt"
@@ -15,9 +16,41 @@ import (
 	"github.com/gofiber/fiber/v2"
 	"github.com/google/uuid"
 	"github.com/minio/minio-go/v7"
+	"gorm.io/gorm"
 )
 
 func SetAvatar(c *fiber.Ctx) error {
+		// Get the user ID from the JWT token
+	authHeader := c.Get("Authorization")
+	if authHeader == "" {
+		return c.Status(fiber.StatusUnauthorized).SendString("Invalid Authorization header")
+	}
+	var token string
+	if len(authHeader) > 7 && authHeader[:7] == "Bearer " {
+		token = authHeader[7:]
+	} else {
+		return c.Status(fiber.StatusUnauthorized).SendString("Invalid Authorization header")
+	}
+	if token == "" {
+		return c.Status(fiber.StatusUnauthorized).SendString("Invalid access token")
+	}
+
+	// Verify the JWT token
+	userID, err := core.VerifyJWT(token, c.Locals("config").(config.Config))
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).SendString("Invalid access token")
+	}
+
+	// Fetch the user from the database
+	database := c.Locals("database").(*gorm.DB)
+	var user core.User
+	if err := database.Where("id = ?", userID).First(&user).Error; err != nil {
+		if err == gorm.ErrRecordNotFound {
+			return c.Status(fiber.StatusNotFound).SendString("User not found")
+		}
+		return err
+	}
+
 	// Get uploaded file
 	fileHeader, err := c.FormFile("avatar")
 	if err != nil {
@@ -99,11 +132,16 @@ func SetAvatar(c *fiber.Ctx) error {
 
 	var publicURL string
 	if (c.Locals("config").(config.Config)).ENV != "production" {
-		publicURL = fmt.Sprintf("http://%s/%s/%s", objectStore.EndpointURL().Host,
+		publicURL = fmt.Sprintf("http://localhost:%s/%s/%s", (c.Locals("config").(config.Config)).OBJECT_STORE_PORT,
 			(c.Locals("config").(config.Config)).OBJECT_STORE_BUCKET, objectPath)
 	} else {
 		publicURL = fmt.Sprintf("https://%s/%s/%s", objectStore.EndpointURL().Host,
 			(c.Locals("config").(config.Config)).OBJECT_STORE_BUCKET, objectPath)
+	}
+
+	// Update user avatar URL in the database
+	if err := database.Model(&user).Update("avatar", publicURL).Error; err != nil {
+	  return err
 	}
 
 	return c.Status(fiber.StatusCreated).JSON(fiber.Map{
