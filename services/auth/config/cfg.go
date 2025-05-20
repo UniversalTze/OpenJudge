@@ -1,6 +1,8 @@
 package config
 
 import (
+	"crypto/ed25519"
+	"encoding/base64"
 	"log"
 	"net/url"
 	"os"
@@ -13,8 +15,8 @@ type Config struct {
 	ENV                     string
 	API_GATEWAY_URL         string
 	FRONTEND_URL            string
-	JWT_SECRET              string
-	JWT_PUBLIC_KEY          string
+	JWT_SECRET              ed25519.PrivateKey
+	JWT_PUBLIC_KEY          ed25519.PublicKey
 	USER_DATABASE_URL       string
 	REVOCATION_KV_STORE_URL string
 	OBJECT_STORE_URL        string
@@ -60,10 +62,20 @@ func Load() Config {
 	if jwt == "" {
 		log.Fatalf("Error: Environment variable 'JWT_SECRET' is not set.")
 	}
+	privBytes, err := base64.StdEncoding.DecodeString(jwt)
+	if err != nil {
+		log.Fatalf("Error: Environment variable 'JWT_SECRET' is not a valid base64 string.")
+	}
+	jwtPrivKey := ed25519.PrivateKey(privBytes)
 	jwp := os.Getenv("JWT_PUBLIC_KEY")
 	if jwp == "" {
 		log.Fatalf("Error: Environment variable 'JWT_PUBLIC_KEY' is not set.")
 	}
+	pubBytes, err := base64.StdEncoding.DecodeString(jwp)
+	if err != nil {
+		log.Fatalf("Error: Environment variable 'JWT_PUBLIC_KEY' is not a valid base64 string.")
+	}
+	jwtPubKey := ed25519.PublicKey(pubBytes)
 	udb := os.Getenv("USER_DATABASE_URL")
 	if udb == "" {
 		log.Fatalf("Error: Environment variable 'USER_DATABASE_URL' is not set.")
@@ -122,8 +134,8 @@ func Load() Config {
 		ENV:                     env,
 		API_GATEWAY_URL:         agu,
 		FRONTEND_URL:            fru,
-		JWT_SECRET:              jwt,
-		JWT_PUBLIC_KEY:          jwp,
+		JWT_SECRET:              jwtPrivKey,
+		JWT_PUBLIC_KEY:          jwtPubKey,
 		USER_DATABASE_URL:       udb,
 		REVOCATION_KV_STORE_URL: rkv,
 		OBJECT_STORE_URL:        osu,

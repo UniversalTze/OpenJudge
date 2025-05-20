@@ -2,6 +2,7 @@ package api
 
 import (
 	"auth/api/auth"
+	"auth/api/user"
 	"auth/config"
 	"fmt"
 	"log"
@@ -61,14 +62,13 @@ func InitialiseAPI(database *gorm.DB, config config.Config, emailClient *gomail.
 	app.Post("/register", auth.Register)
 	app.Post("/login", auth.Login)
 	app.Get("/verify", auth.Verify)
-	app.Post("/refresh", Health)
-	app.Delete("/logout", auth.Logout)
+	app.Post("/refresh", auth.Refresh)
 	app.Post("/forgot", auth.Forgot)
 	app.Post("/reset", auth.Reset)
-	app.Get("/user", Health)
+	app.Get("/user", user.GetUser)
 	app.Put("/user", Health)
 	app.Delete("/user", Health)
-	app.Post("/user/avatar", Health)
+	app.Post("/user/avatar", user.SetAvatar)
 	app.Delete("/user/avatar", Health)
 
 	return app
