@@ -11,9 +11,10 @@ import (
 
 type Config struct {
 	ENV                     string
-	AUTH_SERVICE_URL        string
-	AUTH_SERVICE_PORT       string
+	API_GATEWAY_URL         string
+	FRONTEND_URL            string
 	JWT_SECRET              string
+	JWT_PUBLIC_KEY          string
 	USER_DATABASE_URL       string
 	REVOCATION_KV_STORE_URL string
 	OBJECT_STORE_URL        string
@@ -37,26 +38,31 @@ func Load() Config {
 	if err != nil {
 		log.Println("Error: Failed to load .env file: ", err)
 	}
-
 	env := os.Getenv("ENV")
 	if env == "" {
 		log.Fatalf("Error: Environment variable 'ENV' is not set.")
 	}
-	asu := os.Getenv("AUTH_SERVICE_URL")
-	if asu == "" {
-		log.Fatalf("Error: Environment variable 'AUTH_SERVICE_URL' is not set.")
+	agu := os.Getenv("API_GATEWAY_URL")
+	if agu == "" {
+		log.Fatalf("Error: Environment variable 'API_GATEWAY_URL' is not set.")
 	}
-	// Check if the URL is valid
-	if _, err := url.ParseRequestURI(asu); err != nil {
-		log.Fatalf("Error: Environment variable 'AUTH_SERVICE_URL' is not a valid URL.")
+	if _, err := url.ParseRequestURI(agu); err != nil {
+		log.Fatalf("Error: Environment variable 'API_GATEWAY_URL' is not a valid URL.")
 	}
-	asp := os.Getenv("AUTH_SERVICE_PORT")
-	if asp == "" {
-		log.Fatalf("Error: Environment variable 'AUTH_SERVICE_PORT' is not set.")
+	fru := os.Getenv("FRONTEND_URL")
+	if fru == "" {
+		log.Fatalf("Error: Environment variable 'FRONTEND_URL' is not set.")
+	}
+	if _, err := url.ParseRequestURI(fru); err != nil {
+		log.Fatalf("Error: Environment variable 'FRONTEND_URL' is not a valid URL.")
 	}
 	jwt := os.Getenv("JWT_SECRET")
 	if jwt == "" {
 		log.Fatalf("Error: Environment variable 'JWT_SECRET' is not set.")
+	}
+	jwp := os.Getenv("JWT_PUBLIC_KEY")
+	if jwp == "" {
+		log.Fatalf("Error: Environment variable 'JWT_PUBLIC_KEY' is not set.")
 	}
 	udb := os.Getenv("USER_DATABASE_URL")
 	if udb == "" {
@@ -83,9 +89,6 @@ func Load() Config {
 		log.Fatalf("Error: Environment variable 'OBJECT_STORE_SECRET' is not set.")
 	}
 	ost := os.Getenv("OBJECT_STORE_TOKEN")
-	if ost == "" {
-		log.Fatalf("Error: Environment variable 'OBJECT_STORE_TOKEN' is not set.")
-	}
 	osk := os.Getenv("OBJECT_STORE_KEY")
 	if osk == "" {
 		log.Fatalf("Error: Environment variable 'OBJECT_STORE_KEY' is not set.")
@@ -117,9 +120,10 @@ func Load() Config {
 
 	return Config{
 		ENV:                     env,
-		AUTH_SERVICE_URL:        asu,
-		AUTH_SERVICE_PORT:       asp,
+		API_GATEWAY_URL:         agu,
+		FRONTEND_URL:            fru,
 		JWT_SECRET:              jwt,
+		JWT_PUBLIC_KEY:          jwp,
 		USER_DATABASE_URL:       udb,
 		REVOCATION_KV_STORE_URL: rkv,
 		OBJECT_STORE_URL:        osu,

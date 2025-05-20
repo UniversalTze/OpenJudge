@@ -70,6 +70,10 @@ func ConstructVerificationEmail(verificationLink string, config config.Config) s
       border-radius: 8px;
       border: 1px solid #ddd;
     }
+		.button, .button:visited, .button:active {
+			color: #ffffff !important;
+			text-decoration: none;
+		}
   </style>
 </head>
 <body>
@@ -87,4 +91,68 @@ func ConstructVerificationEmail(verificationLink string, config config.Config) s
 </html>
 `
 	return strings.ReplaceAll(htmlTemplate, "{{verification_link}}", verificationLink)
+}
+
+
+/**
+ * Construct a reset password email to send to the user.
+ */
+func ConstructResetEmail(resetLink string, config config.Config) string {
+	htmlTemplate := `
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1" />
+  <title>Password Reset</title>
+  <style>
+    .button {
+      display: inline-block;
+      padding: 12px 24px;
+      font-size: 16px;
+      color: #ffffff;
+      background-color: #000000;
+      border-radius: 6px;
+      text-decoration: none;
+      font-weight: bold;
+    }
+    .button:hover {
+      background-color: #333333;
+    }
+    body {
+      font-family: Arial, sans-serif;
+      line-height: 1.5;
+      color: #333333;
+      padding: 20px;
+    }
+    .container {
+      max-width: 600px;
+      margin: 0 auto;
+      background-color: #f9f9f9;
+      padding: 30px;
+      border-radius: 8px;
+      border: 1px solid #ddd;
+    }
+		.button, .button:visited, .button:active {
+			color: #ffffff !important;
+			text-decoration: none;
+		}
+  </style>
+</head>
+<body>
+  <div class="container">
+    <h2>Reset Your Password for OpenJudge</h2>
+    <p>We received a request to reset your password. Please click the button below to reset it:</p>
+    <p>
+      <a href="{{reset_link}}" class="button">Reset Password</a>
+    </p>
+    <p>If the button doesn't work, copy and paste the following URL into your browser:</p>
+    <p><a href="{{reset_link}}">{{reset_link}}</a></p>
+		<p>If you didn't request a password reset, please ignore this email.</p>
+    <p>Cheers,<br />The OpenJudge Team</p>
+  </div>
+</body>
+</html>
+`
+	return strings.ReplaceAll(htmlTemplate, "{{reset_link}}", resetLink)
 }

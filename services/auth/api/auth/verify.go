@@ -9,31 +9,35 @@ import (
 	"gorm.io/gorm"
 )
 
+type VerifyRequestBody struct {
+	Token string `json:"token"`
+}
+
 func Verify(c *fiber.Ctx) error {
-	// Extract the token from the URL parameters
-	token := c.Query("token")
-	if token == "" {
-		return c.Status(fiber.StatusBadRequest).SendString("Token is required")
+	// Parse the request body
+	var requestBody VerifyRequestBody
+	if err := c.BodyParser(&requestBody); err != nil {
+		return c.Status(fiber.StatusBadRequest).SendString("Invalid request body")
 	}
-	if err := uuid.Validate(token); err != nil {
-		return c.Status(fiber.StatusBadRequest).SendString("Invalid token")
+	if err := uuid.Validate(requestBody.Token); err != nil {
+		return c.Status(fiber.StatusBadRequest).SendString("Invalid link")
 	}
 
 	// Validate the token
 	database := c.Locals("database").(*gorm.DB)
 	var tokenRecord core.Token
-	err := database.Where("id = ?", token).First(&tokenRecord).Error
+	err := database.Where("id = ?", requestBody.Token).First(&tokenRecord).Error
 	if err != nil {
 		if err == gorm.ErrRecordNotFound {
-			return c.Status(fiber.StatusBadRequest).SendString("Invalid token")
+			return c.Status(fiber.StatusBadRequest).SendString("Invalid link")
 		}
 		return err
 	}
 	if tokenRecord.Type != "verify" {
-		return c.Status(fiber.StatusBadRequest).SendString("Invalid token")
+		return c.Status(fiber.StatusBadRequest).SendString("Invalid link")
 	}
 	if tokenRecord.Expiry.Before(time.Now()) {
-		return c.Status(fiber.StatusBadRequest).SendString("Token has expired")
+		return c.Status(fiber.StatusBadRequest).SendString("Link has expired")
 	}
 
 	// Update the user's verified status

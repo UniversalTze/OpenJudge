@@ -26,11 +26,11 @@ type RegisterRequestBody struct {
 
 var passwordRegex = regexp2.MustCompile(`^(?=.*?[A-Z])(?=.*?[a-z])(?=.*?[0-9])(?=.*?[#?!@$%^&*-]).{10,}$`, 0)
 
-func isPasswordValid(password string) (bool, error) {
+func IsPasswordValid(password string) (bool, error) {
 	return passwordRegex.MatchString(password)
 }
 
-func checkPassword(password string) (bool, error) {
+func CheckPassword(password string) (bool, error) {
 	hasher := sha1.New()
 	hasher.Write([]byte(password))
 	sha1Hash := strings.ToUpper(hex.EncodeToString(hasher.Sum(nil)))
@@ -62,7 +62,7 @@ func checkPassword(password string) (bool, error) {
 	return false, nil
 }
 
-func hashPassword(password string) (string, error) {
+func HashPassword(password string) (string, error) {
 	params := &argon2id.Params{
 		Memory:      64 * 1024, // 64 MB
 		Iterations:  1,
@@ -101,21 +101,21 @@ func Register(c *fiber.Ctx) error {
 	}
 
 	// Check if the password meets complexity requirements
-	if strong, err := isPasswordValid(body.Password); err != nil {
+	if strong, err := IsPasswordValid(body.Password); err != nil {
 		return err
 	} else if !strong {
 		return c.Status(fiber.StatusBadRequest).SendString(
 			"Password must be at least 10 characters long and contain at least one uppercase letter, " +
 				"one lowercase letter, one number, and one special character")
 	}
-	if leaked, err := checkPassword(body.Password); err != nil {
+	if leaked, err := CheckPassword(body.Password); err != nil {
 		return err
 	} else if leaked {
 		return c.Status(fiber.StatusBadRequest).SendString("Password has been subject to a data breach")
 	}
 
 	// Hash the password & save the user
-	if hashedPassword, err := hashPassword(body.Password); err != nil {
+	if hashedPassword, err := HashPassword(body.Password); err != nil {
 		return err
 	} else {
 		user = core.User{
@@ -141,7 +141,7 @@ func Register(c *fiber.Ctx) error {
 		return err
 	}
 	verificationLink :=
-		c.Locals("config").(config.Config).AUTH_SERVICE_URL + "/verify?token=" + token.ID.String()
+		c.Locals("config").(config.Config).FRONTEND_URL + "/verify?token=" + token.ID.String()
 	message := core.ConstructVerificationEmail(verificationLink, c.Locals("config").(config.Config))
 	if err := core.SendEmail(message, body.Email, "Email Verification",
 		c.Locals("config").(config.Config), c.Locals("mailer").(*gomail.Dialer)); err != nil {

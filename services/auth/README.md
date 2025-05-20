@@ -23,6 +23,9 @@ TODO: Write documentation on how to run the service locally and how to deploy AS
 air
 ```
 
+
+Validating and logging out needs to be done at the API gateway level
+
 ## Documentation
 
 ### POST `/register`
@@ -77,6 +80,28 @@ remain in the database to indicate that the user's email is not verified. </br>
 ### DELETE `/logout`
 
 **Description:** Used to log out a user </br></br> ...
+
+MOVE TO API GATEWAY
+```
+package auth
+
+import (
+	"github.com/go-redis/redis/v8"
+	"github.com/gofiber/fiber/v2"
+)
+
+/**
+ * Logout revokes the token by adding it to the revocation store.
+ */
+func Logout(c *fiber.Ctx) error {
+	revocationStore := c.Locals("revocationKVStore").(*redis.Client)
+	token := c.Get("Authorization")
+	if err := revocationStore.Set(c.Context(), token, "true", 0).Err(); err != nil {
+		return err
+	}
+	return c.Status(fiber.StatusNoContent).SendString("Token revoked")
+}
+```
 
 ### POST `/forgot`
 

@@ -9,6 +9,8 @@ services:
       - .env
     depends_on:
       - user_database
+      - token_revocation_list
+      - object_storage
 
   user_database:
     image: postgres:15
@@ -22,6 +24,31 @@ services:
       POSTGRES_DB: ${USER_DATABASE_NAME}
     volumes:
       - user_data:/var/lib/postgresql/data
-      
+  
+  token_revocation_list:
+    image: redis:7
+    container_name: token_revocation_list
+    restart: unless-stopped
+    ports:
+      - "${REVOCATION_KV_STORE_PORT}:6379"
+    volumes:
+      - token_revocation_list:/data
+
+  object_storage:
+    image: minio/minio
+    container_name: object_storage
+    restart: unless-stopped
+    ports:
+      - "${OBJECT_STORE_PORT}:9000"
+      - "9105:9001"
+    volumes:
+      - object_store:/data
+    environment:
+      MINIO_ROOT_USER: ${OBJECT_STORE_KEY}
+      MINIO_ROOT_PASSWORD: ${OBJECT_STORE_SECRET}
+    command: server --console-address ":9105" /data
+
 volumes:
   user_data:
+  token_revocation_list:
+  object_store:

@@ -27,17 +27,11 @@ func main() {
 	log.Println("Status: User database connection established")
 
 	log.Println("Status: Initialising object store connection")
-	objectStore, err := core.InitialiseObjectStore(cfg)
-	if err != nil {
-		log.Fatalf("Error: Failed to initialise object store: %v", err)
-	}
+	objectStore := core.InitialiseObjectStore(cfg)
 	log.Println("Status: Object store connection established")
 
 	log.Println("Status: Initialising revocation KV store connection")
-	revocationStore, err := core.InitialiseRevocationStore(cfg)
-	if err != nil {
-		log.Fatalf("Error: Failed to initialise revocation store: %v", err)
-	}
+	revocationStore := core.InitialiseRevocationStore(cfg)
 	log.Println("Status: Revocation KV store connection established")
 
 	log.Println("Status: Initialising email service")
