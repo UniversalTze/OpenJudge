@@ -5,13 +5,11 @@ test cases and submission, and then returning the results in
 the specified format.
 """
 
-import uuid
-from os import makedirs
-from src.executor.python import python_executor
-from src.executor.java import java_executor
-from src.config import TEMP_DIR
+from src.executor.abstract_executor import AbstractExecutor
+from src.executor.python import PythonExecutor
+# from src.executor.java import JavaExecutor
 
-def select_executor(language: str):
+def executor_generator(language: str) -> AbstractExecutor:
     """
     Selects the appropriate executor based on the provided language.
     
@@ -22,34 +20,15 @@ def select_executor(language: str):
         callable: The executor function for the specified language.
     """
     executor = None
-    # TODO: Turn this into switch/case
-    if language == "python":
-        executor = python_executor
-    elif language == "java":
-        executor = java_executor
-    else:
-        raise ValueError(f"Unsupported language: {language}")
-    return directory_wrapper(executor)
-    
-def directory_wrapper(executor: callable):
-    """
-    A decorator to wrap the executor function with directory creation logic.
-    
-    Args:
-        executor (callable): The executor function to wrap.
-        
-    Returns:
-        callable: The wrapped executor function.
-    """
+    match language:
+        case "python":
+            executor = PythonExecutor
+        # case "java":
+        #     executor = JavaExecutor
+        case _:
+            raise ValueError(f"Unsupported language: {language}")
+    return executor
 
-    def wrapper(*args, **kwargs):
-        # Create the output directory if it doesn't exist
-        test_id = str(uuid.uuid4())
-        makedirs(TEMP_DIR / test_id, exist_ok=True)
-        return executor(*args, **kwargs, directory=TEMP_DIR / test_id)
-    
-    return wrapper
-    
 def select_execution_script(language: str):
     """
     Selects the appropriate execution script based on the provided language.

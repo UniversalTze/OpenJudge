@@ -22,3 +22,6 @@ TEMP_DIR = Path(gettempdir())
 
 # Memory limit in bytes per test case
 DEFAULT_MEMORY_LIMIT = 1 * 1024 * 1024  # 1MB
+
+# Time limit in seconds per test case
+DEFAULT_TIMEOUT = 5  # 5 seconds
