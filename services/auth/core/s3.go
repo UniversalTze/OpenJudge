@@ -3,6 +3,7 @@ package core
 import (
 	"auth/config"
 	"context"
+	"fmt"
 	"log"
 
 	"github.com/minio/minio-go/v7"
@@ -15,7 +16,7 @@ import (
 func InitialiseObjectStore(cfg config.Config) *minio.Client {
 	log.Println(cfg.OBJECT_STORE_URL)
 	client, err := minio.New(cfg.OBJECT_STORE_URL, &minio.Options{
-		Creds:  credentials.NewStaticV4(
+		Creds: credentials.NewStaticV4(
 			cfg.OBJECT_STORE_KEY, cfg.OBJECT_STORE_SECRET, cfg.OBJECT_STORE_TOKEN),
 		Secure: cfg.ENV == "production",
 		Region: cfg.OBJECT_STORE_REGION,
@@ -36,6 +37,15 @@ func InitialiseObjectStore(cfg config.Config) *minio.Client {
 			if err != nil {
 				log.Fatalf("Error: Failed to create bucket: %v", err)
 			}
+		}
+
+		policy := fmt.Sprintf(`{"Version": "2012-10-17","Statement": [{ "Sid": "","Effect": "Allow",
+		  "Principal": { "AWS": ["*"] }, "Action": ["s3:GetObject"], "Resource": ["arn:aws:s3:::%s/*"]
+		}]}`, cfg.OBJECT_STORE_BUCKET)
+
+		err = client.SetBucketPolicy(context.Background(), cfg.OBJECT_STORE_BUCKET, policy)
+		if err != nil {
+			log.Fatalf("Error: Failed to set public policy on bucket: %v", err)
 		}
 	}
 

@@ -40,7 +40,6 @@ func Health(c *fiber.Ctx) error {
 
 /*
  * Initialises the API.
- * TODO: Add objectStore *s3.Client and revocationKVStore *redis.Client
  */
 func InitialiseAPI(database *gorm.DB, config config.Config, emailClient *gomail.Dialer, objectStore *minio.Client, revocationKVStore *redis.Client) *fiber.App {
 	app := fiber.New(fiber.Config{
