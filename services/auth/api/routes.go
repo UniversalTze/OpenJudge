@@ -57,7 +57,6 @@ func InitialiseAPI(database *gorm.DB, config config.Config, emailClient *gomail.
 	})
 
 	// TODO: Add rate limiting middleware?
-	// TODO: Change to actual handlers
 	app.Get("/health", Health)
 	app.Post("/register", auth.Register)
 	app.Post("/login", auth.Login)
@@ -66,10 +65,10 @@ func InitialiseAPI(database *gorm.DB, config config.Config, emailClient *gomail.
 	app.Post("/forgot", auth.Forgot)
 	app.Post("/reset", auth.Reset)
 	app.Get("/user", user.GetUser)
-	app.Put("/user", Health)
-	app.Delete("/user", Health)
+	app.Put("/user", user.UpdateUser)
+	app.Delete("/user", user.DeleteUser)
 	app.Post("/user/avatar", user.SetAvatar)
-	app.Delete("/user/avatar", Health)
+	app.Delete("/user/avatar", user.DeleteAvatar)
 
 	return app
 }
