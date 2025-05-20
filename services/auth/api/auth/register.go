@@ -7,6 +7,7 @@ import (
 	"encoding/hex"
 	"io"
 	"net/http"
+	"net/mail"
 	"strings"
 	"time"
 
@@ -100,6 +101,12 @@ func Register(c *fiber.Ctx) error {
 		return err
 	}
 
+	// Validate the email format
+	_, err := mail.ParseAddress(body.Email)
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).SendString("Invalid email format")
+	}
+
 	// Check if the password meets complexity requirements
 	if strong, err := IsPasswordValid(body.Password); err != nil {
 		return err
@@ -136,7 +143,7 @@ func Register(c *fiber.Ctx) error {
 		Type:   "verify",
 		Expiry: time.Now().Add(24 * time.Hour),
 	}
-	err := database.Create(&token).Error
+	err = database.Create(&token).Error
 	if err != nil {
 		return err
 	}

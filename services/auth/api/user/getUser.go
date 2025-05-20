@@ -23,11 +23,11 @@ func GetUser(c *fiber.Ctx) error {
 	if token == "" {
 		return c.Status(fiber.StatusUnauthorized).SendString("Invalid access token")
 	}
-	
+
 	// Verify the JWT token
 	userID, err := core.VerifyJWT(token, c.Locals("config").(config.Config))
 	if err != nil {
-		return c.Status(fiber.StatusUnauthorized).SendString("Invalid access token: " + err.Error())
+		return c.Status(fiber.StatusUnauthorized).SendString("Invalid access token")
 	}
 
 	// Fetch the user from the database
