@@ -19,3 +19,6 @@ if OUTPUT_QUEUE == "NO QUEUE":
 
 # Temporary directory for test execution
 TEMP_DIR = Path(gettempdir())
+
+# Memory limit in bytes per test case
+DEFAULT_MEMORY_LIMIT = 1 * 1024 * 1024  # 1MB
