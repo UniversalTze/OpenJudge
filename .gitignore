@@ -2,6 +2,10 @@
 
 # Services:
 
+### Frontend
+frontend/node_modules/
+services/frontend/node_modules/
+
 ### Execution
 services/execution/.*
 services/execution/__pycache__/*

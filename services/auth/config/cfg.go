@@ -41,7 +41,7 @@ func Load() Config {
 	if err != nil {
 		log.Print(
 			"Warning: Failed to load .env file. If this is in a production environment or within a " +
-			"docker container, and environemnt variables have been declared elsewhere, you can " +
+			"docker container, and environment variables have been declared elsewhere, you can " +
 			"disregard this warning.")
 	}
 	env := os.Getenv("ENV")

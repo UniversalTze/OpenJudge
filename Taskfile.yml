@@ -1,6 +1,23 @@
 version: '3'
 
+dotenv: ['.env']
+
 tasks:
   # AUTHENTICATION SERVICE COMMANDS
-  auth-dev:
+  run:auth:
+    desc: Run the authentication service in development mode.
     cmds:
+      - docker-compose -f infrastructure/docker/docker-compose.yml -p openjudge-auth up authentication_service trl user_database objectstorage -d
+    silent: false
+
+  test:auth:
+
+  deploy:auth:
+
+  # APPLICATION COMMANDS
+  run:app:
+
+  test:app:
+
+  deploy:app:
+

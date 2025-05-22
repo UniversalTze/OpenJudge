@@ -1,30 +1,58 @@
 services:
   authentication_service:
-    build: {
-      context: ../services/auth,
-      dockerfile: Dockerfile.authentication
-    }
+    build: { context: ../../services/auth, dockerfile:  ../../infrastructure/docker/Dockerfile.authentication }
     container_name: authentication_service
     restart: unless-stopped
+    environment:
+      USER_DATABASE_URL: "postgres://${USER_DATABASE_USER}:${USER_DATABASE_PASSWORD}@user_database:5432/${USER_DATABASE_NAME}?sslmode=disable"
+      REVOCATION_KV_STORE_URL: "redis://trl:6379"
+      OBJECT_STORE_URL: "objectstorage:9000"
+    env_file:
+      - ../../.env
     ports:
       - "${AUTH_SERVICE_PORT}:8080"
-    env_file:
-      - .env
     depends_on:
       - user_database
-  
-    user_database:
-      image: postgres:15
-      container_name: user_database
-      restart: unless-stopped
-      ports:
-        - "${USER_DATABASE_PORT}:5432"
-      environment:
-        POSTGRES_USER: ${USER_DATABASE_USER}
-        POSTGRES_PASSWORD: ${USER_DATABASE_PASSWORD}
-        POSTGRES_DB: ${USER_DATABASE_NAME}
-      volumes:
-        - user_data:/var/lib/postgresql/data
+      - trl
+      - objectstorage
+
+  user_database:
+    image: postgres:15
+    container_name: user_database
+    restart: unless-stopped
+    ports:
+      - "${USER_DATABASE_PORT}:5432"
+    environment:
+      POSTGRES_USER: ${USER_DATABASE_USER}
+      POSTGRES_PASSWORD: ${USER_DATABASE_PASSWORD}
+      POSTGRES_DB: ${USER_DATABASE_NAME}
+    volumes:
+      - user_data:/var/lib/postgresql/data
+
+  trl:
+    image: redis:7
+    container_name: trl
+    restart: unless-stopped
+    ports:
+      - "${REVOCATION_KV_STORE_PORT}:6379"
+    volumes:
+      - token_revocation_list:/data
+
+  objectstorage:
+    image: minio/minio
+    container_name: objectstorage
+    restart: unless-stopped
+    ports:
+      - "${OBJECT_STORE_PORT}:9000"
+      - "9105:9001"
+    volumes:
+      - object_store:/data
+    environment:
+      MINIO_ROOT_USER: ${OBJECT_STORE_KEY}
+      MINIO_ROOT_PASSWORD: ${OBJECT_STORE_SECRET}
+    command: server --console-address ":9001" /data
 
 volumes:
   user_data:
+  token_revocation_list:
+  object_store:
