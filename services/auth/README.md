@@ -8,23 +8,21 @@ email-based multi-factor authentication (MFA), rate-limitng, argon2 hashing, etc
 
 **Language:** Go </br> **Database:** PostgreSQL (deployed on the compatible AWS RDS infra) using
 GORM </br> **Cache/Session Store:** Redis (deployed on the compatible AWS ElastiCache infra) </br>
-**Authentication Method:** JWTs </br> **Email Service:** ...?
-
-## Access URL
-
-The service is accessible via the API Gateway `api.openjudge.com`. The base path for this service is
-`/auth`.
+**Authentication Method:** JWTs </br> **Object Store:** Minio (deployed on the compatible s3 infra)
 
 ## Getting Started
 
-TODO: Write documentation on how to run the service locally and how to deploy ASSIGNED TO: Ben
+Run the service from root using the following command.
 
 ```
-air
+task run:auth
 ```
 
+Test the service from root using the following command.
 
-Validating and logging out needs to be done at the API gateway level
+```
+task test:auth
+```
 
 ## Documentation
 
@@ -32,11 +30,8 @@ Validating and logging out needs to be done at the API gateway level
 
 **Description:** Registers a new user </br></br> **Request Headers:**
 
-```json
-{
-  "Content-Type": "application/json",
-  "Accept": "application/json"
-}
+```http
+Content-Type: application/json
 ```
 
 **Request Body:**
@@ -50,87 +45,274 @@ Validating and logging out needs to be done at the API gateway level
 }
 ```
 
-**Response:** 201 Created </br></br> **Response Body:**
-
-```json
-null
-```
-
 **Notes:** A new user will be created with the given information. The password will be checked to
 ensure it meets the complexity requirements, and cross-referenced with the haveIBeenPwned database.
 The password will be hashed using Argon2 before being stored in the database. </br> </br> A
 verification link will be created and an email will be sent to the user's email address. A flag will
 remain in the database to indicate that the user's email is not verified. </br>
 
-**Errors:** | Error Code | Description | | --- | --- | | 400 | Bad request. Invalid request body. |
-| 500 | Internal server error. |
+**Responses:**
+| Status | Description |
+| --- | --- |
+| 201 | User registered successfully |
+| 400 | Bad request. Invalid request body |
+| 500 | Internal server error |
 
 ### POST `/login`
 
-**Description:** Logs in a user </br></br> ...
+**Description:** Logs in a user </br></br> **Request Headers:**
 
-### GET `/verify`
-
-**Description:** Used to verify a user's email address </br></br> ...
-
-### POST `/refresh`
-
-**Description:** Used to refresh a user's JWT </br></br> ...
-
-### DELETE `/logout`
-
-**Description:** Used to log out a user </br></br> ...
-
-MOVE TO API GATEWAY
+```http
+Content-Type: application/json
+Accept: application/json
 ```
-package auth
 
-import (
-	"github.com/go-redis/redis/v8"
-	"github.com/gofiber/fiber/v2"
-)
+**Request Body:**
 
-/**
- * Logout revokes the token by adding it to the revocation store.
- */
-func Logout(c *fiber.Ctx) error {
-	revocationStore := c.Locals("revocationKVStore").(*redis.Client)
-	token := c.Get("Authorization")
-	if err := revocationStore.Set(c.Context(), token, "true", 0).Err(); err != nil {
-		return err
-	}
-	return c.Status(fiber.StatusNoContent).SendString("Token revoked")
+```json
+{
+  "email": "string",
+  "password": "string"
 }
 ```
 
+ **Response Body:**
+
+```json
+{
+  "access_token": "string"
+}
+```
+
+**Notes:** On successful login, an access token and a refresh token are returned. The access token
+is a JWT used for authenticating requests. The refresh token is an HTTP-only cookie used to refresh
+the access token.
+
+**Responses:**
+| Status | Description |
+| --- | --- |
+| 200 | Login successful |
+| 400 | Bad request. Invalid request body |
+| 401 | Unauthorized. Invalid email or password |
+| 500 | Internal server error. |
+
+### GET `/verify`
+
+**Description:** Verifies a user's email address using a token. <br/><br/> **Request Headers:**
+
+```http
+Content-Type: application/json
+```
+
+**Request Body:**
+
+```json
+{
+  "token": "string"
+}
+```
+
+**Responses:**
+| Status | Description |
+| --- | --- |
+| 200 | Email verified successfully |
+| 400 | Invalid or expired link |
+| 500 | Internal server error |
+
+### POST `/refresh`
+
+**Description:** Refreshes a user's JWT using the refresh token cookie. <br/><br/> **Request Headers:**
+
+```http
+Accept: application/json
+```
+
+**Response Body:**
+
+```json
+{
+  "access_token": "string"
+}
+```
+
+**Notes:** A new `refresh_token` is set as an HTTP-only cookie.
+
+**Responses:**
+| Status | Description |
+| --- | --- |
+| 200 | Token refreshed successfully |
+| 400 | Bad request. Invalid request body |
+| 401 | Refresh token not found or invalid |
+| 500 | Internal server error |
+
 ### POST `/forgot`
 
-**Description:** Used to send a password reset email </br></br> ...
+**Description:** Sends a password reset email. <br/><br/> **Request Headers:**
+
+```http
+Content-Type: application/json
+```
+
+**Request Body:**
+
+```json
+{
+  "email": "string"
+}
+```
+
+**Responses:**
+| Status | Description |
+| --- | --- |
+| 200 | Password reset email sent |
+| 400 | Invalid request body, missing fields, or user not found |
+| 500 | Internal server error |
 
 ### POST `/reset`
 
-**Description:** Used to reset a user's password </br></br> ...
+**Description:** Resets a user's password using a reset token. <br/><br/> **Request Headers:**
+
+```http
+Content-Type: application/json
+```
+
+**Request Body:**
+
+```json
+{
+  "token": "string",
+  "password": "string"
+}
+```
+
+**Response:** 200 OK  
+
+**Responses:**
+| Status | Description |
+| --- | --- |
+| 200 | Password reset successfully |
+| 400 | Invalid or expired link, weak or breached password |
+| 500 | Internal server error |
 
 ### GET `/user`
 
-**Description:** Used to get a user's information </br></br> ...
+**Description:** Gets the authenticated user's information. <br/><br/> **Request Headers:**
+
+```http
+Accept: application/json
+Authorization: Bearer <access_token>
+```
+
+**Response Body:**
+
+```json
+{
+  "id": "string",
+  "email": "string",
+  "first_name": "string",
+  "last_name": "string",
+  "avatar": "string",
+  "verified": true
+}
+```
+
+**Responses:**
+| Status | Description |
+| --- | --- |
+| 200 | User information retrieved successfully |
+| 401 | Invalid or missing access token |
+| 404 | User not found |
+| 500 | Internal server error |
 
 ### PUT `/user`
 
-**Description:** Used to update a user's information </br></br> ...
+**Description:** Updates the authenticated user's information. <br/><br/> **Request Headers:**
+
+```http
+Content-Type: application/json
+Authorization: Bearer <access_token>
+```
+
+**Request Body:**
+
+```json
+{
+  "email": "string (optional)",
+  "first_name": "string (optional)",
+  "last_name": "string (optional)"
+}
+```
+**Notes:** At least one field is required. If the email is changed, a new verification email is sent and the user is marked as unverified.
+
+**Responses:**
+| Status | Description |
+| --- | --- |
+| 200 | User updated successfully |
+| 400 | Invalid request body, no fields to update, or email already in use |
+| 401 | Invalid or missing access token |
+| 404 | User not found |
+| 500 | Internal server error |
 
 ### DELETE `/user`
 
-**Description:** Used to delete a user's account </br></br> ...
+**Description:** Deletes the authenticated user's account. <br/><br/> **Request Headers:**
+
+```http
+Authorization: Bearer <access_token>
+```
+**Responses:**
+| Status | Description |
+| --- | --- |
+| 204 | User deleted successfully |
+| 401 | Invalid or missing access token |
+| 404 | User not found |
+| 500 | Internal server error |
 
 ### POST `/user/avatar`
 
-**Description:** Used to upload a user's avatar </br></br> ...
+**Description:** Uploads a new avatar for the authenticated user.<br/><br/> **Request Headers:**
+
+```http
+Authorization: Bearer <access_token>
+Content-Type: multipart/form-data
+Accept: application/json
+```
+
+**Request Body:**  
+```http
+avatar: <binary>
+```
+
+**Response Body:**
+
+```json
+{
+  "url": "string"
+}
+```
+**Notes:** Must be multipart form-data with a file field named `avatar` (JPEG, PNG, or WebP, max 200KB after server-side compression).
+
+**Responses:**
+| Status | Description |
+| --- | --- |
+| 201 | Avatar uploaded successfully |
+| 400 | Invalid file, unsupported type, or image too large |
+| 401 | Invalid or missing access token |
+| 404 | User not found |
+| 500 | Internal server error |
 
 ### DELETE `/user/avatar`
 
-**Description:** Used to delete a user's avatar </br></br> ...
+**Description:** Deletes the authenticated user's avatar. <br/> <br/> **Request Headers:**
 
-### POST `/validate`
+```http
+Authorization: Bearer <access_token>
+```
 
-**Description:** Used to validate a user's JWT </br></br> ...
+**Responses:**
+| Status | Description |
+| --- | --- |
+| 204 | Avatar deleted successfully |
+| 401 | Invalid or missing access token |
+| 404 | User not found |
+| 500 | Internal server error |

@@ -13,7 +13,7 @@ func Refresh(c *fiber.Ctx) error {
 	// Retrieve and validate the refresh token from the cookies
 	refreshToken := c.Cookies("refresh_token")
 	if refreshToken == "" {
-		return c.Status(fiber.StatusUnauthorized).SendString("Refresh token not found")
+		return c.Status(fiber.StatusBadRequest).SendString("Refresh token not found")
 	}
 	userID, err := core.VerifyJWT(refreshToken, c.Locals("config").(config.Config))
 	if err != nil {
