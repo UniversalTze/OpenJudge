@@ -14,7 +14,6 @@ import (
  * InitialiseObjectStore creates and returns a MinIO client for the object store
  */
 func InitialiseObjectStore(cfg config.Config) *minio.Client {
-	log.Println(cfg.OBJECT_STORE_URL, cfg.OBJECT_STORE_REGION, cfg.OBJECT_STORE_BUCKET, cfg.ENV)
 	opts := minio.Options{
 			Creds:  credentials.NewStaticV4(cfg.OBJECT_STORE_KEY, cfg.OBJECT_STORE_SECRET, cfg.OBJECT_STORE_TOKEN),
 			Secure: cfg.ENV == "production",
