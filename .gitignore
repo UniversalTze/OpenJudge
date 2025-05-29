@@ -10,3 +10,16 @@ services/frontend/node_modules/
 services/execution/.*
 services/execution/__pycache__/*
 **/**/.DS_Store
+
+
+.env
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.Python
+*.so
+.coverage
+.pytest_cache/
+.venv/
+venv/
