@@ -1,4 +1,3 @@
-
 import { useState, useEffect } from "react";
 import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -12,9 +11,9 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useToast } from "@/hooks/use-toast";
-import { CheckCircle, Play, ChevronLeft } from "lucide-react";
+import { CheckCircle, Play, ChevronLeft, Lock, Unlock, Eye, EyeOff } from "lucide-react";
 
-import { problems } from "@/data/problems";
+import { problems, Problem } from "@/data/problems";
 import useLocalStorage from "@/hooks/useLocalStorage";
 
 const ProblemDetailPage = () => {
@@ -27,6 +26,7 @@ const ProblemDetailPage = () => {
   const [language, setLanguage] = useState<string>("Python");
   const [code, setCode] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
+  const [showHiddenTestCases, setShowHiddenTestCases] = useState(false);
 
   // Custom hook to save/retrieve code from localStorage
   const [savedCode, setSavedCode] = useLocalStorage<Record<string, Record<string, string>>>('saved-code', {});
@@ -83,7 +83,7 @@ const ProblemDetailPage = () => {
   const handleSubmit = () => {
     setIsSubmitting(true);
     
-    // Simulate submission
+    // Simulate submission for now
     setTimeout(() => {
       toast({
         title: "Code submitted successfully",
@@ -94,19 +94,31 @@ const ProblemDetailPage = () => {
     }, 1500);
   };
 
+  const handleRunCode = () => {
+    toast({
+      title: "Code executed",
+      description: "Running against visible test cases...",
+    });
+  };
+
   // Generate difficulty badge
   const getDifficultyBadge = (difficulty: string) => {
     switch (difficulty) {
       case 'Easy':
-        return <Badge variant="outline" className="bg-green-500/10 text-green-700 border-green-500/20">Easy</Badge>;
+        return <Badge variant="outline" className="bg-green-500/10 text-green-500 border-green-500/20">Easy</Badge>;
       case 'Medium':
-        return <Badge variant="outline" className="bg-yellow-500/10 text-yellow-700 border-yellow-500/20">Medium</Badge>;
+        return <Badge variant="outline" className="bg-yellow-500/10 text-yellow-500 border-yellow-500/20">Medium</Badge>;
       case 'Hard':
-        return <Badge variant="outline" className="bg-red-500/10 text-red-700 border-red-500/20">Hard</Badge>;
+        return <Badge variant="outline" className="bg-red-500/10 text-red-500 border-red-500/20">Hard</Badge>;
       default:
         return null;
     }
   };
+
+  // For now, we'll simulate which test cases are "hidden"
+  // In the real backend, test cases will have a "hidden" property
+  const visibleTestCases = problem.testCases.slice(0, 2); // First 2 are visible
+  const hiddenTestCases = problem.testCases.slice(2); // Rest are "hidden"
 
   return (
     <div className="container py-4">
@@ -207,19 +219,28 @@ const ProblemDetailPage = () => {
             </TabsContent>
           </Tabs>
 
+          {/* Test Cases Section - The Key Feature! */}
           <div>
-            <h3 className="font-medium mb-2">Test Cases</h3>
-            <div className="space-y-2">
-              {problem.testCases.slice(0, 2).map((testCase, index) => (
+            <h3 className="font-medium mb-4 flex items-center">
+              <Eye className="h-4 w-4 mr-2" />
+              Test Cases
+              <Badge variant="secondary" className="ml-2 text-xs">
+                Transparent Testing
+              </Badge>
+            </h3>
+            
+            {/* Visible Test Cases */}
+            <div className="space-y-3 mb-4">
+              {visibleTestCases.map((testCase, index) => (
                 <div key={index} className="bg-secondary/30 rounded-md p-3 text-sm">
-                  <div className="flex justify-between">
+                  <div className="flex justify-between items-center mb-2">
                     <span className="font-medium">Test {index + 1}</span>
                     <span className="text-green-600 flex items-center">
-                      <CheckCircle className="h-4 w-4 mr-1" />
+                      <Unlock className="h-4 w-4 mr-1" />
                       Visible
                     </span>
                   </div>
-                  <div className="mt-2 grid grid-cols-2 gap-2">
+                  <div className="grid grid-cols-2 gap-2">
                     <div>
                       <span className="text-xs text-muted-foreground">Input:</span>
                       <pre className="mt-1 bg-secondary/70 p-2 rounded overflow-x-auto font-code text-xs">
@@ -235,12 +256,74 @@ const ProblemDetailPage = () => {
                   </div>
                 </div>
               ))}
-              {problem.testCases.length > 2 && (
-                <Button variant="outline" className="w-full text-sm">
-                  Show {problem.testCases.length - 2} More Test Cases
-                </Button>
-              )}
             </div>
+
+            {/* Hidden Test Cases Toggle - THE MAIN FEATURE */}
+            {hiddenTestCases.length > 0 && (
+              <div className="space-y-3">
+                <Button 
+                  variant="outline" 
+                  className="w-full"
+                  onClick={() => setShowHiddenTestCases(!showHiddenTestCases)}
+                >
+                  {showHiddenTestCases ? (
+                    <>
+                      <EyeOff className="h-4 w-4 mr-2" />
+                      Hide Hidden Test Cases
+                    </>
+                  ) : (
+                    <>
+                      <Eye className="h-4 w-4 mr-2" />
+                      Show {hiddenTestCases.length} Hidden Test Cases
+                      <Badge variant="secondary" className="ml-2 text-xs bg-primary/20 text-primary">
+                        🔥 OpenJudge Exclusive
+                      </Badge>
+                    </>
+                  )}
+                </Button>
+
+                {/* Hidden Test Cases */}
+                {showHiddenTestCases && (
+                  <div className="space-y-3">
+                    <div className="bg-primary/10 border border-primary/20 rounded-md p-3 text-sm">
+                      <div className="flex items-center text-primary font-medium mb-2">
+                        <Lock className="h-4 w-4 mr-2" />
+                        Hidden Test Cases - Usually Secret!
+                      </div>
+                      <p className="text-xs text-muted-foreground">
+                        These test cases are typically hidden on other platforms like LeetCode. OpenJudge shows them to help you learn and debug your solutions effectively.
+                      </p>
+                    </div>
+                    
+                    {hiddenTestCases.map((testCase, index) => (
+                      <div key={index} className="bg-primary/5 border border-primary/10 rounded-md p-3 text-sm">
+                        <div className="flex justify-between items-center mb-2">
+                          <span className="font-medium">Hidden Test {index + 1}</span>
+                          <span className="text-primary flex items-center">
+                            <Lock className="h-4 w-4 mr-1" />
+                            Hidden
+                          </span>
+                        </div>
+                        <div className="grid grid-cols-2 gap-2">
+                          <div>
+                            <span className="text-xs text-muted-foreground">Input:</span>
+                            <pre className="mt-1 bg-primary/10 p-2 rounded overflow-x-auto font-code text-xs">
+                              {testCase.input}
+                            </pre>
+                          </div>
+                          <div>
+                            <span className="text-xs text-muted-foreground">Expected:</span>
+                            <pre className="mt-1 bg-primary/10 p-2 rounded overflow-x-auto font-code text-xs">
+                              {testCase.output}
+                            </pre>
+                          </div>
+                        </div>
+                      </div>
+                    ))}
+                  </div>
+                )}
+              </div>
+            )}
           </div>
         </div>
 
@@ -258,18 +341,20 @@ const ProblemDetailPage = () => {
               </SelectContent>
             </Select>
             
-            <div>
+            <div className="flex gap-2">
+              <Button 
+                variant="outline"
+                onClick={handleRunCode}
+                disabled={isSubmitting}
+              >
+                <Play className="h-4 w-4 mr-1" />
+                Run
+              </Button>
               <Button 
                 onClick={handleSubmit} 
                 disabled={isSubmitting}
-                className="flex items-center space-x-1"
               >
-                {isSubmitting ? "Submitting..." : (
-                  <>
-                    <Play className="h-4 w-4 mr-1" />
-                    <span>Submit</span>
-                  </>
-                )}
+                {isSubmitting ? "Submitting..." : "Submit"}
               </Button>
             </div>
           </div>
@@ -279,7 +364,8 @@ const ProblemDetailPage = () => {
               className="w-full h-full p-4 font-code text-sm resize-none bg-background border-none focus:outline-none"
               value={code}
               onChange={handleCodeChange}
-            ></textarea>
+              placeholder="Write your solution here..."
+            />
           </div>
         </div>
       </div>

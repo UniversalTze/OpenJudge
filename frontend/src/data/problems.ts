@@ -14,6 +14,7 @@ export interface Problem {
   testCases: {
     input: string;
     output: string;
+    hidden?: boolean; // Add this field
   }[];
   solutionHint?: string;
   languages: string[];
@@ -27,19 +28,18 @@ export interface Problem {
   };
 }
 
+// Update your first problem to include hidden test cases:
 export const problems: Problem[] = [
   {
     id: '1',
     title: 'Two Sum',
     difficulty: 'Easy',
     tags: ['Array', 'Hash Table'],
-    description: `
-Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.
+    description: `Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.
 
 You may assume that each input would have exactly one solution, and you may not use the same element twice.
 
-You can return the answer in any order.
-    `,
+You can return the answer in any order.`,
     examples: [
       {
         input: 'nums = [2,7,11,15], target = 9',
@@ -50,10 +50,6 @@ You can return the answer in any order.
         input: 'nums = [3,2,4], target = 6',
         output: '[1,2]',
         explanation: 'Because nums[1] + nums[2] == 6, we return [1, 2].'
-      },
-      {
-        input: 'nums = [3,3], target = 6',
-        output: '[0,1]'
       }
     ],
     constraints: [
@@ -65,66 +61,31 @@ You can return the answer in any order.
     testCases: [
       {
         input: '[2,7,11,15]\n9',
-        output: '[0,1]'
+        output: '[0,1]',
+        hidden: false
       },
       {
-        input: '[3,2,4]\n6',
-        output: '[1,2]'
+        input: '[3,2,4]\n6', 
+        output: '[1,2]',
+        hidden: false
       },
       {
         input: '[3,3]\n6',
-        output: '[0,1]'
+        output: '[0,1]',
+        hidden: true
       },
       {
         input: '[1,5,8,3,9,2]\n7',
-        output: '[0,5]'
+        output: '[0,5]',
+        hidden: true
+      },
+      {
+        input: '[1,2,3,4,5]\n10',
+        output: '[]',
+        hidden: true
       }
     ],
     solutionHint: 'Try using a hash map to store numbers and their indices as you iterate through the array.',
-    languages: ['Python', 'Java']
-  },
-  {
-    id: '2',
-    title: 'Reverse String',
-    difficulty: 'Easy',
-    tags: ['String', 'Two Pointers'],
-    description: `
-Write a function that reverses a string. The input string is given as an array of characters.
-
-You must do this by modifying the input array in-place with O(1) extra memory.
-    `,
-    examples: [
-      {
-        input: '["h","e","l","l","o"]',
-        output: '["o","l","l","e","h"]'
-      },
-      {
-        input: '["H","a","n","n","a","h"]',
-        output: '["h","a","n","n","a","H"]'
-      }
-    ],
-    constraints: [
-      '1 <= s.length <= 10^5',
-      's[i] is a printable ascii character'
-    ],
-    testCases: [
-      {
-        input: '["h","e","l","l","o"]',
-        output: '["o","l","l","e","h"]'
-      },
-      {
-        input: '["H","a","n","n","a","h"]',
-        output: '["h","a","n","n","a","H"]'
-      },
-      {
-        input: '["a"]',
-        output: '["a"]'
-      },
-      {
-        input: '["a","b"]',
-        output: '["b","a"]'
-      }
-    ],
     languages: ['Python', 'Java']
   },
   {
