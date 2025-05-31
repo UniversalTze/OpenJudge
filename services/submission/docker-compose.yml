@@ -1,0 +1,12 @@
+version: '3.8'
+services:
+  app:
+    build: .
+    environment:
+      - FLASK_APP=app.py
+      - APP_ENV=LOCAL
+      - SQLALCHEMY_DATABASE_URI=sqlite:///submissions.db
+    volumes:
+      - .:/app
+    ports:
+      - "5000:5000"
