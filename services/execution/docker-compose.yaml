@@ -1,0 +1,48 @@
+# Docker Compose for Local Testing of Execution Service
+services:
+  redis:
+    image: redis:latest
+    restart: always
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  worker:
+    build:
+      context: .
+      dockerfile: dockerfiles/Dockerfile.python
+    restart: always
+    environment:
+      CELERY_BROKER_URL: redis://redis:6379
+      TARGET_QUEUE: pythonq
+      OUTPUT_QUEUE: pythonoutputq
+      LANGUAGE: python
+    command: celery -A src.receiver.celery worker --loglevel=info
+    depends_on:
+      redis:
+        condition: service_healthy
+    volumes:
+      - .:/app
+
+  # Optional: Add a test client service for sending test requests
+  # test-client:
+  #   build:
+  #     context: .
+  #     dockerfile: dockerfiles/Dockerfile.python
+  #   environment:
+  #     CELERY_BROKER_URL: redis://redis:6379
+  #     TARGET_QUEUE: pythonq
+  #     OUTPUT_QUEUE: pythonoutputq
+  #     LANGUAGE: python
+  #   command: python -c "print('Test client ready. Use this container to send test requests.')"
+  #   depends_on:
+  #     redis:
+  #       condition: service_healthy
+  #   volumes:
+  #     - .:/app
+  #   profiles:
+  #     - testing

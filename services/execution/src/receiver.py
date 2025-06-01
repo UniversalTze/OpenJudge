@@ -8,9 +8,11 @@ from src.executor import executor_generator
 from src.config import (
     INPUT_QUEUE,
     BROKER,
+    LANGUAGE,
     OUTPUT_QUEUE,
-    LANGUAGE
 )
+
+# TODO: Add proper logging!
 
 # Initialise the Celery application
 celery = Celery("receiver")
@@ -20,9 +22,11 @@ celery.conf.task_default_queue=INPUT_QUEUE
 # Select the executor based on the language
 executor = executor_generator(LANGUAGE)
 
+print("STARTED CONTAINER")
+
 ################################################################################
 
-@celery.task(queue=INPUT_QUEUE)
+@celery.task(name='execute_submission', queue=INPUT_QUEUE)
 def execute_submission(
     submission_id: str,
     submission_code: str,
@@ -40,12 +44,14 @@ def execute_submission(
     Returns:
         list: Results for each test case (pass/fail and error messages).
     """
+    print(f"RECEIVED TASK {submission_id}")
+    print("SUBMISSION CODE: ", submission_code)
     # Run tests in sandboxed environment
     test_runner = executor(
         function_name,
-        submission_code,
         inputs,
         outputs,
+        submission_code,
         submission_id,
         send_results,
     )
@@ -61,11 +67,12 @@ def execute_submission(
         6. It should then execute each test in parallel
         7. As results come in, it should send them to the output queue asynchronously (format in Google Doc)
     """
-
-################################################################################
-
-@celery.task(name="send_results", queue=OUTPUT_QUEUE)
+    
 def send_results(results):
-    print("Results sent to output queue:", results) 
-    return results
-    # TODO: REMOVE THIS LOGGING INFO AND REPLACE WITH SOMETHING MORE USEFUL
+    """Send results to the output queue."""
+    print("Sending results to output queue:", results)
+    celery.send_task(
+            'result',
+            args=[results],
+            queue=OUTPUT_QUEUE
+    )

@@ -21,7 +21,7 @@ class AbstractExecutor:
         outputs: list,
         submission_code: str,
         submission_id: str,
-        celery_return: callable,
+        send_results: callable,
         ):
         # Initialise fields
         self.submission_id = submission_id
@@ -30,7 +30,7 @@ class AbstractExecutor:
         self.inputs = inputs
         self.outputs = outputs
         self.num_tests = len(inputs)
-        self.output_queue = celery_return
+        self.send_results = send_results
         # TODO: ASSERT LENGTH OF INPUTS AND OUTPUTS IS THE SAME AND ERROR IF NOT
         # TODO: ASSERT LENGTH OF EACH INPUT IS THE SAME AND ERROR IF NOT
 
@@ -142,8 +142,9 @@ class AbstractExecutor:
             "stdout": res["stdout"],
             "error": "timeout" if res["timeout"] else "memory_limit_exceeded" if res["memory_exceeded"] else res["stderr"]
         }
+        
         # Send the result back via the output queue
-        # self.output_queue.apply_async(args=[result])
+        self.send_results(result)
         print(f"Result of test {test_index}:\n", result)
         # print("Applied async")
 
