@@ -2,44 +2,146 @@
 Executor for Java code.
 """
 import subprocess
-import re
 from src.executor.abstract_executor import AbstractExecutor
 
 class JavaExecutor(AbstractExecutor):
     def _build_test_files(self):
         """
         Builds the test files for the Java submission.
-        Creates a Java class file and test files for each test case.
+        Creates a Submission.java file and a test runner similar to Python executor.
         """
-        # Create the submission Java file
-        class_name = self._extract_class_name(self.submission_code)
-        with open(self.test_dir / f"{class_name}.java", "w") as submission_file:
+        # Create the submission Java file (always named Submission.java)
+        with open(self.test_dir / "Submission.java", "w") as submission_file:
             submission_file.write(self.submission_code)
 
-        # Create the test files
-        for i, test_case in enumerate(self.test_cases):
-            with open(self.test_dir / f"Test{i}.java", "w") as test_file:
-                self._write_test_case(test_case, i, test_file, class_name)
+        # Create the test runner file (similar to Python's test_runner.py)
+        test_code = f'''
+import java.util.*;
+import java.lang.reflect.*;
 
-    def _extract_class_name(self, java_code: str) -> str:
-        """
-        Extracts the class name from Java code.
+public class TestRunner {{
+    public static void main(String[] args) {{
+        if (args.length != 2) {{
+            System.err.println("Usage: java TestRunner <input_json> <expected_json>");
+            System.exit(1);
+        }}
 
-        Args:
-            java_code (str): The Java source code.
+        try {{
+            // Simple JSON parsing for basic types (no external dependencies)
+            Object[] parameters = parseJsonArray(args[0]);
+            Object expected = parseJsonValue(args[1]);
 
-        Returns:
-            str: The class name.
-        """
-        # Simple regex to find public class declaration
-        match = re.search(r'public\s+class\s+(\w+)', java_code)
-        if match:
-            return match.group(1)
-        else:
-            # Fallback to a default name
-            return "Solution"
+            // Create instance of Submission class
+            Submission solution = new Submission();
 
-    def _get_execution_command(self, test_number: int) -> str:
+            // Call the function using reflection
+            Object output = callFunction(solution, "{self.function_name}", parameters);
+
+            // Compare output with expected
+            if (!Objects.equals(output, expected)) {{
+                System.err.println();
+                System.err.print(output);
+                System.exit(232);
+            }}
+
+            System.err.println();
+            System.err.print("Passed but here is output: " + output);
+            System.exit(0);
+
+        }} catch (Exception e) {{
+            System.err.println("Error: " + e.getMessage());
+            e.printStackTrace();
+            System.exit(1);
+        }}
+    }}
+
+    // Simple JSON array parser for basic types
+    private static Object[] parseJsonArray(String json) {{
+        json = json.trim();
+        if (!json.startsWith("[") || !json.endsWith("]")) {{
+            throw new IllegalArgumentException("Invalid JSON array: " + json);
+        }}
+
+        String content = json.substring(1, json.length() - 1).trim();
+        if (content.isEmpty()) {{
+            return new Object[0];
+        }}
+
+        String[] parts = content.split(",");
+        Object[] result = new Object[parts.length];
+
+        for (int i = 0; i < parts.length; i++) {{
+            result[i] = parseJsonValue(parts[i].trim());
+        }}
+
+        return result;
+    }}
+
+    // Simple JSON value parser for basic types
+    private static Object parseJsonValue(String json) {{
+        json = json.trim();
+
+        if (json.equals("null")) {{
+            return null;
+        }} else if (json.equals("true")) {{
+            return true;
+        }} else if (json.equals("false")) {{
+            return false;
+        }} else if (json.startsWith("\\"") && json.endsWith("\\"")) {{
+            return json.substring(1, json.length() - 1);
+        }} else if (json.contains(".")) {{
+            return Double.parseDouble(json);
+        }} else {{
+            return Integer.parseInt(json);
+        }}
+    }}
+
+    // Dynamic function caller using reflection
+    private static Object callFunction(Object instance, String methodName, Object[] parameters) throws Exception {{
+        Class<?> clazz = instance.getClass();
+        Method[] methods = clazz.getMethods();
+
+        // Find method by name and parameter count
+        for (Method method : methods) {{
+            if (method.getName().equals(methodName) && method.getParameterCount() == parameters.length) {{
+                // Convert parameters to match method signature
+                Class<?>[] paramTypes = method.getParameterTypes();
+                Object[] convertedParams = new Object[parameters.length];
+
+                for (int i = 0; i < parameters.length; i++) {{
+                    convertedParams[i] = convertParameter(parameters[i], paramTypes[i]);
+                }}
+
+                return method.invoke(instance, convertedParams);
+            }}
+        }}
+
+        throw new NoSuchMethodException("Method " + methodName + " not found with " + parameters.length + " parameters");
+    }}
+
+    // Convert parameter to match expected type
+    private static Object convertParameter(Object param, Class<?> targetType) {{
+        if (param == null) return null;
+        if (targetType.isAssignableFrom(param.getClass())) return param;
+
+        if (targetType == int.class || targetType == Integer.class) {{
+            if (param instanceof Number) return ((Number) param).intValue();
+            return Integer.parseInt(param.toString());
+        }} else if (targetType == double.class || targetType == Double.class) {{
+            if (param instanceof Number) return ((Number) param).doubleValue();
+            return Double.parseDouble(param.toString());
+        }} else if (targetType == String.class) {{
+            return param.toString();
+        }}
+
+        return param;
+    }}
+}}
+'''
+        with open(self.test_dir / "TestRunner.java", "w") as test_file:
+            test_file.write(test_code)
+
+    def _get_execution_command(self, test_number: int) -> list:
         """
         Returns the command to execute the Java test file.
 
@@ -47,38 +149,23 @@ class JavaExecutor(AbstractExecutor):
             test_number (int): The test number to execute.
 
         Returns:
-            str: The command to compile and run the test.
+            list: The command to compile and run the test.
         """
-        # Java requires compilation before execution
-        return f"cd {self.test_dir} && javac *.java && java Test{test_number}"
+        # Java requires compilation before execution, then run with JSON parameters
+        import json
+        input_json = json.dumps(self.inputs[test_number])
+        expected_json = json.dumps(self.outputs[test_number])
 
-    def _write_test_case(self, test_case, test_number, test_file, class_name):
-        """
-        Writes a test case to a Java file.
-
-        Args:
-            test_case (dict): The test case dictionary.
-            test_number (int): The test case number.
-            test_file: The file object to write to.
-            class_name (str): The name of the submission class.
-        """
-        # Write the Java test class
-        test_file.write(f"""public class Test{test_number} {{
-    public static void main(String[] args) {{
-        {class_name} solution = new {class_name}();
-
-        // Test case code
-{test_case['code']}
-
-        // Call the test function
-        {test_case['name']}(solution);
-    }}
-}}
-""")
+        # Return command as list (like Python executor)
+        return [
+            "bash", "-c",
+            f"cd {self.test_dir} && javac *.java && java TestRunner '{input_json}' '{expected_json}'"
+        ]
 
     def _get_result(self, process: subprocess.Popen, stdout: bytes, stderr: bytes) -> dict:
         """
         Processes the result from a Java test execution.
+        Matches the Python executor's logic exactly.
 
         Args:
             process (subprocess.Popen): The process that ran the test.
@@ -92,13 +179,15 @@ class JavaExecutor(AbstractExecutor):
             stdout_text = stdout.decode() if stdout else ""
             stderr_text = stderr.decode() if stderr else ""
 
-            # Check for different error conditions
+            # Check for different error conditions (same as Python executor)
             if process.returncode == 124:
                 # Timeout from the timeout command
                 return {
                     "passed": False,
                     "timeout": True,
-                    "stdout": "",
+                    "memory_exceeded": False,
+                    "output": "",
+                    "stdout": stdout_text,
                     "stderr": f"The code exceeded the time limit of {self.timeout} seconds."
                 }
             elif process.returncode == 137 or "Cannot allocate memory" in stderr_text:
@@ -106,49 +195,42 @@ class JavaExecutor(AbstractExecutor):
                 return {
                     "passed": False,
                     "timeout": False,
-                    "stdout": "",
+                    "output": "",
+                    "memory_exceeded": True,
+                    "stdout": stdout_text,
                     "stderr": "The code attempted to use more memory than allowed."
                 }
-            elif "error:" in stderr_text.lower() and process.returncode != 0:
-                # Compilation error
+            elif process.returncode == 232:
+                # Test failed - extract actual output (same logic as Python)
+                stderr_text = stderr_text.split('\n')[:-1]
+
                 return {
                     "passed": False,
                     "timeout": False,
-                    "stdout": "",
-                    "stderr": self._filter_error_message(stderr_text)
+                    "output": stderr_text[-1] if stderr_text else "",
+                    "memory_exceeded": False,
+                    "stdout": stdout_text,
+                    "stderr": '\n'.join(stderr_text[:-1]) if len(stderr_text) > 1 else ""
                 }
             else:
                 # Normal execution
+                passed = process.returncode == 0
+
                 return {
-                    "passed": process.returncode == 0,
+                    "passed": passed,
                     "timeout": False,
+                    "output": "",
+                    "memory_exceeded": False,
                     "stdout": stdout_text,
-                    "stderr": self._filter_error_message(stderr_text)
+                    "stderr": stderr_text if not passed else ""
                 }
         except Exception as e:
             # Handle any unexpected errors
             return {
                 "passed": False,
                 "timeout": False,
+                "memory_exceeded": False,
+                "output": "",
                 "stdout": "",
                 "stderr": f"Error processing test result: {str(e)}"
             }
-
-    def _filter_error_message(self, error_message: str) -> str:
-        """
-        Filters the error message to only include relevant lines.
-
-        Args:
-            error_message (str): The full error message.
-
-        Returns:
-            str: The filtered error message.
-        """
-        if not error_message:
-            return ""
-
-        lines = error_message.splitlines()
-        return "\n".join(
-            line for line in lines
-            if "Test" in line or ".java" in line or "error:" in line.lower()
-        )
