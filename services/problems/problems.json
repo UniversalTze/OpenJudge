@@ -1,0 +1,617 @@
+[
+  {
+    "id": "1",
+    "title": "Two Sum",
+    "difficulty": "Easy",
+    "tags": ["Array", "Hash Table"],
+    "description": "Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.\n\nYou may assume that each input would have exactly one solution, and you may not use the same element twice.\n\nYou can return the answer in any order.",
+    "examples": [
+      {
+        "input": "nums = [2,7,11,15], target = 9",
+        "output": "[0,1]",
+        "explanation": "Because nums[0] + nums[1] == 9, we return [0, 1]."
+      },
+      {
+        "input": "nums = [3,2,4], target = 6",
+        "output": "[1,2]",
+        "explanation": "Because nums[1] + nums[2] == 6, we return [1, 2]."
+      }
+    ],
+    "constraints": [
+      "2 <= nums.length <= 10^4",
+      "-10^9 <= nums[i] <= 10^9",
+      "-10^9 <= target <= 10^9",
+      "Only one valid answer exists."
+    ],
+    "testCases": [
+      {
+        "input": "[2,7,11,15]\n9",
+        "output": "[0,1]",
+        "hidden": false
+      },
+      {
+        "input": "[3,2,4]\n6",
+        "output": "[1,2]",
+        "hidden": false
+      },
+      {
+        "input": "[3,3]\n6",
+        "output": "[0,1]",
+        "hidden": true
+      },
+      {
+        "input": "[1,5,8,3,9,2]\n7",
+        "output": "[0,5]",
+        "hidden": true
+      },
+      {
+        "input": "[1,2,3,4,5]\n10",
+        "output": "[]",
+        "hidden": true
+      }
+    ],
+    "solutionHint": "Try using a hash map to store numbers and their indices as you iterate through the array."
+  },
+  {
+    "id": "2",
+    "title": "Palindrome Number",
+    "difficulty": "Easy",
+    "tags": ["Math", "String", "Two Pointers"],
+    "description": "Given an integer x, return true if x is a palindrome, and false otherwise.",
+    "examples": [
+      {
+        "input": 121,
+        "output": "true",
+        "explanation": "121 reads as 121 from left to right and left to right"
+      },
+      {
+        "input": -121,
+        "output": "false",
+        "explanation": "From left to right, it reads -121. From right to left, it becomes 121-. Therefore it is not a palindrome"
+      }
+    ],
+    "constraints": [
+      "-999 <= x <= 999"
+    ], 
+    "testCases": [
+      {
+        "input": -100,
+        "output": "false",
+        "hidden": false
+      },
+      {
+        "input": 232,
+        "output": "true",
+        "hidden": false
+      },
+      {
+        "input": 550,
+        "output": "false",
+        "hidden": false
+      },
+      {
+        "input": 777,
+        "output": "true",
+        "hidden": true
+      },
+      {
+        "input": 420,
+        "output": "false",
+        "hidden": true
+      }
+    ],
+    "solutionHint": "Convert to string and use two pointer approach. Is there a way of doing this without converting to a string? (math (modulus and division)"
+  },
+  {
+    "id": "3",
+    "title": "Maximum Subarray",
+    "difficulty": "Medium",
+    "tags": ["Array", "Divide and Conquer", "Dynamic Programming"],
+    "description": "Given an integer array nums, find the subarray which has the largest sum and return its sum.\n\nA subarray is a contiguous part of an array.",
+    "examples": [
+      {
+        "input": "[-2,1,-3,4,-1,2,1,-5,4]",
+        "output": "6",
+        "explanation": "[4,-1,2,1] has the largest sum = 6."
+      },
+      {
+        "input": "[1]",
+        "output": "1"
+      },
+      {
+        "input": "[5,4,-1,7,8]",
+        "output": "23"
+      }
+    ],
+    "constraints": [
+      "1 <= nums.length <= 10^5",
+      "-10^4 <= nums[i] <= 10^4"
+    ],
+    "testCases": [
+      {
+        "input": "[-2,1,-3,4,-1,2,1,-5,4]",
+        "output": "6",
+        "hidden": false
+      },
+      {
+        "input": "[1]",
+        "output": "1",
+        "hidden": false
+      },
+      {
+        "input": "[5,4,-1,7,8]",
+        "output": "23",
+        "hidden": true
+      },
+      {
+        "input": "[-1]",
+        "output": "-1",
+        "hidden": true
+      }
+    ],
+    "solutionHint": "Look into Kadane's algorithm for an optimal approach. Consider the maximum subarray that ends at each position."
+  },
+  {
+    "id": "4",
+    "title": "Merge Two Sorted Lists",
+    "difficulty": "Easy",
+    "tags": ["Linked List", "Recursion"],
+    "description": "You are given the heads of two sorted linked lists list1 and list2.\n\nMerge the two lists in a one sorted list. The list should be made by splicing together the nodes of the first two lists.\n\nReturn the head of the merged linked list.",
+    "examples": [
+      {
+        "input": "list1 = [1,2,4], list2 = [1,3,4]",
+        "output": "[1,1,2,3,4,4]"
+      },
+      {
+        "input": "list1 = [], list2 = []",
+        "output": "[]"
+      },
+      {
+        "input": "list1 = [], list2 = [0]",
+        "output": "[0]"
+      }
+    ],
+    "constraints": [
+      "The number of nodes in both lists is in the range [0, 50].",
+      "-100 <= Node.val <= 100",
+      "Both list1 and list2 are sorted in non-decreasing order."
+    ],
+    "testCases": [
+      {
+        "input": "[1,2,4]\n[1,3,4]",
+        "output": "[1,1,2,3,4,4]",
+        "hidden": false
+      },
+      {
+        "input": "[]\n[]",
+        "output": "[]",
+        "hidden": false
+      },
+      {
+        "input": "[]\n[0]",
+        "output": "[0]",
+        "hidden": true
+      },
+      {
+        "input": "[1,5,7]\n[2,4,6]",
+        "output": "[1,2,4,5,6,7]",
+        "hidden": true
+      }
+    ]
+  },
+  {
+    "id": "5",
+    "title": "Valid Parentheses",
+    "difficulty": "Easy",
+    "tags": ["Stack", "String"],
+    "description": "Given a string s containing just the characters '(', ')', '{', '}', '[' and ']', determine if the input string is valid.\n\nAn input string is valid if:\n\n1. Open brackets must be closed by the same type of brackets.\n2. Open brackets must be closed in the correct order.\n3. Every close bracket has a corresponding open bracket of the same type.",
+    "examples": [
+      {
+        "input": "s = \"()\"",
+        "output": "true"
+      },
+      {
+        "input": "s = \"()[]{}\"",
+        "output": "true"
+      },
+      {
+        "input": "s = \"(]\"",
+        "output": "false"
+      }
+    ],
+    "constraints": [
+      "1 <= s.length <= 10^4",
+      "s consists of parentheses only '()[]{}'"
+    ],
+    "testCases": [
+      {
+        "input": "\"()\"",
+        "output": "true",
+        "hidden": false
+      },
+      {
+        "input": "\"()[]{}\"",
+        "output": "true",
+        "hidden": false
+      },
+      {
+        "input": "\"(]\"",
+        "output": "false",
+        "hidden": true
+      },
+      {
+        "input": "\"([)]\"",
+        "output": "false",
+        "hidden": true
+      },
+      {
+        "input": "\"{[]}\"",
+        "output": "true",
+        "hidden": "true"
+      }
+    ],
+    "solutionHint": "Consider using a stack data structure to keep track of opening brackets and match them with closing brackets."
+  },
+  {
+    "id": "6",
+    "title": "Binary Tree Level Order Traversal",
+    "difficulty": "Medium",
+    "tags": ["Tree", "Breadth-First Search", "Binary Tree"],
+    "description": "Given the root of a binary tree, return the level order traversal of its nodes' values. (i.e., from left to right, level by level).",
+    "examples": [
+      {
+        "input": "root = [3,9,20,null,null,15,7]",
+        "output": "[[3],[9,20],[15,7]]"
+      },
+      {
+        "input": "root = [1]",
+        "output": "[[1]]"
+      },
+      {
+        "input": "root = []",
+        "output": "[]"
+      }
+    ],
+    "constraints": [
+      "The number of nodes in the tree is in the range [0, 2000].",
+      "-1000 <= Node.val <= 1000"
+    ],
+    "testCases": [
+      {
+        "input": [3,9,20,null,null,15,7],
+        "output": [[3],[9,20],[15,7]],
+        "hidden": false
+      },
+      {
+        "input": [1],
+        "output": [[1]],
+        "hidden": false
+      },
+      {
+        "input": [],
+        "output": [],
+        "hidden": false
+      },
+      {
+        "input": [1,2,3,4,5],
+        "output": [[1],[2,3],[4,5]],
+        "hidden": false
+      }
+    ],
+    "solutionHint": "Use a queue to implement a breadth-first search traversal, keeping track of the level."
+  },
+  {
+    "id": "7",
+    "title": "Climbing Stairs",
+    "difficulty": "Easy",
+    "tags": ["Math", "Dynamic Programming", "Memoization"],
+    "description": "You are climbing a staircase. It takes n steps to reach the top.\n\nEach time you can either climb 1 or 2 steps. In how many distinct ways can you climb to the top?",
+    "examples": [
+      {
+        "input": "n = 2",
+        "output": "2",
+        "explanation": "There are two ways to climb to the top.\n1. 1 step + 1 step\n2. 2 steps"
+      },
+      {
+        "input": "n = 3",
+        "output": "3",
+        "explanation": "There are three ways to climb to the top.\n1. 1 step + 1 step + 1 step\n2. 1 step + 2 steps\n3. 2 steps + 1 step"
+      }
+    ],
+    "constraints": [
+      "1 <= n <= 45"
+    ],
+    "testCases": [
+      {
+        "input": 2,
+        "output": 2,
+        "hidden": false
+      },
+      {
+        "input": 3,
+        "output": 3,
+        "hidden": false
+        
+      },
+      {
+        "input": 4,
+        "output": 5,
+        "hidden": true
+      },
+      {
+        "input": 5,
+        "output": 8,
+        "hidden": true
+      }
+    ],
+    "solutionHint": "Notice the pattern of results. Try to find a recurrence relation."
+  },
+  {
+    "id": "8",
+    "title": "Longest Palindromic Substring",
+    "difficulty": "Medium",
+    "tags": ["String", "Dynamic Programming"],
+    "description": "Given a string s, return the longest palindromic substring in s.\n\nA palindrome is a string that reads the same backward as forward.",
+    "examples": [
+      {
+        "input": "s = \"babad\"",
+        "output": "\"bab\"",
+        "explanation": "\"aba\" is also a valid answer."
+      },
+      {
+        "input": "s = \"cbbd\"",
+        "output": "\"bb\""
+      }
+    ],
+    "constraints": [
+      "1 <= s.length <= 1000",
+      "s consist of only digits and English letters."
+    ],
+    "testCases": [
+      {
+        "input": "babad",
+        "output": "bab",
+        "hidden": false
+      },
+      {
+        "input": "cbbd",
+        "output": "bb",
+        "hidden": false
+      },
+      {
+        "input": "a",
+        "output": "a",
+        "hidden": true
+      },
+      {
+        "input": "racecar",
+        "output": "racecar",
+        "hidden": true
+      }
+    ],
+    "solutionHint": "Consider expanding around centers approach. For each position, expand outward to find palindromes."
+  },
+  {
+    "id": "9",
+    "title": "LRU Cache",
+    "difficulty": "Medium",
+    "tags": ["Hash Table", "Linked List", "Design"],
+    "description": "Design a data structure that follows the constraints of a Least Recently Used (LRU) cache.\n\nImplement the LRUCache class:\n- LRUCache(int capacity) Initialize the LRU cache with positive size capacity.\n- int get(int key) Return the value of the key if the key exists, otherwise return -1.\n- void put(int key, int value) Update the value of the key if the key exists. Otherwise, add the key-value pair to the cache. If the number of keys exceeds the capacity from this operation, evict the least recently used key.\n\nThe functions get and put must each run in O(1) average time complexity.",
+    "examples": [
+      {
+        "input": "[\"LRUCache\", \"put\", \"put\", \"get\", \"put\", \"get\", \"put\", \"get\", \"get\", \"get\"]\n[[2], [1, 1], [2, 2], [1], [3, 3], [2], [4, 4], [1], [3], [4]]",
+        "output": "[null, null, null, 1, null, -1, null, -1, 3, 4]",
+        "explanation": "LRUCache lRUCache = new LRUCache(2);\nlRUCache.put(1, 1); // cache is {1=1}\nlRUCache.put(2, 2); // cache is {1=1, 2=2}\nlRUCache.get(1);    // return 1\nlRUCache.put(3, 3); // LRU key was 2, evicts key 2, cache is {1=1, 3=3}\nlRUCache.get(2);    // returns -1 (not found)\nlRUCache.put(4, 4); // LRU key was 1, evicts key 1, cache is {4=4, 3=3}\nlRUCache.get(1);    // return -1 (not found)\nlRUCache.get(3);    // return 3\nlRUCache.get(4);    // return 4"
+      }
+    ],
+    "constraints": [
+      "1 <= capacity <= 3000",
+      "0 <= key <= 10^4",
+      "0 <= value <= 10^5",
+      "At most 2 * 10^5 calls will be made to get and put."
+    ],
+    "testCases": [
+      {
+        "input": "[\"LRUCache\", \"put\", \"put\", \"get\", \"put\", \"get\", \"put\", \"get\", \"get\", \"get\"]\n[[2], [1, 1], [2, 2], [1], [3, 3], [2], [4, 4], [1], [3], [4]]",
+        "output": "[null, null, null, 1, null, -1, null, -1, 3, 4]"
+      },
+      {
+        "input": "[\"LRUCache\",\"put\",\"get\"]\n[[1],[2,1],[2]]",
+        "output": "[null,null,1]"
+      }
+    ],
+    "solutionHint": "Consider using a combination of a hash map and a doubly linked list to achieve O(1) time complexity for both operations."
+  },
+  {
+    "id": "10",
+    "title": "Merge Intervals",
+    "difficulty": "Medium",
+    "tags": ["Array", "Sorting"],
+    "description": "Given an array of intervals where intervals[i] = [starti, endi], merge all overlapping intervals, and return an array of the non-overlapping intervals that cover all the intervals in the input.",
+    "examples": [
+      {
+        "input": "intervals = [[1,3],[2,6],[8,10],[15,18]]",
+        "output": "[[1,6],[8,10],[15,18]]",
+        "explanation": "Since intervals [1,3] and [2,6] overlap, merge them into [1,6]."
+      },
+      {
+        "input": "intervals = [[1,4],[4,5]]",
+        "output": "[[1,5]]",
+        "explanation": "Intervals [1,4] and [4,5] are considered overlapping."
+      }
+    ],
+    "constraints": [
+      "1 <= intervals.length <= 10^4",
+      "intervals[i].length == 2",
+      "0 <= starti <= endi <= 10^4"
+    ],
+    "testCases": [
+      {
+        "input": "[[1,3],[2,6],[8,10],[15,18]]",
+        "output": "[[1,6],[8,10],[15,18]]",
+        "hidden": false
+      },
+      {
+        "input": [[1,4],[4,5]],
+        "output": [[1,5]],
+        "hidden": false
+      },
+      {
+        "input": [[1,4],[0,4]],
+        "output": [[0,4]],
+        "hidden": true
+      },
+      {
+        "input": [[1,4],[2,3]],
+        "output": [[1,4]],
+        "hidden": true
+      }
+   ],
+    "solutionHint": "First sort the intervals by start time, then merge overlapping intervals by comparing the current interval with the last merged interval."
+  },
+  {
+    "id": "11",
+    "title": "Longest Common Prefix",
+    "difficulty": "Easy",
+    "tags": ["String", "trie - Prefix tree"],
+    "description": "Write a function to find the longest common prefix string amongst an array of strings.\nIf there is no common prefix, return an empty string.",
+    "examples": [
+      {
+        "input": "strs = ['flower','flow','flight']",
+        "output": "fl",
+        "explanation": "fl is the common prefix amognst all strings in the array."
+      },
+      {
+        "input": "strs = ['dog','racecar','car']",
+        "output": "",
+        "explanation": "There is no common prefix for each string in the list"
+      }
+    ],
+    "constraints": [
+      "1 <= strs.length <= 200",
+      "0 <= strs[i].length <= 200",
+      "strs[i] consists of only lowercase English letters if it is non-empty."
+    ],
+    "testCases": [
+      {
+        "input": ["star", "stuck", "stool", "step"],
+        "output": "st",
+        "hidden": false
+      },
+      {
+        "input": ["start", "starter"],
+        "output": "start",
+        "hidden": false
+      },
+      {
+        "input": ["agent", "acute", "accenture"],
+        "output": "a",
+        "hidden": true
+      },
+      {
+        "input": ["car", "cat", "call", "cafe", "cool"],
+        "output": "c"
+      }
+   ],
+    "solutionHint": "Try mapping out a prefix tree before implementing."
+  },
+  {
+    "id": "12",
+    "title": "Find the Index of First Occurrence in a String",
+    "difficulty": "Easy",
+    "tags": ["String", "Two Pointers"],
+    "description": "Given two strings needle and haystack, return the index of the first occurrence of needle in haystack, or -1 if needle is not part of haystack.",
+    "examples": [
+      {
+        "input": "haystack = \"sadbutsad\" needle = \"sad\".",
+        "output": 0,
+        "explanation": "The first occurence is at index 0 so we return 0"
+      },
+      {
+        "input": "haystack = \"leetcode\" needle = \"leeto\".",
+        "output": -1,
+        "explanation": "leeto did not occur in \"leetcode\", so we return -1"
+      }
+    ],
+    "constraints": [
+      "1 <= haystack.length, needle.length <= 104",
+      "haystack and needle consist of only lowercase English characters."
+    ],
+    "testCases": [
+      {
+        "input": ["episode", "so"],
+        "output": 3,
+        "hidden": false
+      },
+      {
+        "input": ["cape", "cab"],
+        "output": -1,
+        "hidden": false
+      },
+      {
+        "input": ["accenture", "ac"],
+        "output": 0,
+        "hidden": true
+      },
+      {
+        "input": ["cutie", "tie"],
+        "output": 2,
+        "hidden": true
+      }
+   ],
+    "solutionHint": "Try a sliding window technique with two pointers"
+  },
+  {
+    "id": "13",
+    "title": "Search Insert Position",
+    "difficulty": "Easy",
+    "tags": ["Array", "Binary Search"],
+    "description": "Given a sorted array of distinct integers and a target value, return the index if the target is found. If not, return the index where it would be if it were inserted in order.\nYou must write an algorithm with O(log n) runtime complexity.",
+    "examples": [
+      {
+        "input": "nums = [1,3,5,6], target = 5",
+        "output": 2,
+        "explanation": "As 5 exists in the array, return that index."
+      },
+      {
+        "input": "nums = [1,3,5,6], target = 2",
+        "output": 1,
+        "explanation": "The target 2 is not in the array, but it fits between 1 and 3. So the correct insertion index is 1 to maintain the sorted order." 
+      },
+       {
+        "input": "nums = [1,3,5,6], target = 7",
+        "output": 4,
+        "explanation": "The target 7 is not in the array. It is larger than the last item in the array, so it must come after the last item the correct insertion, which is 4." 
+      }
+    ],
+    "constraints": [
+      "1 <= nums.length <= 104",
+      "-104 <= nums[i] <= 104",
+      "nums contains distinct values sorted in ascending order.",
+      "-104 <= target <= 104"
+    ],
+    "testCases": [
+      {
+        "input": [[1,2,3], 1],
+        "output": 0,
+        "hidden": false
+      },
+      {
+        "input": [[1,3,5], 4],
+        "output": 2,
+        "hidden": false
+      },
+      {
+        "input": [[1,2,4,9,16,25], 24],
+        "output": 5,
+        "hidden": true
+      },
+      {
+        "input": [[10, 11, 12], 1],
+        "output": 0,
+        "hidden": true
+      }
+   ],
+    "solutionHint": "For an optimised solution O(log n) instead of O(n), use Binary Search"
+  }
+]
