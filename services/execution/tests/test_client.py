@@ -80,14 +80,14 @@ def solution(x):
         result1 = app.send_task(
             'execute_submission',
             args=[submission_id, submission_code, test_inputs, expected_outputs, function_name],
-            queue=os.environ.get("TARGET_QUEUE", "pythonq")
+            queue="pythonq"
         )
         print(f"Task sent successfully! Task ID: {result1.id}")
         
         result2 = app.send_task(
             'execute_submission',
-            args=[submission_id, submission_code, test_inputs, expected_outputs, function_name],
-            queue=os.environ.get("TARGET_QUEUE", "javaq")
+            args=[submission_id, java_code, test_inputs, expected_outputs, function_name],
+            queue="javaq"
         )
         
         print(f"Task sent successfully! Task ID: {result2.id}")

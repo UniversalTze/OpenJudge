@@ -11,7 +11,7 @@ services:
       timeout: 3s
       retries: 5
 
-  worker:
+  python-worker:
     build:
       context: .
       dockerfile: dockerfiles/Dockerfile.python
@@ -21,6 +21,23 @@ services:
       TARGET_QUEUE: pythonq
       OUTPUT_QUEUE: pythonoutputq
       LANGUAGE: python
+    command: celery -A src.receiver.celery worker --loglevel=info
+    depends_on:
+      redis:
+        condition: service_healthy
+    volumes:
+      - .:/app
+
+  java-worker:
+    build:
+      context: .
+      dockerfile: dockerfiles/Dockerfile.java
+    restart: always
+    environment:
+      CELERY_BROKER_URL: redis://redis:6379
+      TARGET_QUEUE: javaq
+      OUTPUT_QUEUE: javaoutputq
+      LANGUAGE: java
     command: celery -A src.receiver.celery worker --loglevel=info
     depends_on:
       redis:

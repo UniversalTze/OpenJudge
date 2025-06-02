@@ -20,7 +20,7 @@ For each supported language (described below), there must exist a unique input a
 **Language:** Python </br> **Package Manager** uv </br> **Concurrency:** Celery </br> **Message Broker:** Redis (Local) / SQS (Production) </br> **Containerisation:** Docker </br> **Sandboxing:** Firejail (TBC)
 
 ### Getting Started
-A `test_client.py` and `scripts/test.sh` (a bash script wrapper around docker compose for convenience - use docker compose or terraform for more robust testing) have been included for testing purposes. To run locally, from the `services/execution` directory, run the following commands:
+A `test_client.py` and `scripts/test.sh` (a bash script wrapper around docker compose for convenience on Unix systems - use docker compose or terraform for more robust testing or on other systems) have been included for testing purposes. To run locally, from the `services/execution` directory, run the following commands:
 
 ```bash
 scripts/test.sh start-bg
