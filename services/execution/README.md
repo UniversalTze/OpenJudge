@@ -126,6 +126,11 @@ An executor file must be created in the `src/executor` directory. This file must
 - The new executor should implement the method `_build_test_files` which builds the necessary test files for the submission code - no other files should be created. All test files should be created in the `self.test_dir` temporary directory created for this submission.
 - The new executor should implement the method `_get_execution_command` which provides a command that can be run to execute a given test case. This command should be returned as a list of strings (as required by the `subprocess` module).
 - The new executor should implement the method `_get_result` which takes in the process return code, standard out and standard error and returns a dictionary containing the result of the test case. The dictionary should contain the following keys: `passed`, `timeout`, `memory_exceeded`, `output`, `stdout` and `stderr`. The `output` key should contain the actual output from the submission code (and an empty string if an error occurred), `stdout` should contain the standard output from the test case and `stderr` should contain the standard error from the test case. The `passed` key should be a boolean indicating whether the test case passed.
+- A new entry should be added to the `executor_generator` function in `src/executor/__init__.py` to map the new language to the new executor class.
+- A new dockerfile should be added to the `dockerfiles` directory. This dockerfile should install all necessary dependencies for the new language. It should be named `Dockerfile.{language}`.
+- Additional terraform infrastructure must be added: 
+    - a new ecs task which builds the relevant docker image and runs the worker with the correct environment variables (`CELERY_BROKER_URL`, `INPUT_QUEUE`, `OUTPUT_QUEUE`, `LANGUAGE`).
+    - an SQS queue to and from this service for this language, with names `{language}q` and `{language}outputq`.
 
 ## Language Specific Requirements
 - Python: Currently no additional requirements.
