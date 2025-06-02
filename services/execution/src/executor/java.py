@@ -178,7 +178,7 @@ public class TestRunner {{
             f"cd {self.test_dir} && javac -cp /usr/share/java/javax.json-api.jar:/usr/share/java/javax.json.jar *.java && java -cp .:/usr/share/java/javax.json-api.jar:/usr/share/java/javax.json.jar TestRunner '{self.inputs[test_number]}' '{self.outputs[test_number]}'"
         ]
 
-    def _get_result(self, process: subprocess.Popen, stdout: bytes, stderr: bytes) -> dict:
+    def _get_result(self, returncode: int, stdout: bytes, stderr: bytes) -> dict:
         """
         Processes the result from a Java test execution.
         Matches the Python executor's logic exactly.
@@ -196,7 +196,7 @@ public class TestRunner {{
             stderr_text = stderr.decode() if stderr else ""
 
             # Check for different error conditions (same as Python executor)
-            if process.returncode == 124:
+            if returncode == 124:
                 # Timeout from the timeout command
                 return {
                     "passed": False,
@@ -206,7 +206,7 @@ public class TestRunner {{
                     "stdout": stdout_text,
                     "stderr": f"The code exceeded the time limit of {self.timeout} seconds."
                 }
-            elif process.returncode == 137 or "Cannot allocate memory" in stderr_text:
+            elif returncode == 137 or "Cannot allocate memory" in stderr_text:
                 # Memory limit exceeded
                 return {
                     "passed": False,
@@ -216,7 +216,7 @@ public class TestRunner {{
                     "stdout": stdout_text,
                     "stderr": "The code attempted to use more memory than allowed."
                 }
-            elif process.returncode == 232:
+            elif returncode == 232:
                 # Test failed - extract actual output (same logic as Python)
                 stderr_text = stderr_text.split('\n')[:-1]
 
@@ -230,7 +230,7 @@ public class TestRunner {{
                 }
             else:
                 # Normal execution
-                passed = process.returncode == 0
+                passed = returncode == 0
 
                 return {
                     "passed": passed,
