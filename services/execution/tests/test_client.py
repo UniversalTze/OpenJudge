@@ -79,14 +79,14 @@ def solution(x):
         # Send the task - use the correct task name that matches the worker
         result1 = app.send_task(
             'execute_submission',
-            args=[submission_id, submission_code, test_inputs, expected_outputs, function_name],
+            args=[submission_id + "_python", submission_code, test_inputs, expected_outputs, function_name],
             queue="pythonq"
         )
         print(f"Task sent successfully! Task ID: {result1.id}")
         
         result2 = app.send_task(
             'execute_submission',
-            args=[submission_id, java_code, test_inputs, expected_outputs, function_name],
+            args=[submission_id + "_java", java_code, test_inputs, expected_outputs, function_name],
             queue="javaq"
         )
         

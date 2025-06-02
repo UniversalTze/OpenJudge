@@ -10,7 +10,7 @@ class JavaExecutor(AbstractExecutor):
         Creates a Submission.java file and a test runner similar to Python executor.
         """
         # Create the submission Java file (always named Submission.java)
-        with open(self.test_dir / "Submission.java", "w") as submission_file:
+        with open(self.test_dir / "Solution.java", "w") as submission_file:
             submission_file.write(self.submission_code)
 
         # Create the test runner file (similar to Python's test_runner.py)
@@ -39,8 +39,8 @@ public class TestRunner {{
             // Convert JSON array to Object array for parameters
             Object[] parameters = jsonArrayToObjectArray((JsonArray) inputJson);
 
-            // Create instance of Submission class
-            Submission solution = new Submission();
+            // Create instance of Solution class
+            Solution solution = new Solution();
 
             // Call the function using reflection
             Object output = callFunction(solution, "{self.function_name}", parameters);
