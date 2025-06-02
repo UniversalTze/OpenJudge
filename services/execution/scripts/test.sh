@@ -44,27 +44,27 @@ case "${1:-help}" in
     
     "test")
         echo "Sending test request..."
-        docker-compose exec worker python test_client.py send
+        docker-compose exec worker python tests/test_client.py send
         ;;
 
     "test-listen")
         echo "Starting result listener..."
-        docker-compose exec worker python test_client.py listen
+        docker-compose exec worker python tests/test_client.py listen
         ;;
 
     "test-full")
         echo "Running full test (send request + listen for results + exit)..."
-        docker-compose exec worker python test_client.py full-test
+        docker-compose exec worker python tests/test_client.py full-test
         ;;
 
     "test-interactive")
         echo "Sending test request and listening for results (interactive)..."
-        docker-compose exec worker python test_client.py send-and-listen
+        docker-compose exec worker python tests/test_client.py send-and-listen
         ;;
 
     "test-run")
         echo "Running test client in new container..."
-        docker-compose run --rm test-client python test_client.py full-test
+        docker-compose run --rm test-client python tests/test_client.py full-test
         ;;
     
     "shell")
