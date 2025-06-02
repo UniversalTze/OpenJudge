@@ -8,9 +8,14 @@ from datetime import datetime
 class Problems(Base): 
     __tablename__ = 'Problem_Sets'
     problem_id = Column(String, primary_key=True)
-    description = Column(Text, nullable=False)
-    topics = Column(ARRAY(Text), nullable=False)
+    problem_title = Column(String, nullable=False)
     difficulty = Column(String, nullable=False)
-    test_cases = Column(ARRAY(Text), nullable=False)
+    topics = Column(ARRAY(String), nullable=False)
+    description = Column(Text, nullable=False)
+    examples = Column(Text, nullable=False)
+    constraints = Column(ARRAY(Text), nullable=False)
+    test_cases_input = Column(Text, nullable=False)
+    test_cases_output = Column(Text, nullable=False)
+    hint = Column(String, nullable=False)
     created_at = Column(DateTime(timezone=True), nullable=False, default=datetime.now())
 
