@@ -15,7 +15,8 @@ class JavaExecutor(AbstractExecutor):
 
         # Create the test runner file (similar to Python's test_runner.py)
         test_code = f'''
-import java.util.*;
+import javax.json.*;
+import java.io.*;
 import java.lang.reflect.*;
 
 public class TestRunner {{
@@ -26,9 +27,17 @@ public class TestRunner {{
         }}
 
         try {{
-            // Simple JSON parsing for basic types (no external dependencies)
-            Object[] parameters = parseJsonArray(args[0]);
-            Object expected = parseJsonValue(args[1]);
+            // Parse JSON using javax.json
+            JsonReader inputReader = Json.createReader(new StringReader(args[0]));
+            JsonValue inputJson = inputReader.readValue();
+            inputReader.close();
+
+            JsonReader expectedReader = Json.createReader(new StringReader(args[1]));
+            JsonValue expectedJson = expectedReader.readValue();
+            expectedReader.close();
+
+            // Convert JSON array to Object array for parameters
+            Object[] parameters = jsonArrayToObjectArray((JsonArray) inputJson);
 
             // Create instance of Submission class
             Submission solution = new Submission();
@@ -36,15 +45,19 @@ public class TestRunner {{
             // Call the function using reflection
             Object output = callFunction(solution, "{self.function_name}", parameters);
 
-            // Compare output with expected
-            if (!Objects.equals(output, expected)) {{
+            // Convert output to JSON string for comparison
+            String outputJson = objectToJsonString(output);
+            String expectedJsonString = expectedJson.toString();
+
+            // Compare JSON strings
+            if (!outputJson.equals(expectedJsonString)) {{
                 System.err.println();
-                System.err.print(output);
+                System.err.print(outputJson);
                 System.exit(232);
             }}
 
             System.err.println();
-            System.err.print("Passed but here is output: " + output);
+            System.err.print("Passed but here is output: " + outputJson);
             System.exit(0);
 
         }} catch (Exception e) {{
@@ -54,44 +67,51 @@ public class TestRunner {{
         }}
     }}
 
-    // Simple JSON array parser for basic types
-    private static Object[] parseJsonArray(String json) {{
-        json = json.trim();
-        if (!json.startsWith("[") || !json.endsWith("]")) {{
-            throw new IllegalArgumentException("Invalid JSON array: " + json);
+    // Convert JsonArray to Object array
+    private static Object[] jsonArrayToObjectArray(JsonArray jsonArray) {{
+        Object[] result = new Object[jsonArray.size()];
+        for (int i = 0; i < jsonArray.size(); i++) {{
+            result[i] = jsonValueToObject(jsonArray.get(i));
         }}
-
-        String content = json.substring(1, json.length() - 1).trim();
-        if (content.isEmpty()) {{
-            return new Object[0];
-        }}
-
-        String[] parts = content.split(",");
-        Object[] result = new Object[parts.length];
-
-        for (int i = 0; i < parts.length; i++) {{
-            result[i] = parseJsonValue(parts[i].trim());
-        }}
-
         return result;
     }}
 
-    // Simple JSON value parser for basic types
-    private static Object parseJsonValue(String json) {{
-        json = json.trim();
+    // Convert JsonValue to Java Object
+    private static Object jsonValueToObject(JsonValue jsonValue) {{
+        switch (jsonValue.getValueType()) {{
+            case STRING:
+                return ((JsonString) jsonValue).getString();
+            case NUMBER:
+                JsonNumber num = (JsonNumber) jsonValue;
+                if (num.isIntegral()) {{
+                    return num.intValue();
+                }} else {{
+                    return num.doubleValue();
+                }}
+            case TRUE:
+                return true;
+            case FALSE:
+                return false;
+            case NULL:
+                return null;
+            default:
+                return jsonValue.toString();
+        }}
+    }}
 
-        if (json.equals("null")) {{
-            return null;
-        }} else if (json.equals("true")) {{
-            return true;
-        }} else if (json.equals("false")) {{
-            return false;
-        }} else if (json.startsWith("\\"") && json.endsWith("\\"")) {{
-            return json.substring(1, json.length() - 1);
-        }} else if (json.contains(".")) {{
-            return Double.parseDouble(json);
+    // Convert Object to JSON string
+    private static String objectToJsonString(Object obj) {{
+        if (obj == null) {{
+            return "null";
+        }} else if (obj instanceof String) {{
+            return "\\"" + obj.toString().replace("\\"", "\\\\\\"") + "\\"";
+        }} else if (obj instanceof Boolean) {{
+            return obj.toString();
+        }} else if (obj instanceof Number) {{
+            return obj.toString();
         }} else {{
-            return Integer.parseInt(json);
+            // For other types, convert to string and quote
+            return "\\"" + obj.toString().replace("\\"", "\\\\\\"") + "\\"";
         }}
     }}
 
@@ -143,6 +163,7 @@ public class TestRunner {{
     def _get_execution_command(self, test_number: int) -> list:
         """
         Returns the command to execute the Java test file.
+        Matches Python executor pattern exactly.
 
         Args:
             test_number (int): The test number to execute.
@@ -150,18 +171,14 @@ public class TestRunner {{
         Returns:
             list: The command to compile and run the test.
         """
-        # Java requires compilation before execution, then run with JSON parameters
-        import json
-        input_json = json.dumps(self.inputs[test_number])
-        expected_json = json.dumps(self.outputs[test_number])
-
         # Return command as list (like Python executor)
+        # Java requires compilation before execution, then run with JSON parameters
         return [
             "bash", "-c",
-            f"cd {self.test_dir} && javac *.java && java TestRunner '{input_json}' '{expected_json}'"
+            f"cd {self.test_dir} && javac -cp /usr/share/java/javax.json-api.jar:/usr/share/java/javax.json.jar *.java && java -cp .:/usr/share/java/javax.json-api.jar:/usr/share/java/javax.json.jar TestRunner '{self.inputs[test_number]}' '{self.outputs[test_number]}'"
         ]
 
-    def _get_result(self, returncode: int, stdout: bytes, stderr: bytes) -> dict:
+    def _get_result(self, process: subprocess.Popen, stdout: bytes, stderr: bytes) -> dict:
         """
         Processes the result from a Java test execution.
         Matches the Python executor's logic exactly.
@@ -179,7 +196,7 @@ public class TestRunner {{
             stderr_text = stderr.decode() if stderr else ""
 
             # Check for different error conditions (same as Python executor)
-            if returncode == 124:
+            if process.returncode == 124:
                 # Timeout from the timeout command
                 return {
                     "passed": False,
@@ -189,7 +206,7 @@ public class TestRunner {{
                     "stdout": stdout_text,
                     "stderr": f"The code exceeded the time limit of {self.timeout} seconds."
                 }
-            elif returncode == 137 or "Cannot allocate memory" in stderr_text:
+            elif process.returncode == 137 or "Cannot allocate memory" in stderr_text:
                 # Memory limit exceeded
                 return {
                     "passed": False,
@@ -199,7 +216,7 @@ public class TestRunner {{
                     "stdout": stdout_text,
                     "stderr": "The code attempted to use more memory than allowed."
                 }
-            elif returncode == 232:
+            elif process.returncode == 232:
                 # Test failed - extract actual output (same logic as Python)
                 stderr_text = stderr_text.split('\n')[:-1]
 
@@ -213,7 +230,7 @@ public class TestRunner {{
                 }
             else:
                 # Normal execution
-                passed = returncode == 0
+                passed = process.returncode == 0
 
                 return {
                     "passed": passed,

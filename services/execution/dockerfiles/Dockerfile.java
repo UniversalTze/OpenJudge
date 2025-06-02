@@ -12,6 +12,8 @@ RUN apt-get update && apt-get install -y \
     python3-venv \
     # Java dependencies
     openjdk-17-jdk \
+    # JSON library for Java
+    libjavax-json-java \
     # General utilities
     curl \
     wget \
@@ -20,6 +22,13 @@ RUN apt-get update && apt-get install -y \
 # Set Java environment variables
 ENV JAVA_HOME=/usr/lib/jvm/java-17-openjdk-amd64
 ENV PATH="$JAVA_HOME/bin:$PATH"
+
+# Download and install javax.json implementation if not available via apt
+RUN mkdir -p /usr/share/java && \
+    curl -L -o /usr/share/java/javax.json-api.jar \
+    https://repo1.maven.org/maven2/javax/json/javax.json-api/1.1.4/javax.json-api-1.1.4.jar && \
+    curl -L -o /usr/share/java/javax.json.jar \
+    https://repo1.maven.org/maven2/org/glassfish/javax.json/1.1.4/javax.json-1.1.4.jar
 
 # Install uv for Python package management
 RUN pip3 install --no-cache-dir uv
