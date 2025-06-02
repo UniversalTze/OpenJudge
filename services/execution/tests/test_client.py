@@ -57,10 +57,23 @@ public class Solution {
     }
 }
 """
+
+    java_code_wrong = """
+public class Solution {
+    public static int solutions(int x) {
+        return x * 8;
+    }
+}
+"""
     
     submission_code = """
 def solution(x):
     return x * 5
+"""
+
+    submission_code_wrong = """
+def solutions(x):
+    return x * 7
 """
     
     test_inputs = [[5], [7], [13]]
@@ -91,9 +104,25 @@ def solution(x):
         )
         
         print(f"Task sent successfully! Task ID: {result2.id}")
+        
+        result1_wrong = app.send_task(
+            'execute_submission',
+            args=[submission_id + "_python_wr", submission_code_wrong, test_inputs, expected_outputs, "solutions"],
+            queue="pythonq"
+        )
+        print(f"Task sent successfully! Task ID: {result1.id}")
+        
+        result2_wrong = app.send_task(
+            'execute_submission',
+            args=[submission_id + "_java_wr", java_code_wrong, test_inputs, expected_outputs, "solutions"],
+            queue="javaq"
+        )
+        
+        print(f"Task sent successfully! Task ID: {result2.id}")
+        
         print("Check the worker logs for execution results.")
         
-        return result1, result2
+        return result1, result2, result1_wrong, result2_wrong
         
     except Exception as e:
         print(f"Error sending task: {e}")
