@@ -1,7 +1,6 @@
 """
 Executor for Python code.
 """
-import subprocess
 from src.executor.abstract_executor import AbstractExecutor
 
 class PythonExecutor(AbstractExecutor):
@@ -46,12 +45,12 @@ if __name__ == "__main__":
         """
         return ["python",  f"{self.test_dir}/test_runner.py", f"{self.inputs[test_number]}",  f"{self.outputs[test_number]}"]
     
-    def _get_result(self, process: subprocess.Popen, stdout: bytes, stderr: bytes) -> dict:
+    def _get_result(self, returncode: int, stdout: bytes, stderr: bytes) -> dict:
         """
         Processes the result from a test execution.
 
         Args:
-            process (subprocess.Popen): The process that ran the test.
+            returncode (int): The return code of the process.
             stdout (bytes): The standard output from the process.
             stderr (bytes): The standard error from the process.
 
@@ -63,7 +62,7 @@ if __name__ == "__main__":
             stderr_text = stderr.decode() if stderr else ""
 
             # Check for different error conditions
-            if process.returncode == 124:
+            if returncode == 124:
                 # Timeout from the timeout command
                 return {
                     "passed": False,
@@ -73,7 +72,7 @@ if __name__ == "__main__":
                     "stdout": stdout_text,
                     "stderr": f"The code exceeded the time limit of {self.timeout} seconds."
                 }
-            elif process.returncode == 137 or "Cannot allocate memory" in stderr_text:
+            elif returncode == 137 or "Cannot allocate memory" in stderr_text:
                 # Memory limit exceeded
                 return {
                     "passed": False,
@@ -83,9 +82,8 @@ if __name__ == "__main__":
                     "stdout": stdout_text,
                     "stderr": "The code attempted to use more memory than allowed."
                 }
-            elif process.returncode == 232:
+            elif returncode == 232:
                 stderr_text = stderr_text.split('\n')[:-1]
-                passed = process.returncode == 0
                 
                 return {
                     "passed": False,
@@ -97,7 +95,7 @@ if __name__ == "__main__":
                 }
             else:
                 # Normal execution
-                passed = process.returncode == 0
+                passed = returncode == 0
                 
                 return {
                     "passed": passed,

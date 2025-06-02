@@ -50,6 +50,14 @@ def send_test_request():
     app = setup_celery()
     
     # Sample test data
+    java_code = """
+public class Solution {
+    public static int solution(int x) {
+        return x * 5;
+    }
+}
+"""
+    
     submission_code = """
 def solution(x):
     return x * 5
@@ -69,16 +77,23 @@ def solution(x):
     
     try:
         # Send the task - use the correct task name that matches the worker
-        result = app.send_task(
+        result1 = app.send_task(
             'execute_submission',
             args=[submission_id, submission_code, test_inputs, expected_outputs, function_name],
             queue=os.environ.get("TARGET_QUEUE", "pythonq")
         )
+        print(f"Task sent successfully! Task ID: {result1.id}")
         
-        print(f"Task sent successfully! Task ID: {result.id}")
+        result2 = app.send_task(
+            'execute_submission',
+            args=[submission_id, submission_code, test_inputs, expected_outputs, function_name],
+            queue=os.environ.get("TARGET_QUEUE", "javaq")
+        )
+        
+        print(f"Task sent successfully! Task ID: {result2.id}")
         print("Check the worker logs for execution results.")
         
-        return result
+        return result1, result2
         
     except Exception as e:
         print(f"Error sending task: {e}")

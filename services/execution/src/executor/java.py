@@ -1,7 +1,6 @@
 """
 Executor for Java code.
 """
-import subprocess
 from src.executor.abstract_executor import AbstractExecutor
 
 class JavaExecutor(AbstractExecutor):
@@ -162,13 +161,13 @@ public class TestRunner {{
             f"cd {self.test_dir} && javac *.java && java TestRunner '{input_json}' '{expected_json}'"
         ]
 
-    def _get_result(self, process: subprocess.Popen, stdout: bytes, stderr: bytes) -> dict:
+    def _get_result(self, returncode: int, stdout: bytes, stderr: bytes) -> dict:
         """
         Processes the result from a Java test execution.
         Matches the Python executor's logic exactly.
 
         Args:
-            process (subprocess.Popen): The process that ran the test.
+            returncode (int): The return code from the process.
             stdout (bytes): The standard output from the process.
             stderr (bytes): The standard error from the process.
 
@@ -180,7 +179,7 @@ public class TestRunner {{
             stderr_text = stderr.decode() if stderr else ""
 
             # Check for different error conditions (same as Python executor)
-            if process.returncode == 124:
+            if returncode == 124:
                 # Timeout from the timeout command
                 return {
                     "passed": False,
@@ -190,7 +189,7 @@ public class TestRunner {{
                     "stdout": stdout_text,
                     "stderr": f"The code exceeded the time limit of {self.timeout} seconds."
                 }
-            elif process.returncode == 137 or "Cannot allocate memory" in stderr_text:
+            elif returncode == 137 or "Cannot allocate memory" in stderr_text:
                 # Memory limit exceeded
                 return {
                     "passed": False,
@@ -200,7 +199,7 @@ public class TestRunner {{
                     "stdout": stdout_text,
                     "stderr": "The code attempted to use more memory than allowed."
                 }
-            elif process.returncode == 232:
+            elif returncode == 232:
                 # Test failed - extract actual output (same logic as Python)
                 stderr_text = stderr_text.split('\n')[:-1]
 
@@ -214,7 +213,7 @@ public class TestRunner {{
                 }
             else:
                 # Normal execution
-                passed = process.returncode == 0
+                passed = returncode == 0
 
                 return {
                     "passed": passed,

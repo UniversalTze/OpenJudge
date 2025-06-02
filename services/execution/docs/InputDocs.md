@@ -1,1 +1,0 @@
-### Documentation for expected input via queue (through Celery)
