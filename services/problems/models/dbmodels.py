@@ -1,5 +1,4 @@
 # schemas of DB
-
 from .database import Base
 from sqlalchemy import Column, String, DateTime, Text
 from sqlalchemy.dialects.postgresql import ARRAY

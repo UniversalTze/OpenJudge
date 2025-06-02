@@ -1,63 +1,64 @@
 # Run migrations into the DB. Curl request to leet code for their question bank and add it to DB. 
 
-import requests
+import json, logging, asyncio, asyncpg, os
 from bs4 import BeautifulSoup
+# from database import engine, AsyncSessionLocal, Base
+# from sqlalchemy.ext.asyncio import AsyncSession
+
+FILE_PATH = "./problems.json"
+"""
 
 
-QUESTION_10 = "search-insert-position"
 
-questions = [QUESTION_10]
-url = "https://leetcode.com/graphql"
+async def init_db():
+    await wait_for_db(max_retries=10, delay=5)
+    async with engine.begin() as conn:
+        await conn.run_sync(dbmodels.Base.metadata.create_all)
+    
+    async with AsyncSessionLocal() as db: 
+        seed_from_json(FILE_PATH, db)
 
-for question in questions: 
-  specific_question_headers = {
-      "Content-Type": "application/json"
-  }
-  specific_question_payload = {
-      "query": """
-          query getQuestionDetail($titleSlug: String!) {
-              question(titleSlug: $titleSlug) {
-                  title
-                  content
-                  difficulty
-                  exampleTestcases
-                  topicTags {
-                    name
-                    slug
-                }
-              }
-          }
-      """,
-      "variables": {
-          "titleSlug": question
-      }
-  }
+async def wait_for_db(max_retries: int, delay:int):
+    con_logger = logging.getLogger("DB Connection starup")
+    con_logger.setLevel(level=logging.INFO)
+    SQLALCHEMY_DATABASE_URI = os.getenv("SQLALCHEMY_DATABASE_URI")
+    if not SQLALCHEMY_DATABASE_URI:
+        raise RuntimeError("SQLALCHEMY_DATABASE_URI is not set in environment...")
+    
+    DB_URI = SQLALCHEMY_DATABASE_URI.replace('postgresql+asyncpg', 'postgresql')
+    for attempt in range(max_retries):
+        con_logger.info("Attempting to connect to Postgress")
+        try:
+            conn = await asyncpg.connect(DB_URI)
+            await conn.close()
+            con_logger.info("Database is ready after successful connection")
+            return
+        except Exception as e:
+            con_logger.info(f"Connection attempt {attempt+1} failed: {str(e)}")
+            await asyncio.sleep(delay)
+    raise RuntimeError("Database connection failed after retries.")
 
-  specific_response = requests.post(url, json=specific_question_payload, headers=specific_question_headers)
 
-  content = specific_response.json()
-  print(content)
-  print((content["data"]["question"]["difficulty"])) # DIfficulty
-  soup = BeautifulSoup(content["data"]["question"]["content"], "html.parser")
-  print(soup.get_text()) # Description
+async def seed_from_json(json_path: str, db:AsyncSession):
+    with open(FILE_PATH, "r", encoding="utf-8") as file:
+        prob_set = json.load(file)
+        print(data)
+"""
 
-  print("Test cases: ")
-  soup2 = BeautifulSoup(content["data"]["question"]["exampleTestcases"], "html.parser")
-  print(soup2.get_text())
-  result = ""
-  resultarr = [] # ARRAY(Test Cases)
-  for char in soup2.get_text(): 
-    if char == '\n':
-      resultarr.append(result)
-      result = ""
-    else:
-      result += char
-  
-  # Last character
-  if result: 
-    resultarr.append(result)
+def work_out_json(file_path: str):
+     with open(FILE_PATH, "r", encoding="utf-8") as file:
+        prob_set = json.load(file)
+        for problem in prob_set:
+            prob_id = problem["id"]
+            title = problem["title"]
+            difficulty = problem["difficulty"]
+            topics = problem["tags"]
+            examples = json.dumps(problem["examples"])
+            constraints = problem["constraints"]
+            tests = json.dumps(problem["testCases"])
+            hint = problem["solutionHint"]
+            print(title)
 
-  print(resultarr)
 
-  Topics = [t["slug"] for t in content["data"]["question"]["topicTags"]]
-  print(Topics) # ARRAY(Topics)
+if __name__ == "__main__":
+    work_out_json(file_path=FILE_PATH)
