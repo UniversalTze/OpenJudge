@@ -25,28 +25,28 @@
     ],
     "testCases": [
       {
-        "input": "[2,7,11,15]\n9",
-        "output": "[0,1]",
+        "input": [[2,7,11,15],9],
+        "output": [0,1],
         "hidden": false
       },
       {
-        "input": "[3,2,4]\n6",
-        "output": "[1,2]",
+        "input": [[3,2,4],6],
+        "output": [1,2],
         "hidden": false
       },
       {
-        "input": "[3,3]\n6",
-        "output": "[0,1]",
+        "input": [[3,3],6],
+        "output": [0,1],
         "hidden": true
       },
       {
-        "input": "[1,5,8,3,9,2]\n7",
+        "input": [[1,5,8,3,9,2],7],
         "output": "[0,5]",
         "hidden": true
       },
       {
-        "input": "[1,2,3,4,5]\n10",
-        "output": "[]",
+        "input": [[1,2,3,4,5],10],
+        "output": [],
         "hidden": true
       }
     ],
@@ -60,12 +60,12 @@
     "description": "Given an integer x, return true if x is a palindrome, and false otherwise.",
     "examples": [
       {
-        "input": 121,
+        "input": "121",
         "output": "true",
         "explanation": "121 reads as 121 from left to right and left to right"
       },
       {
-        "input": -121,
+        "input": "-121",
         "output": "false",
         "explanation": "From left to right, it reads -121. From right to left, it becomes 121-. Therefore it is not a palindrome"
       }
@@ -76,22 +76,22 @@
     "testCases": [
       {
         "input": -100,
-        "output": "false",
+        "output": false,
         "hidden": false
       },
       {
         "input": 232,
-        "output": "true",
+        "output": true,
         "hidden": false
       },
       {
         "input": 550,
-        "output": "false",
+        "output": false,
         "hidden": false
       },
       {
         "input": 777,
-        "output": "true",
+        "output": true,
         "hidden": true
       },
       {
@@ -100,7 +100,7 @@
         "hidden": true
       }
     ],
-    "solutionHint": "Convert to string and use two pointer approach. Is there a way of doing this without converting to a string? (math (modulus and division)"
+    "solutionHint": "Convert to string and use two pointer approach. Is there a way of doing this without converting to a string? (math ->  (modulus and division))"
   },
   {
     "id": "3",
@@ -129,23 +129,23 @@
     ],
     "testCases": [
       {
-        "input": "[-2,1,-3,4,-1,2,1,-5,4]",
-        "output": "6",
+        "input": [-2,1,-3,4,-1,2,1,-5,4],
+        "output": 6,
         "hidden": false
       },
       {
-        "input": "[1]",
-        "output": "1",
+        "input": [1],
+        "output": 1,
         "hidden": false
       },
       {
-        "input": "[5,4,-1,7,8]",
-        "output": "23",
+        "input": [5,4,-1,7,8],
+        "output": 23,
         "hidden": true
       },
       {
-        "input": "[-1]",
-        "output": "-1",
+        "input": [-1],
+        "output": -1,
         "hidden": true
       }
     ],
@@ -178,23 +178,23 @@
     ],
     "testCases": [
       {
-        "input": "[1,2,4]\n[1,3,4]",
-        "output": "[1,1,2,3,4,4]",
+        "input": [[1,2,4],[1,3,4]],
+        "output": [1,1,2,3,4,4],
         "hidden": false
       },
       {
-        "input": "[]\n[]",
-        "output": "[]",
+        "input": [[],[]],
+        "output": [],
         "hidden": false
       },
       {
-        "input": "[]\n[0]",
-        "output": "[0]",
+        "input": [[], [0]],
+        "output": [0],
         "hidden": true
       },
       {
-        "input": "[1,5,7]\n[2,4,6]",
-        "output": "[1,2,4,5,6,7]",
+        "input": [[1,5,7],[2,4,6]],
+        "output": [1,2,4,5,6,7],
         "hidden": true
       }
     ]
@@ -225,32 +225,32 @@
     ],
     "testCases": [
       {
-        "input": "\"()\"",
-        "output": "true",
+        "input": "()",
+        "output": true,
         "hidden": false
       },
       {
-        "input": "\"()[]{}\"",
-        "output": "true",
+        "input": "()[]{}",
+        "output": true,
         "hidden": false
       },
       {
-        "input": "\"(]\"",
-        "output": "false",
+        "input": "(]",
+        "output": false,
         "hidden": true
       },
       {
-        "input": "\"([)]\"",
-        "output": "false",
+        "input": "([)]",
+        "output": false,
         "hidden": true
       },
       {
-        "input": "\"{[]}\"",
-        "output": "true",
+        "input": "{[]}",
+        "output": true,
         "hidden": "true"
       }
     ],
-    "solutionHint": "Consider using a stack data structure to keep track of opening brackets and match them with closing brackets."
+    "solutionHint": "Consider using a stack data structure to keep track of opening brackets and match them with closing brackets. Can this be done without a stack? (Recursion and think of handy rules)"
   },
   {
     "id": "6",
@@ -344,7 +344,7 @@
         "hidden": true
       }
     ],
-    "solutionHint": "Notice the pattern of results. Try to find a recurrence relation."
+    "solutionHint": "Notice the pattern of results. Try to find a recurrence relation. Draw it out"
   },
   {
     "id": "8",
@@ -393,37 +393,6 @@
   },
   {
     "id": "9",
-    "title": "LRU Cache",
-    "difficulty": "Medium",
-    "tags": ["Hash Table", "Linked List", "Design"],
-    "description": "Design a data structure that follows the constraints of a Least Recently Used (LRU) cache.\n\nImplement the LRUCache class:\n- LRUCache(int capacity) Initialize the LRU cache with positive size capacity.\n- int get(int key) Return the value of the key if the key exists, otherwise return -1.\n- void put(int key, int value) Update the value of the key if the key exists. Otherwise, add the key-value pair to the cache. If the number of keys exceeds the capacity from this operation, evict the least recently used key.\n\nThe functions get and put must each run in O(1) average time complexity.",
-    "examples": [
-      {
-        "input": "[\"LRUCache\", \"put\", \"put\", \"get\", \"put\", \"get\", \"put\", \"get\", \"get\", \"get\"]\n[[2], [1, 1], [2, 2], [1], [3, 3], [2], [4, 4], [1], [3], [4]]",
-        "output": "[null, null, null, 1, null, -1, null, -1, 3, 4]",
-        "explanation": "LRUCache lRUCache = new LRUCache(2);\nlRUCache.put(1, 1); // cache is {1=1}\nlRUCache.put(2, 2); // cache is {1=1, 2=2}\nlRUCache.get(1);    // return 1\nlRUCache.put(3, 3); // LRU key was 2, evicts key 2, cache is {1=1, 3=3}\nlRUCache.get(2);    // returns -1 (not found)\nlRUCache.put(4, 4); // LRU key was 1, evicts key 1, cache is {4=4, 3=3}\nlRUCache.get(1);    // return -1 (not found)\nlRUCache.get(3);    // return 3\nlRUCache.get(4);    // return 4"
-      }
-    ],
-    "constraints": [
-      "1 <= capacity <= 3000",
-      "0 <= key <= 10^4",
-      "0 <= value <= 10^5",
-      "At most 2 * 10^5 calls will be made to get and put."
-    ],
-    "testCases": [
-      {
-        "input": "[\"LRUCache\", \"put\", \"put\", \"get\", \"put\", \"get\", \"put\", \"get\", \"get\", \"get\"]\n[[2], [1, 1], [2, 2], [1], [3, 3], [2], [4, 4], [1], [3], [4]]",
-        "output": "[null, null, null, 1, null, -1, null, -1, 3, 4]"
-      },
-      {
-        "input": "[\"LRUCache\",\"put\",\"get\"]\n[[1],[2,1],[2]]",
-        "output": "[null,null,1]"
-      }
-    ],
-    "solutionHint": "Consider using a combination of a hash map and a doubly linked list to achieve O(1) time complexity for both operations."
-  },
-  {
-    "id": "10",
     "title": "Merge Intervals",
     "difficulty": "Medium",
     "tags": ["Array", "Sorting"],
@@ -447,8 +416,8 @@
     ],
     "testCases": [
       {
-        "input": "[[1,3],[2,6],[8,10],[15,18]]",
-        "output": "[[1,6],[8,10],[15,18]]",
+        "input": [[1,3],[2,6],[8,10],[15,18]],
+        "output": [[1,6],[8,10],[15,18]],
         "hidden": false
       },
       {
@@ -470,7 +439,7 @@
     "solutionHint": "First sort the intervals by start time, then merge overlapping intervals by comparing the current interval with the last merged interval."
   },
   {
-    "id": "11",
+    "id": "10",
     "title": "Longest Common Prefix",
     "difficulty": "Easy",
     "tags": ["String", "trie - Prefix tree"],
@@ -483,7 +452,7 @@
       },
       {
         "input": "strs = ['dog','racecar','car']",
-        "output": "",
+        "output": "\"\"",
         "explanation": "There is no common prefix for each string in the list"
       }
     ],
@@ -516,7 +485,7 @@
     "solutionHint": "Try mapping out a prefix tree before implementing."
   },
   {
-    "id": "12",
+    "id": "11",
     "title": "Find the Index of First Occurrence in a String",
     "difficulty": "Easy",
     "tags": ["String", "Two Pointers"],
@@ -524,12 +493,12 @@
     "examples": [
       {
         "input": "haystack = \"sadbutsad\" needle = \"sad\".",
-        "output": 0,
+        "output": "0",
         "explanation": "The first occurence is at index 0 so we return 0"
       },
       {
         "input": "haystack = \"leetcode\" needle = \"leeto\".",
-        "output": -1,
+        "output": "-1",
         "explanation": "leeto did not occur in \"leetcode\", so we return -1"
       }
     ],
@@ -562,7 +531,7 @@
     "solutionHint": "Try a sliding window technique with two pointers"
   },
   {
-    "id": "13",
+    "id": "12",
     "title": "Search Insert Position",
     "difficulty": "Easy",
     "tags": ["Array", "Binary Search"],
@@ -570,17 +539,17 @@
     "examples": [
       {
         "input": "nums = [1,3,5,6], target = 5",
-        "output": 2,
+        "output": "2",
         "explanation": "As 5 exists in the array, return that index."
       },
       {
         "input": "nums = [1,3,5,6], target = 2",
-        "output": 1,
+        "output": "1",
         "explanation": "The target 2 is not in the array, but it fits between 1 and 3. So the correct insertion index is 1 to maintain the sorted order." 
       },
        {
         "input": "nums = [1,3,5,6], target = 7",
-        "output": 4,
+        "output": "4",
         "explanation": "The target 7 is not in the array. It is larger than the last item in the array, so it must come after the last item the correct insertion, which is 4." 
       }
     ],
@@ -592,26 +561,170 @@
     ],
     "testCases": [
       {
-        "input": [[1,2,3], 1],
+        "input": [[1,2,3],1],
         "output": 0,
         "hidden": false
       },
       {
-        "input": [[1,3,5], 4],
+        "input": [[1,3,5],4],
         "output": 2,
         "hidden": false
       },
       {
-        "input": [[1,2,4,9,16,25], 24],
+        "input": [[1,2,4,9,16,25],24],
         "output": 5,
         "hidden": true
       },
       {
-        "input": [[10, 11, 12], 1],
+        "input": [[10, 11, 12],1],
         "output": 0,
         "hidden": true
       }
    ],
     "solutionHint": "For an optimised solution O(log n) instead of O(n), use Binary Search"
+  },
+  {
+    "id": "13",
+    "title": "First Unique Character in a string",
+    "difficulty": "Easy",
+    "tags": ["Hash Table", "Hash Table", "Queue", "Counting"],
+    "description": "Given a string s, find the first non-repeating character in it and return its index. If it does not exist, return -1.",
+    "examples": [
+      {
+        "input": "s = \"leetcode\"",
+        "output": "0",
+        "explanation": "The character 'l' at index 0 is the first character that does not occur at any other index."
+      },
+      {
+        "input": "s = \"loveleetcode\"",
+        "output": "2",
+        "explanation": "The character 'v' at index 2 is the first character that does not occur at any other index." 
+      },
+       {
+        "input": "s = \"aabb\"",
+        "output": "-1",
+        "explanation": "A non-repeating character does not exits. " 
+      }
+    ],
+    "constraints": [
+      "1 <= s.length <= 105",
+      "s consists of only lowercase English letters."
+      
+    ],
+    "testCases": [
+      {
+        "input": "levels",
+        "output": 2,
+        "hidden": false
+      },
+      {
+        "input": "paragraph",
+        "output": 4,
+        "hidden": false
+      },
+      {
+        "input": "carry",
+        "output": 0,
+        "hidden": true
+      },
+      {
+        "input": "abba",
+        "output": -1,
+        "hidden": true
+      }
+   ],
+    "solutionHint": "Use a hash map to count character frequencies of the chracter. Then scan the string to find index of first character with count of 1."
+  },
+  {
+    "id": "14",
+    "title": "Minimum Depth of Binary Tree",
+    "difficulty": "Easy",
+    "tags": ["Tree", "Depth-First Search", "Binary Tree", "Breadth-First Search"],
+    "description": "Given a binary tree, find its minimum depth.\n\nThe minimum depth is the number of nodes along the shortest path from the root node down to the nearest leaf node.\n\nNote: A leaf is a node with no children.",
+    "examples": [
+      {
+        "input": "root = [3,9,20,null,null,15,7]",
+        "output": "2",
+        "explanation": "In this tree, 9 and 20 are children of the root node 3 (depth 1). Node 9 has no children and is a leaf at depth 2. Node 20 has two children, 15 and 7, which are also leaf nodes but at depth 3. Since 9 is the closest leaf, the minimum depth is 2."
+      },
+      {
+        "input": "root = [2,null,3,null,4,null,5,null,6]",
+        "output": "5",
+        "explanation": "In this tree, 2 is the root node. It only has one child (node 3) at depth 2. Node 3 also only has one child (node 4) at depth 3. Node 4 only has one child, so on.... until node 6 at depth 5"
+      }
+    ],
+    "constraints": [
+      "The number of nodes in the tree is in the range [0, 100].",
+      "-1000 <= Node.val <= 1000"
+    ],
+    "testCases": [
+      {
+        "input": [[1,2]],
+        "output": 2,
+        "hidden": false
+      },
+      {
+        "input": [[100]],
+        "output": 1,
+        "hidden": false
+      },
+      {
+        "input": [[1,null,3,null,null,5,8,null,null,null,10]],
+        "output": 3,
+        "hidden": true
+      },
+      {
+        "input": [[10,11,12]],
+        "output": 1,
+        "hidden": true
+      }
+   ],
+    "solutionHint": "Using BFS, traverse the tree level by level (using a queue), and return the depth as soon as you reach the first leaf node (a node with no left or right child)."
+  },
+  {
+    "id": "15",
+    "title": "Kth Largest Element in an Array",
+    "difficulty": "Medium",
+    "tags": ["Array", "Divide and Conquer", "Sorting", "Heap (Priority Queue)", "Quick Select"],
+    "description": "Given an integer array nums and an integer k, return the kth largest element in the array.\n\nNote that it is the kth largest element in the sorted order, not the kth distinct element.",
+    "examples": [
+      {
+        "input": "nums = [3,2,1,5,6,4], k = 2",
+        "output": "5",
+        "explanation": "In this tree, 9 and 20 are children of the root node 3 (depth 1). Node 9 has no children and is a leaf at depth 2. Node 20 has two children, 15 and 7, which are also leaf nodes but at depth 3. Since 9 is the closest leaf, the minimum depth is 2."
+      },
+      {
+        "input": "nums = [3,2,3,1,2,4,5,5,6], k = 4",
+        "output": "4",
+        "explanation": "In this tree, 2 is the root node. It only has one child (node 3) at depth 2. Node 3 also only has one child (node 4) at depth 3. Node 4 only has one child, so on.... until node 6 at depth 5"
+      }
+    ],
+    "constraints": [
+      "The number of nodes in the tree is in the range [0, 100].",
+      "-1000 <= Node.val <= 1000"
+    ],
+    "testCases": [
+      {
+        "input": [[1,1,1,1],2],
+        "output": 1,
+        "hidden": false
+      },
+      {
+        "input": [[-1,2,1,-4,-2],3],
+        "output": -1,
+        "hidden": false
+      },
+      {
+        "input": [[3,8,6,6],2],
+        "output": 6,
+        "hidden": true
+      },
+      {
+        "input": [[10,9,-1,5,6,8,-5,15],4],
+        "output": 8,
+        "hidden": true
+      }
+   ],
+    "solutionHint": "Using a max heap, heapify the input array and then pop k times of that max heap to get kth largest integer (O(n + k log nm). Another solution: Sort it ourselves, and grab index we want (O(n log n). Another solution is: Could also use 'Quick Select Algorithm' Average time O(n), worst case O(n^2)) "
   }
 ]
