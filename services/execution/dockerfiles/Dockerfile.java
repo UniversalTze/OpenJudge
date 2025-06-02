@@ -1,18 +1,26 @@
-# Multi-language Dockerfile supporting both Python and Java
-FROM ubuntu:24.04
+# Multi-stage build for Java execution environment
+FROM python:3.12-slim AS python-base
+
+# Install uv
+RUN pip install --no-cache-dir uv
 
 # Set working directory
 WORKDIR /app
 
-# Install system dependencies
+# Copy requirements first to leverage Docker cache
+COPY pyproject.toml ./
+COPY uv.lock ./
+
+# Create a virtual environment and install dependencies
+RUN python -m venv /venv && \
+    /venv/bin/pip install --no-cache-dir -e .
+
+# Final stage with Java added
+FROM python:3.12-slim
+
+# Install Java and required dependencies
 RUN apt-get update && apt-get install -y \
-    # Python dependencies
-    python3 \
-    python3-pip \
-    python3-venv \
-    # Java dependencies
     openjdk-17-jdk \
-    # General utilities
     curl \
     wget \
     && rm -rf /var/lib/apt/lists/*
@@ -28,24 +36,20 @@ RUN mkdir -p /usr/share/java && \
     curl -L -o /usr/share/java/javax.json.jar \
     https://repo1.maven.org/maven2/org/glassfish/javax.json/1.1.4/javax.json-1.1.4.jar
 
-# Install uv for Python package management
-RUN pip3 install --no-cache-dir uv
+# Set working directory
+WORKDIR /app
 
-# Copy requirements first to leverage Docker cache
-COPY pyproject.toml ./
+# Copy the virtual environment from the python-base stage
+COPY --from=python-base /venv /venv
 
-# Copy the rest of the application
+# Copy the application code
 COPY . .
-
-# Create a virtual environment and install Python dependencies
-RUN python3 -m venv /venv && \
-    /venv/bin/pip install --no-cache-dir -e .
 
 # Add virtual environment to PATH
 ENV PATH="/venv/bin:$PATH"
 
 # Verify installations
-RUN python3 --version && java -version && javac -version
+RUN python --version && java -version && javac -version
 
 # Start the Celery worker
 CMD ["celery", "-A", "src.receiver.celery", "worker", "--loglevel=info"]
