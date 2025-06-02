@@ -132,7 +132,7 @@ class AbstractExecutor:
 
         # TODO - ONLY GIVE THE LAST X BYTES OF STDOUT AND STDERR!
         # Process the result using the subclass implementation
-        res = self._get_result(process, stdout, stderr)
+        res = self._get_result(process.returncode, stdout, stderr)
         result = {
             "submission_id": self.submission_id,
             "passed": res["passed"],
@@ -171,7 +171,7 @@ class AbstractExecutor:
         # Implement in subclasses
         raise NotImplementedError
 
-    def _get_result(self, process: subprocess.Popen, stdout: bytes, stderr: bytes) -> dict:
+    def _get_result(self, returncode: int, stdout: bytes, stderr: bytes) -> dict:
         """
         Collects the result from the subprocess running the test case.
 
