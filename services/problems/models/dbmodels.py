@@ -14,8 +14,7 @@ class Problems(Base):
     description = Column(Text, nullable=False)
     examples = Column(Text, nullable=False)
     constraints = Column(ARRAY(Text), nullable=False)
-    test_cases_input = Column(Text, nullable=False)
-    test_cases_output = Column(Text, nullable=False)
+    test_cases = Column(Text, nullable=False)
     hint = Column(String, nullable=False)
     created_at = Column(DateTime(timezone=True), nullable=False, default=datetime.now())
 
