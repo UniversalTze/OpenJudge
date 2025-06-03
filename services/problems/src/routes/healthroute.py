@@ -1,6 +1,6 @@
 import logging
 from fastapi import APIRouter, Depends
-from models import get_db
+from problems.src.models import get_db
 from sqlalchemy.ext.asyncio import AsyncSession
 from fastapi.responses import JSONResponse
 from sqlalchemy import text

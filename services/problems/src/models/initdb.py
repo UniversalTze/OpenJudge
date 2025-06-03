@@ -1,22 +1,20 @@
 # Run migrations into the DB. Curl request to leet code for their question bank and add it to DB. 
 
 import json, logging, asyncio, asyncpg, os
-from bs4 import BeautifulSoup
-# from database import engine, AsyncSessionLocal, Base
-# from sqlalchemy.ext.asyncio import AsyncSession
+from .database import engine, AsyncSessionLocal, Base
+from .dbmodels import Problems 
+from sqlalchemy.ext.asyncio import AsyncSession
+from sqlalchemy import select
 
-FILE_PATH = "./problems.json"
-"""
-
-
+FILE_PATH = "problems/src/models/problems.json"
 
 async def init_db():
     await wait_for_db(max_retries=10, delay=5)
     async with engine.begin() as conn:
-        await conn.run_sync(dbmodels.Base.metadata.create_all)
+        await conn.run_sync(Base.metadata.create_all)
     
     async with AsyncSessionLocal() as db: 
-        seed_from_json(FILE_PATH, db)
+        await seed_from_json(FILE_PATH, db)
 
 async def wait_for_db(max_retries: int, delay:int):
     con_logger = logging.getLogger("DB Connection starup")
@@ -40,25 +38,35 @@ async def wait_for_db(max_retries: int, delay:int):
 
 
 async def seed_from_json(json_path: str, db:AsyncSession):
+    logger = logging.getLogger("Connected to DB")
     with open(FILE_PATH, "r", encoding="utf-8") as file:
         prob_set = json.load(file)
-        print(data)
-"""
-
-def work_out_json(file_path: str):
-     with open(FILE_PATH, "r", encoding="utf-8") as file:
-        prob_set = json.load(file)
         for problem in prob_set:
-            prob_id = problem["id"]
-            title = problem["title"]
-            difficulty = problem["difficulty"]
-            topics = problem["tags"]
-            examples = json.dumps(problem["examples"])
-            constraints = problem["constraints"]
-            tests = json.dumps(problem["testCases"])
-            hint = problem["solutionHint"]
-            print(title)
+            result = await db.execute(
+                select(Problems).where(Problems.problem_id == str(problem["id"]))
+            )
+            existing = result.scalar_one_or_none()
+            print(f"============================================================={existing}")
 
+            if existing: 
+                logger.info(f"{problem['title']} already exists in DB. Skipping...")
+                continue
+
+            question = Problems(
+                problem_id = problem["id"],
+                problem_title = problem["title"],
+                difficulty = problem["difficulty"],
+                topics = problem["tags"],
+                description=problem["description"],
+                examples = json.dumps(problem["examples"]),
+                constraints = problem["constraints"],
+                test_cases = json.dumps(problem["testCases"]),
+                hint = problem["solutionHint"])
+            logger.info(f"Adding {problem["title"]} to DB")
+            db.add(question)
+            await db.commit()
+            await db.refresh(question)
 
 if __name__ == "__main__":
-    work_out_json(file_path=FILE_PATH)
+    logging.basicConfig(level=logging.INFO)
+    asyncio.run(init_db())

@@ -2,8 +2,7 @@ import logging
 from fastapi import APIRouter, Request, Depends
 from fastapi.responses import JSONResponse
 from sqlalchemy.ext.asyncio import AsyncSession
-from models import crud
-from models import get_db
+from problems.src.models import crud, get_db
 
 problemrouter = APIRouter()
 # problem_logs = logging.getLogger("app.requests")

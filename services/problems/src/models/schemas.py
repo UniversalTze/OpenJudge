@@ -13,5 +13,5 @@ class Problem(BaseModel):
     examples: str
     constraints: List[str]
     test_cases: str
-    hint = str
-    created_at = str
+    hint: str
+    created_at: str
