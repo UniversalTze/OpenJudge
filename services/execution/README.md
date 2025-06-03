@@ -92,6 +92,7 @@ All results sent to the queue are structured in the following format. Note that 
 ```json
 {
     "submission_id": "string",
+    "test_number": "int",
     "passed": "bool", // Whether this particular test case was passed
     "inputs": "list", // The input parameters for the test case
     "expected": "string", // The expected output for the test case

@@ -135,6 +135,7 @@ class AbstractExecutor:
         res = self._get_result(process.returncode, stdout, stderr)
         result = {
             "submission_id": self.submission_id,
+            "test_number": test_index,
             "passed": res["passed"],
             "inputs": self.inputs[test_index],
             "expected": self.outputs[test_index],
@@ -142,7 +143,7 @@ class AbstractExecutor:
             "stdout": res["stdout"],
             "error": "timeout" if res["timeout"] else "memory_limit_exceeded" if res["memory_exceeded"] else res["stderr"]
         }
-        
+
         # Send the result back via the output queue
         self.send_results(result)
         print(f"Result of test {test_index}:\n", result)
