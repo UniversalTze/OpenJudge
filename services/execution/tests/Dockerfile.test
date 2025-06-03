@@ -22,6 +22,3 @@ ENV PATH="/venv/bin:$PATH"
 
 # Verify installation
 RUN python --version && celery --version
-
-# Start the Celery worker
-CMD ["celery", "-A", "src.receiver.celery", "worker", "--loglevel=info"]

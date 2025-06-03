@@ -45,21 +45,15 @@ services:
     volumes:
       - .:/app
 
-  # Optional: Add a test client service for sending test requests
-  # test-client:
-  #   build:
-  #     context: .
-  #     dockerfile: dockerfiles/Dockerfile.python
-  #   environment:
-  #     CELERY_BROKER_URL: redis://redis:6379
-  #     TARGET_QUEUE: pythonq
-  #     OUTPUT_QUEUE: pythonoutputq
-  #     LANGUAGE: python
-  #   command: python -c "print('Test client ready. Use this container to send test requests.')"
-  #   depends_on:
-  #     redis:
-  #       condition: service_healthy
-  #   volumes:
-  #     - .:/app
-  #   profiles:
-  #     - testing
+  test-client:
+    build:
+      context: .
+      dockerfile: tests/Dockerfile.test
+    environment:
+      CELERY_BROKER_URL: redis://redis:6379
+    command: bash
+    depends_on:
+      redis:
+        condition: service_healthy
+    volumes:
+      - .:/app
