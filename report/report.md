@@ -9,8 +9,15 @@ Mittun Sudhahar
 Aryaman Tiwari 
 
 ### Abstract
-TODO: Summarise the key points of your proposal.
-ASSIGNED TO:
+OpenJudge is a learning-oriented code evaluation platform that prioritizes transparency over the 
+traditionally opaque test suites found on most learning platforms like LeetCode. Designed as an 
+alternative to those platforms, this system distinguishes itself by providing complete visibility 
+of the test cases with detailed feedback mechanisms that enable users to understand their coding 
+mistakes rather than receiving cryptic pass/fail notifications. 
+
+The key Architecturally Significant Requirements (ASRs) for this project were: Security, Scalability
+and Deployability. 
+...
 
 ## Changes
 TODO: Describe and justify any changes made to the project from what was outlined in the proposal.
