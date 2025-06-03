@@ -45,7 +45,7 @@ def setup_result_listener():
     def receive_results(results):
         # Add new result in csv format
         with open(LOG_FILE, 'a') as f:
-            f.write(results['submission_id'] + ',' + results['passed'] + '\n')
+            f.write(str(results['submission_id']) + ',' + str(results['passed']) + '\n')
             
     return app, receive_results
 
