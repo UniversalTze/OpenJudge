@@ -145,7 +145,7 @@ def run_tests():
     # Set up Celery apps for sending and receiving
     app = setup_celery()
     with open(LOG_FILE, "w") as f:
-        f.write("[]")
+        f.write(dumps([]))
     
     # For each test case and language, send the request
     for lang in languages:
