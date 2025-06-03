@@ -93,7 +93,7 @@ def listen_for_results(duration_seconds=30):
     try:
         while time.time() < end_time:
             remaining = int(end_time - time.time())
-            print(f"\rListening... {remaining}s remaining ({results_received} results received)", end="", flush=True)
+            print(f"\rListening... {remaining}s remaining", end="", flush=True)
             time.sleep(3)
             
         print("\n⏱️ Listening period ended.")
@@ -160,7 +160,7 @@ def run_tests():
         results = f.read()
         
     results_dict = {}
-    for line in results.split('\n'):
+    for line in results.split('\n')[:-1]:
         result = line.split(',')
         submission_id = result[0]
         passed = result[1]
