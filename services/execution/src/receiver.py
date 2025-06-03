@@ -45,7 +45,6 @@ def execute_submission(
         list: Results for each test case (pass/fail and error messages).
     """
     print(f"RECEIVED TASK {submission_id}")
-    print("SUBMISSION CODE: ", submission_code)
     # Run tests in sandboxed environment
     test_runner = executor(
         function_name,
