@@ -7,12 +7,13 @@ This script can be used to send test requests to the Celery worker and listen fo
 import os
 import sys
 import time
-from json import loads
+from json import loads, dumps
 from celery import Celery
 from pathlib import Path
 
 # Global constants for testing purposes
 LOG_FILE = Path(__file__).parent / 'test_client.log'
+OUTPUT_FILE = Path(__file__).parent / 'test_client.output'
 TEST_CASE_DIR = Path(__file__).parent / "test_cases"
 with open(TEST_CASE_DIR / "test_cases.json", "r") as f:
     ALL_TEST_INFO = loads(f.read())
@@ -43,8 +44,13 @@ def setup_result_listener():
     # Define a task to receive results
     @app.task(name="result", queue=output_queue)
     def receive_results(results):
-        # Add new result in csv format
+        # Log results
         with open(LOG_FILE, 'a') as f:
+            f.write(dumps(results))
+            f.write('\n')
+        
+        # Add new result in csv format
+        with open(OUTPUT_FILE, 'a') as f:
             f.write(str(results['submission_id']) + ',' + str(results['passed']) + '\n')
             
     return app, receive_results
@@ -105,7 +111,6 @@ def listen_for_results(duration_seconds=30):
     finally:
         # Stop the worker
         worker.stop()
-        print(f"📊 Total results received: {results_received}")
     return 
  
 def get_ext(lang):
@@ -137,9 +142,11 @@ def run_tests():
     # Set up Celery apps for sending and receiving
     app = setup_celery()
     
-    # Clear log file
-    with open(LOG_FILE, "w") as f:
+    # Clear output and log file
+    with open(OUTPUT_FILE, "w") as f:
         f.write('')
+    with open(LOG_FILE, 'a') as f:
+            f.write('')
     
     # For each test case and language, send the request
     for lang in languages:
@@ -153,10 +160,10 @@ def run_tests():
     
     # Results will be monitored asynchronously - print 20s
     listen_for_results(duration_seconds=20)
-    time.sleep(2)
-    
+    time.sleep(1)
+
     # Construct results
-    with open(LOG_FILE, "r") as f:
+    with open(OUTPUT_FILE, "r") as f:
         results = f.read()
         
     results_dict = {}
