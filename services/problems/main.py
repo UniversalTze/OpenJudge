@@ -1,6 +1,9 @@
-def main():
-    print("Hello from problems!")
+from fastapi import FastAPI, Request
+from problems import healthrouter, problemrouter
 
 
-if __name__ == "__main__":
-    main()
+app = FastAPI()
+
+app.include_router(healthrouter, prefix="/api/v1")
+app.include_router(problemrouter, prefix="/api/v1")
+

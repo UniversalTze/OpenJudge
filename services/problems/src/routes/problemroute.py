@@ -5,10 +5,10 @@ from sqlalchemy.ext.asyncio import AsyncSession
 from models import crud
 from models import get_db
 
-problemRouter = APIRouter()
+problemrouter = APIRouter()
 # problem_logs = logging.getLogger("app.requests")
 
-@problemRouter.get('/problem/{lab_id}')
+@problemrouter.get('/problem/{lab_id}')
 async def get_lab_results(lab_id: str,
                     request: Request = None, 
                     db:AsyncSession = Depends(get_db)):
