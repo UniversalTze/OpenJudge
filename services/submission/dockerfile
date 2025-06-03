@@ -7,8 +7,14 @@ RUN apt-get update && \
 RUN pip install --upgrade pip
 RUN pip install --target=/install -r requirements.txt
 
-COPY requirements.txt .
-RUN pip install --no-cache-dir -r requirements.txt
+
+FROM python:3.10-slim
+WORKDIR /app
+COPY --from=builder /install /usr/local/lib/python3.10/site-packages
 COPY . .
 EXPOSE 5000
-CMD ["flask", "run", "--host=0.0.0.0"]
+
+ENV FLASK_ENV=production
+ENV USE_SQS=false
+
+CMD ["gunicorn", "--bind", "0.0.0.0:5000", "main:app", "--workers", "4"]
