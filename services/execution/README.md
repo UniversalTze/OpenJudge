@@ -20,28 +20,27 @@ For each supported language (described below), there must exist a unique input a
 **Language:** Python </br> **Package Manager** uv </br> **Concurrency:** Celery </br> **Message Broker:** Redis (Local) / SQS (Production) </br> **Containerisation:** Docker </br> **Sandboxing:** Firejail (TBC)
 
 ### Getting Started
-A `test_client.py` and `scripts/test.sh` (a bash script wrapper around docker compose for convenience on Unix systems - use docker compose or terraform for more robust testing or on other systems) have been included for testing purposes. To run locally, from the `services/execution` directory, run the following commands:
+A `test_client.py` and `docker-compose.yaml` have been included for testing purposes. To run locally, from the `services/execution` directory, run the following commands:
 
 ```bash
-scripts/test.sh start-bg
+docker compose up --build -d
 ```  
 
-This will start the services in the background using the docker compose file. You can then run the tests via
-
+This will build start the services in the background using the docker compose file. You can then use docker compose to check the logs of each worker and access the local redis instance via:
 ```bash
-scripts/test.sh test-full
+docker compose logs -f python-worker
+docker compose logs -f java-worker
+docker compose exec redis redis-cli
 ```
 
-This will test the python and java executor and check that submissions can be sent and results are received in the appropriate format in a timely manner. You can check the logs of the worker for debug output via:
-
+To stop the containers, run:
 ```bash
-scripts/test.sh logs-worker
+docker compose down
 ```
-
-To stop the services, run:
-```bash
-scripts/test.sh stop
-```
+  
+See the [Testing](#testing) section for a more comprehensive guide on how to run unit tests for this microservice.
+  
+See the [Scalability](#performance-testing) section for a guide on how to run performance tests (using k6) for this microservice.
 
 ## Documentation
 ### Currently Supported Languages
@@ -135,3 +134,16 @@ An executor file must be created in the `src/executor` directory. This file must
 ## Language Specific Requirements
 - Python: Currently no additional requirements.
 - Java: Submission code must be in a class named `Solution` and the function to be tested must be a public static method with the function name specified in the input.
+
+## Testing
+### Local Unit Tests
+To run tests locally, first.... TODO
+
+### Integration Testing
+TODO
+
+### Deployment Testing
+TODO
+
+### Performance Testing
+TODO
