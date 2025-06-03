@@ -14,16 +14,17 @@ team members are already familiar with it.
 
 **Context** 
 For this project, data that needs to be stored include: 
-- User information.
-- List of problem attempted by specific user. 
-- Session token id (for security).
-- Answer that user submits.
-- Potentially what was last entered by user. 
+- User information and avatar (additive)
+- List of problems available to the user and the metadata.
+- List of problems attempted by specific user. 
+- Session token ids (for security) and other security JWT tokens from our Auth service.
+- User submissions. 
+- List of problems completed by user. 
 
 **Decision** \
 We decided to implement use PostgreSQL for persisent storage for some of the things highlighted in the context. 
-A Non SQL databse may also be needed for this system due to some of the data having no structure. DynamoDB could be an 
-option. 
+Given the team’s familiarity with PostgreSQL and the tightening exam deadlines, we decided it was the most optimal decision to proceed with the PostgreSQL.
+
 **Consequences** \
-We may have to learn to use 2 different databases which may increase cost. We will also have to learn about
-Dynamo DB and how to setup the initial configuration. 
+The team miss out on an oppurtunity to potentially explore with non-relational databases and how they work with data. 
+Additonal overhead for processing JSON items from the Problem, Test Runner and Front End service may be encountered. 
