@@ -53,7 +53,7 @@ def setup_result_listener():
         
         # Add new result
         with open(LOG_FILE, 'a') as f:
-            f.write(dumps(json_results.append(results)) + ",\n")
+            f.write(dumps(json_results.append(results)))
             
     return app, receive_results
 
