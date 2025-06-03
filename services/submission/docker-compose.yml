@@ -1,4 +1,5 @@
 version: '3.8'
+
 services:
   db:
     image: postgres:13
@@ -22,29 +23,40 @@ services:
       - db
       - redis
     environment:
-      # Connection string for local Postgres
       DATABASE_URL: postgresql://postgres:postgres@db:5432/submissions
-      # Redis for RQ
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-      # Use local RQ (not SQS)
-      USE_SQS: 'false'
+      CELERY_BROKER_URL: redis://redis:6379/0
+      INPUT_QUEUE: execute_queue          # matches Execution Service’s INPUT_QUEUE
+      OUTPUT_QUEUE: result_queue          # Execution Service will send to this queue
+      CALLBACK_TIMEOUT_SECONDS: 600
     ports:
       - "5000:5000"
     volumes:
       - .:/app
 
-  worker:
+  celery_worker:
     build: .
     depends_on:
       - db
       - redis
-    command: rq worker submission-tasks
     environment:
       DATABASE_URL: postgresql://postgres:postgres@db:5432/submissions
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-      USE_SQS: 'false'
+      CELERY_BROKER_URL: redis://redis:6379/0
+      INPUT_QUEUE: execute_queue
+      OUTPUT_QUEUE: result_queue
+      CALLBACK_TIMEOUT_SECONDS: 600
+    # Run a Celery worker that only processes the "result_queue" for receive_result tasks
+    command: celery -A queue_utils.celery worker --loglevel=info -Q result_queue
+
+  # Optional: Execution Service container, if you want to run it locally
+  # execution_service:
+  #   image: your-execution-service-image
+  #   environment:
+  #     BROKER: redis://redis:6379/0
+  #     INPUT_QUEUE: execute_queue
+  #     OUTPUT_QUEUE: result_queue
+  #     LANGUAGE: python
+  #   depends_on:
+  #     - redis
 
 volumes:
   db_data:
