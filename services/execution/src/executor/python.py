@@ -1,10 +1,10 @@
 """
 Executor for Python code.
 """
-import subprocess
 from src.executor.abstract_executor import AbstractExecutor
 
 class PythonExecutor(AbstractExecutor):
+    # PUBLIC METHODS
     def _build_test_files(self):
         """
         Builds the test files for the Python submission.
@@ -14,89 +14,103 @@ class PythonExecutor(AbstractExecutor):
         with open(self.test_dir / "submission.py", "w") as submission_file:
             submission_file.write(self.submission_code)
 
-        # Create the test files
-        for i, test_case in enumerate(self.test_cases):
-            with open(self.test_dir / f"test_{i}.py", "w") as test_file:
-                self._write_test_case(test_case, i, test_file)
+        # Create the test file
+        test_code = f'''
+from submission import {self.function_name}
+from json import loads
+from sys import argv, stderr, exit
 
-    def _get_execution_command(self, test_number):
+if __name__ == "__main__":
+    parameters = loads(argv[1])
+    expected = loads(argv[2])
+    output = {self.function_name}(*parameters)
+    if output != expected:
+        print("\\n", output, sep="", file=stderr)
+        exit(232)
+    print("\\nPassed but here is output: ", output, file=stderr)
+    exit(0)
+        '''
+        with open(self.test_dir / "test_runner.py", "w") as test_file:
+            test_file.write(test_code)
+
+    def _get_execution_command(self, test_number: int) -> str:
         """
-        Writes a test case to a file.
+        Returns the command to execute the Python test file.
 
         Args:
-            test_case (dict): The test case dictionary.
-            test_number (int): The test case number (unused but kept for future use).
-            test_file: The file object to write to.
-        """
-        # TODO - UPDATE THIS TO USE THE CORRECT PYTHON COMMAND FOR ANY INFRASTRUCTURE!
-        test_file = self.test_dir / f"test_{test_number}.py"
-        return f"python3 {test_file}" 
+            test_number (int): The test number to execute.
 
-    def _get_result(self, process: subprocess.Popen) -> dict:
+        Returns:
+            str: The command to run the test.
+        """
+        return ["python",  f"{self.test_dir}/test_runner.py", f"{self.inputs[test_number]}",  f"{self.outputs[test_number]}"]
+    
+    def _get_result(self, returncode: int, stdout: bytes, stderr: bytes) -> dict:
         """
         Processes the result from a test execution.
 
         Args:
-            process (subprocess.Popen): The process that ran the test.
+            returncode (int): The return code of the process.
+            stdout (bytes): The standard output from the process.
+            stderr (bytes): The standard error from the process.
 
         Returns:
             dict: The result of the test execution.
         """
-        # TODO - UPDATE THIS TO ALSO RETURN IF MEMORY ALLOCATION EXCEEDED!
         try:
-            stdout, stderr = process.communicate()
-            stdout_text = stdout.decode()
-            stderr_text = stderr.decode()
+            stdout_text = stdout.decode() if stdout else ""
+            stderr_text = stderr.decode() if stderr else ""
 
             # Check for different error conditions
-            if process.returncode == 124:
+            if returncode == 124:
                 # Timeout from the timeout command
                 return {
                     "passed": False,
                     "timeout": True,
-                    "stdout": "",
+                    "memory_exceeded": False,
+                    "output": "",
+                    "stdout": stdout_text,
                     "stderr": f"The code exceeded the time limit of {self.timeout} seconds."
                 }
-            elif process.returncode == 137 or "Cannot allocate memory" in stderr_text:
+            elif returncode == 137 or "Cannot allocate memory" in stderr_text:
                 # Memory limit exceeded
                 return {
                     "passed": False,
                     "timeout": False,
-                    "stdout": "",
+                    "output": "",
+                    "memory_exceeded": True,
+                    "stdout": stdout_text,
                     "stderr": "The code attempted to use more memory than allowed."
+                }
+            elif returncode == 232:
+                stderr_text = stderr_text.split('\n')[:-1]
+                
+                return {
+                    "passed": False,
+                    "timeout": False,
+                    "output": stderr_text[-1],
+                    "memory_exceeded": False,
+                    "stdout": stdout_text,
+                    "stderr": '\n'.join(stderr_text[:-1])
                 }
             else:
                 # Normal execution
+                passed = returncode == 0
+                
                 return {
-                    "passed": process.returncode == 0,
+                    "passed": passed,
                     "timeout": False,
+                    "output": "",
+                    "memory_exceeded": False,
                     "stdout": stdout_text,
-                    "stderr": self._filter_error_message(stderr_text)
+                    "stderr": stderr_text if not passed else ""
                 }
         except Exception as e:
             # Handle any unexpected errors
             return {
                 "passed": False,
                 "timeout": False,
+                "memory_exceeded": False,
                 "stdout": "",
                 "stderr": f"Error processing test result: {str(e)}"
             }
-
-    def _filter_error_message(self, error_message: str) -> str:
-        """
-        Filters the error message to only include relevant lines.
-
-        Args:
-            error_message (str): The full error message.
-
-        Returns:
-            str: The filtered error message.
-        """
-        if not error_message:
-            return ""
-
-        lines = error_message.splitlines()
-        return "\n".join(
-            line for line in lines
-            if "test_" in line or "submission.py" in line
-        )

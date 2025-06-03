@@ -1,0 +1,53 @@
+# Docker Compose for Local Testing of Execution Service
+services:
+  redis:
+    image: redis:latest
+    restart: always
+    ports:
+      - "6379:6379"
+    healthcheck:
+      test: ["CMD", "redis-cli", "ping"]
+      interval: 5s
+      timeout: 3s
+      retries: 5
+
+  python-worker:
+    build:
+      context: ../../services/execution
+      dockerfile: ../../infrastructure/docker/execution/Dockerfile.python
+    restart: always
+    environment:
+      CELERY_BROKER_URL: redis://redis:6379
+      TARGET_QUEUE: pythonq
+      OUTPUT_QUEUE: outputq
+      LANGUAGE: python
+    command: celery -A src.receiver.celery worker --loglevel=info
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  java-worker:
+    build:
+      context: ../../services/execution
+      dockerfile: ../../infrastructure/docker/execution/Dockerfile.java
+    restart: always
+    environment:
+      CELERY_BROKER_URL: redis://redis:6379
+      TARGET_QUEUE: javaq
+      OUTPUT_QUEUE: outputq
+      LANGUAGE: java
+    command: celery -A src.receiver.celery worker --loglevel=info
+    depends_on:
+      redis:
+        condition: service_healthy
+
+  test-client:
+    build:
+      context: ../../services/execution
+      dockerfile: ../../infrastructure/docker/execution/Dockerfile.test
+    environment:
+      CELERY_BROKER_URL: redis://redis:6379
+    command: bash -c "echo 'Test client container is running. Connect with `docker compose exec test-client bash`'; while true; do sleep 360; done" # Loop indefinitely in main thread
+    depends_on:
+      redis:
+        condition: service_healthy

@@ -8,44 +8,58 @@ tasks:
     desc: Run the authentication service in development mode.
     cmds:
       - docker-compose -f infrastructure/docker/docker-compose.yml -p openjudge-auth up authentication_service trl user_database objectstorage -d
-    silent: false
+    silent: true
 
-  test:auth:
+  #test:auth:
+
+  # EXECUTION SERVICE COMMANDS
+  run:execution:
+    desc: Run the execution service in development mode.
+    cmds:
+      - docker compose -f infrastructure/docker/docker-compose-execution.yaml -p openjudge-execution up --build -d
+    silent: true
+
+  test:execution:
+    desc: Run the execution service in development mode, and then runs unit tests against this service.
+    cmds:
+      - docker compose -f infrastructure/docker/docker-compose-execution.yaml -p openjudge-execution up --build -d
+      - docker compose exec test-client python test_client.py
+    silent: true
 
   # APPLICATION COMMANDS
-  run:app:
+  #run:app:
 
-  test:app:
+  #test:app:
 
   # PROJECT COMMANDS
   run: 
     desc: Run the project in development mode.
     cmds:
       - docker-compose -f infrastructure/docker/docker-compose.yml -p openjudge up -d
-    silent: false
+    silent: true
   
-  test:
+  #test:
 
-  deploy:
-    desc: Deploy the project.
-    cmds:
-      - cd infrastructure/terraform && terraform init && terraform apply -auto-approve
-    silent: false
-    env:
-      - TF_VAR_AWS_REGION: "{{.AWS_REGION}}"
-      - TF_VAR_AWS_ACCESS_KEY: "{{.AWS_ACCESS_KEY}}"
-      - TF_VAR_AWS_SECRET_KEY: "{{.AWS_SECRET_KEY}}"
-      - TF_VAR_AWS_SESSION_TOKEN: "{{.AWS_SESSION_TOKEN}}"
-      - TF_VAR_JWT_SECRET: "{{.JWT_SECRET}}"
-      - TF_VAR_JWT_PUBLIC_KEY: "{{.JWT_PUBLIC_KEY}}"
-      - TF_VAR_USER_DATABASE_NAME: "{{.USER_DATABASE_NAME}}"
-      - TF_VAR_USER_DATABASE_USER: "{{.USER_DATABASE_USER}}"
-      - TF_VAR_USER_DATABASE_PASSWORD: "{{.USER_DATABASE_PASSWORD}}"
-      - TF_VAR_SMTP_HOST: "{{.SMTP_HOST}}"
-      - TF_VAR_SMTP_PORT: "{{.SMTP_PORT}}"
-      - TF_VAR_SMTP_USER: "{{.SMTP_USER}}"
-      - TF_VAR_SMTP_PASSWORD: "{{.SMTP_PASSWORD}}"
-      - TF_VAR_SMTP_FROM: "{{.SMTP_FROM}}"
+  # deploy:
+  #   desc: Deploy the project.
+  #   cmds:
+  #     - cd infrastructure/terraform && terraform init && terraform apply -auto-approve
+  #   silent: false
+  #   env:
+  #     - TF_VAR_AWS_REGION: "{{.AWS_REGION}}"
+  #     - TF_VAR_AWS_ACCESS_KEY: "{{.AWS_ACCESS_KEY}}"
+  #     - TF_VAR_AWS_SECRET_KEY: "{{.AWS_SECRET_KEY}}"
+  #     - TF_VAR_AWS_SESSION_TOKEN: "{{.AWS_SESSION_TOKEN}}"
+  #     - TF_VAR_JWT_SECRET: "{{.JWT_SECRET}}"
+  #     - TF_VAR_JWT_PUBLIC_KEY: "{{.JWT_PUBLIC_KEY}}"
+  #     - TF_VAR_USER_DATABASE_NAME: "{{.USER_DATABASE_NAME}}"
+  #     - TF_VAR_USER_DATABASE_USER: "{{.USER_DATABASE_USER}}"
+  #     - TF_VAR_USER_DATABASE_PASSWORD: "{{.USER_DATABASE_PASSWORD}}"
+  #     - TF_VAR_SMTP_HOST: "{{.SMTP_HOST}}"
+  #     - TF_VAR_SMTP_PORT: "{{.SMTP_PORT}}"
+  #     - TF_VAR_SMTP_USER: "{{.SMTP_USER}}"
+  #     - TF_VAR_SMTP_PASSWORD: "{{.SMTP_PASSWORD}}"
+  #     - TF_VAR_SMTP_FROM: "{{.SMTP_FROM}}"
 
   destroy:
     desc: Destroy the project.

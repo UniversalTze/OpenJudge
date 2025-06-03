@@ -1,0 +1,16 @@
+[
+    {   
+        "test_name": "basic_001",
+        "inputs": [[5], [7], [13]],
+        "outputs": [25, 35, 65],
+        "function_name": "solution",
+        "correct": true
+    },
+    {
+        "test_name": "basic_002",
+        "inputs": [[5], [7], [13]],
+        "outputs": [25, 35, 65],
+        "function_name": "solutionX",
+        "correct": false
+    }
+]

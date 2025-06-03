@@ -1,0 +1,26 @@
+FROM python:3.12-slim
+
+# Set working directory
+WORKDIR /app
+
+# Install uv
+RUN pip install --no-cache-dir uv
+
+# Copy requirements first to leverage Docker cache
+COPY pyproject.toml uv.lock  ./
+
+# Copy the rest of the application
+COPY src ./src/
+
+# Create a virtual environment and install dependencies
+RUN python -m venv /venv && \
+    /venv/bin/pip install --no-cache-dir -e .
+
+# Add virtual environment to PATH
+ENV PATH="/venv/bin:$PATH"
+
+# Verify installation
+RUN python --version && celery --version
+
+# Start the Celery worker
+CMD ["celery", "-A", "src.receiver.celery", "worker", "--loglevel=info"]

@@ -1,1 +1,0 @@
-### Standard Output Format to Queue via Celery

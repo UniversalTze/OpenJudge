@@ -1,0 +1,1 @@
+Write about independent ecs tasks for each language for code execution and having an sqs queue for each one
