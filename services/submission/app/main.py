@@ -1,215 +1,138 @@
-import os
-import json
-import threading
-import time
-from datetime import datetime, timedelta
+# app/main.py
+
 from flask import Flask, request, jsonify
-from models import db, Submission
-from queue_utils import celery, enqueue_submission_task, check_broker_health
+from flask_sqlalchemy import SQLAlchemy
+import os
+import hashlib
+from queue_utils import send_to_queue
+from models import db, Submission, Problem
+from datetime import datetime
 
 app = Flask(__name__)
-
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
     'DATABASE_URL',
     'postgresql://postgres:postgres@db:5432/submissions'
 )
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
+
 db.init_app(app)
 
-CALLBACK_TIMEOUT_SECONDS = int(os.getenv('CALLBACK_TIMEOUT_SECONDS', '600'))
-
-@app.before_first_request
-def startup():
-    """
-    Create database tables if they don’t exist and start the timeout monitor thread.
-    """
-    db.create_all()
-    monitor = threading.Thread(target=timeout_monitor, daemon=True)
-    monitor.start()
-
-@app.route('/submit', methods=['POST'])
-def submit():
-    """
-    Accept a new submission:
-      - Deduplicate by (user_id, problem_id, language, code) against a 'success' record
-      - If duplicate found, return cached results.
-      - Otherwise, create new Submission (status='queued') and enqueue a Celery task.
-    Expected JSON:
-      {
-        "user_id": "...",
-        "problem_id": "...",
-        "language": "...",
-        "code": "...",
-        "function_name": "...",        # optional
-        "test_cases": [                # optional
-          { "input": <any>, "expected": <any> },
-          ...
-        ],
-        "callback_url": "http://..."
-      }
-    """
-    data = request.get_json() or {}
-    required_fields = ['user_id', 'problem_id', 'language', 'code']
-    if not all(k in data for k in required_fields):
-        return jsonify({'error': 'Missing required fields'}), 400
-
-    user_id    = data['user_id']
-    problem_id = data['problem_id']
-    language   = data['language']
-    code       = data['code']
-    function_name = data.get('function_name', '')
-    test_cases = data.get('test_cases', [])
-    callback_url = data.get('callback_url')
-
-    duplicate = Submission.query.filter_by(
-        user_id=user_id,
-        problem_id=problem_id,
-        language=language,
-        code=code,
-        status='success'
-    ).first()
-    if duplicate:
-        return jsonify({
-            'submission_id': str(duplicate.submission_id),
-            'status': duplicate.status,
-            'results': duplicate.results,
-            'message': 'Duplicate submission; returning cached results.'
-        }), 200
-
-    # Create a new submission record in the DB
-    new_sub = Submission(
-        user_id=user_id,
-        problem_id=problem_id,
-        language=language,
-        code=code,
-        callback_url=callback_url,
-        status='queued'
-    )
-    db.session.add(new_sub)
-    db.session.commit()
-
-    submission_payload = {
-        'submission_id': str(new_sub.submission_id),
-        'user_id': user_id,
-        'problem_id': problem_id,
-        'language': language,
-        'code': code,
-        'function_name': function_name,
-        'test_cases': test_cases,
-        'callback_url': callback_url
-    }
-
-    try:
-        enqueue_submission_task(submission_payload)
-    except Exception as e:
-        new_sub.status = 'failed'
-        db.session.commit()
-        return jsonify({'error': f'Failed to enqueue submission: {e}'}), 500
-
-    return jsonify({
-        'submission_id': str(new_sub.submission_id),
-        'status': new_sub.status
-    }), 202
-
-@app.route('/users/<string:user_id>/submissions', methods=['GET'])
-def list_user_submissions(user_id):
-    """
-    Return all submissions belonging to a given user.
-    """
-    subs = Submission.query.filter_by(user_id=user_id).order_by(Submission.created_at.desc()).all()
-    results = [{
-        'submission_id': str(s.submission_id),
-        'problem_id': s.problem_id,
-        'language': s.language,
-        'status': s.status,
-        'created_at': s.created_at.isoformat(),
-        'updated_at': s.updated_at.isoformat()
-    } for s in subs]
-    return jsonify(results), 200
+def clean_code(code, language):
+    # (same cleaning logic as before)
+    if language.lower() == 'python':
+        lines = code.splitlines()
+        cleaned_lines = []
+        for line in lines:
+            if line.strip().startswith('#'):
+                continue
+            if '#' in line:
+                line = line.split('#')[0]
+            cleaned_lines.append(line)
+        cleaned = "\n".join(cleaned_lines)
+    else:
+        import re
+        cleaned = re.sub(r'//.*', '', code)
+        cleaned = re.sub(r'/\*[\s\S]*?\*/', '', cleaned)
+    banned = ['import os', 'import sys', 'eval(', 'exec(']
+    for keyword in banned:
+        if keyword in cleaned:
+            raise ValueError(f"Banned keyword detected: {keyword}")
+    if len(cleaned) > 10000:
+        raise ValueError("Code is too long.")
+    return cleaned
 
 @app.route('/health', methods=['GET'])
-def health_check():
-    """
-    Verify Postgres connectivity (simple SELECT 1) and Redis/Celery broker health.
-    Return 200 if both are healthy, else 503.
-    """
-    health = {'status': 'healthy', 'database': 'ok', 'broker': 'ok'}
-
-    # 1) Database health check
+def health():
     try:
         db.session.execute('SELECT 1')
+        # Quick Redis check
+        from redis import Redis
+        r = Redis.from_url(os.getenv('REDIS_URL'))
+        r.ping()
+        return jsonify({"status": "healthy", "database": "ok", "broker": "ok"}), 200
     except Exception:
-        health['database'] = 'unhealthy'
-        health['status'] = 'unhealthy'
+        return jsonify({"status": "unhealthy"}), 503
 
-    # 2) Broker health check (Redis via Celery)
-    if not check_broker_health():
-        health['broker'] = 'unhealthy'
-        health['status'] = 'unhealthy'
+@app.route('/submit/<user_id>/<problem_id>/<language>', methods=['POST'])
+def submit_code(user_id, problem_id, language):
+    data = request.get_json() or {}
+    if 'code' not in data:
+        return jsonify({'error': 'Code not provided'}), 400
 
-    code = 200 if health['status'] == 'healthy' else 503
-    return jsonify(health), code
+    raw_code = data['code']
+    try:
+        cleaned_code = clean_code(raw_code, language)
+    except ValueError as e:
+        return jsonify({'error': str(e)}), 400
 
-# --------------------------------------------------------------------------------
-# Background timeout monitor
-# --------------------------------------------------------------------------------
+    existing = Submission.query.filter_by(
+        user_id=user_id,
+        problem_id=problem_id,
+        language=language,
+        cleaned_code=cleaned_code
+    ).first()
+    if existing:
+        return jsonify({
+            'error': 'Duplicate submission detected',
+            'submission_id': existing.submission_id
+        }), 409
 
-def timeout_monitor():
-    """
-    Mark any submission older than CALLBACK_TIMEOUT_SECONDS (still in 'queued' or 'running')
-    as 'timed_out'. Runs once per minute.
-    """
-    while True:
-        cutoff = datetime.utcnow() - timedelta(seconds=CALLBACK_TIMEOUT_SECONDS)
-        stale = Submission.query.filter(
-            Submission.status.in_(['queued', 'running']),
-            Submission.created_at < cutoff
-        ).all()
-        for s in stale:
-            s.status = 'timed_out'
-            s.updated_at = datetime.utcnow()
-        if stale:
-            db.session.commit()
-        time.sleep(60)
+    problem = Problem.query.filter_by(problem_id=problem_id).first()
+    if not problem:
+        return jsonify({'error': 'Problem not found'}), 404
+    test_inputs = problem.test_inputs
+    test_outputs = problem.test_outputs
+    func_name = problem.function_name
 
-# --------------------------------------------------------------------------------
-# Celery task to receive results from Execution Service
-# --------------------------------------------------------------------------------
-
-@celery.task(name='result')
-def receive_result(payload: dict):
-    """
-    The Execution Service calls this task when results are ready. Payload structure:
-      {
-        "submission_id": "<uuid>",
-        "explanation": "...",
-        "tests": [
-          { "passed": true, "input": "...", "output": "...", "error": "", "stack_trace": "" },
-          ...
-        ]
-      }
-    We update the Submission row in Postgres accordingly.
-    """
-    submission_id = payload.get('submission_id')
-    if not submission_id:
-        return
-
-    sub = Submission.query.get(submission_id)
-    if not sub:
-        # Could log a warning: unknown submission_id
-        return
-
-    # If already in a terminal state, ignore
-    if sub.status in ['success', 'failed', 'timed_out']:
-        return
-
-    # Persist the results JSONB
-    sub.results = payload
-    all_passed = all(t.get('passed', False) for t in payload.get('tests', []))
-    sub.status = 'success' if all_passed else 'failed'
-    sub.updated_at = datetime.utcnow()
+    submission = Submission(
+        user_id=user_id,
+        problem_id=problem_id,
+        language=language,
+        code=raw_code,
+        cleaned_code=cleaned_code,
+        function_name=func_name,
+        status='queued',
+        results=[]
+    )
+    db.session.add(submission)
     db.session.commit()
 
+    submission.callback_url = f"https://www.openjudge/submissions/{submission.submission_id}/results"
+    db.session.commit()
+
+    payload = {
+        "submission_id": submission.submission_id,
+        "submission_code": raw_code,
+        "inputs": test_inputs,
+        "outputs": test_outputs,
+        "function_name": func_name
+    }
+    queue_name = f"{language.lower()}q"
+    send_to_queue('process_submission', payload, queue_name)
+
+    return jsonify({
+        'submission_id': submission.submission_id,
+        'status': submission.status,
+        'callback_url': submission.callback_url
+    }), 201
+
+@app.route('/submissions/<int:submission_id>', methods=['GET'])
+def get_submission(submission_id):
+    sub = Submission.query.get_or_404(submission_id)
+    return jsonify({
+        'submission_id': sub.submission_id,
+        'user_id': sub.user_id,
+        'problem_id': sub.problem_id,
+        'language': sub.language,
+        'code': sub.code,
+        'callback_url': sub.callback_url,
+        'status': sub.status,
+        'results': sub.results,
+        'created_at': sub.created_at.isoformat(),
+        'updated_at': sub.updated_at.isoformat()
+    }), 200
+
 if __name__ == '__main__':
-    port = int(os.getenv('PORT', 5000))
-    app.run(host='0.0.0.0', port=port)
+    with app.app_context():
+        db.create_all()
+    app.run(host='0.0.0.0', port=5000)

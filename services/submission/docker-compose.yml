@@ -11,6 +11,7 @@ services:
       - "5432:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
 
   redis:
     image: redis:6
@@ -19,44 +20,27 @@ services:
 
   web:
     build: .
-    depends_on:
-      - db
-      - redis
     environment:
-      DATABASE_URL: postgresql://postgres:postgres@db:5432/submissions
-      CELERY_BROKER_URL: redis://redis:6379/0
-      INPUT_QUEUE: execute_queue          # matches Execution Service’s INPUT_QUEUE
-      OUTPUT_QUEUE: result_queue          # Execution Service will send to this queue
-      CALLBACK_TIMEOUT_SECONDS: 600
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/submissions
+      - REDIS_URL=redis://redis:6379/0
     ports:
       - "5000:5000"
-    volumes:
-      - .:/app
-
-  celery_worker:
-    build: .
     depends_on:
       - db
       - redis
-    environment:
-      DATABASE_URL: postgresql://postgres:postgres@db:5432/submissions
-      CELERY_BROKER_URL: redis://redis:6379/0
-      INPUT_QUEUE: execute_queue
-      OUTPUT_QUEUE: result_queue
-      CALLBACK_TIMEOUT_SECONDS: 600
-    # Run a Celery worker that only processes the "result_queue" for receive_result tasks
-    command: celery -A queue_utils.celery worker --loglevel=info -Q result_queue
+    # Change directory into app/ and run Gunicorn on main:app
+    command: gunicorn --chdir app --bind 0.0.0.0:5000 main:app
 
-  # Optional: Execution Service container, if you want to run it locally
-  # execution_service:
-  #   image: your-execution-service-image
-  #   environment:
-  #     BROKER: redis://redis:6379/0
-  #     INPUT_QUEUE: execute_queue
-  #     OUTPUT_QUEUE: result_queue
-  #     LANGUAGE: python
-  #   depends_on:
-  #     - redis
+  worker:
+    build: .
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/submissions
+      - REDIS_URL=redis://redis:6379/0
+    depends_on:
+      - db
+      - redis
+    # Change directory into app/ so Celery finds queue_utils and worker modules
+    command: bash -c "cd app && celery -A queue_utils.celery_app worker --loglevel=info -Q pythonq"
 
 volumes:
   db_data:
