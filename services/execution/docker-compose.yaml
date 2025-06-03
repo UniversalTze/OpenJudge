@@ -14,7 +14,7 @@ services:
   python-worker:
     build:
       context: .
-      dockerfile: dockerfiles/Dockerfile.python
+      dockerfile: ../../../infrastructure/docker/execution/Dockerfile.python
     restart: always
     environment:
       CELERY_BROKER_URL: redis://redis:6379
@@ -31,7 +31,7 @@ services:
   java-worker:
     build:
       context: .
-      dockerfile: dockerfiles/Dockerfile.java
+      dockerfile: ../../../infrastructure/docker/execution/Dockerfile.java
     restart: always
     environment:
       CELERY_BROKER_URL: redis://redis:6379

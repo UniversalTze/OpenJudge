@@ -20,7 +20,13 @@ For each supported language (described below), there must exist a unique input a
 **Language:** Python </br> **Package Manager** uv </br> **Concurrency:** Celery </br> **Message Broker:** Redis (Local) / SQS (Production) </br> **Containerisation:** Docker </br> **Sandboxing:** Firejail (TBC)
 
 ### Getting Started
-A `test_client.py` and `docker-compose.yaml` have been included for testing purposes. To run locally, from the `services/execution` directory, run the following commands:
+A `test_client.py` and `docker-compose.yaml` have been included for testing purposes. Note, before starting you can use the following command to build faster (only works if the docker build kit is available):
+
+```bash
+export COMPOSE_BAKE=true
+```
+  
+To run locally, from the `services/execution` directory, run the following commands:
 
 ```bash
 docker compose up --build -d
@@ -137,7 +143,21 @@ An executor file must be created in the `src/executor` directory. This file must
 
 ## Testing
 ### Local Unit Tests
-To run tests locally, first.... TODO
+To run tests locally, first you can run the provided test client in a docker container with DOCKER COMPOSE then run a specific set of tests with the following command: TODO
+  
+To specify which language to test, add the flag `--lang {python|java}` to the command. To specify which test cases to run, add the test case names as additional arguments to the command at the end of the command line.
+  
+To add new test cases, go to `services/execution/tests/test_cases`. From there, add the test case to the `test_cases.json` file. The test case should be added to the end of the file and should be of the following format:
+```json
+{
+    "test_name": "string",
+    "inputs": "list", // A list of lists of input parameters
+    "outputs": "list", // A list of expected outputs
+    "function_name": "string"
+}
+```
+  
+You will then need to create a submission file for each language you wish to test for. This should be added to the relevant directory in the `submission_code` directory for the language. The filename should match the test case name (`test_{test_case_name}.{language extension}`, e.g. `test_basic_001.py`).
 
 ### Integration Testing
 TODO
