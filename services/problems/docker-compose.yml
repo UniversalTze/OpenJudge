@@ -1,0 +1,30 @@
+services:
+  database:
+    image: postgres:latest
+    restart: always
+    environment:
+      POSTGRES_PASSWORD: superSecretPassword.23
+      POSTGRES_USER: problem_user
+      POSTGRES_DB: problem
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U problem_user -d problem"]
+      interval: 5s
+      retries: 10
+      start_period: 60s
+      timeout: 20s
+
+  app:
+      build: 
+        context: .
+        dockerfile: Dockerfile.Problems
+      image: massive-problem
+      restart: always
+      environment:
+        SQLALCHEMY_DATABASE_URI: "postgresql+asyncpg:\
+          //problem_user:superSecretPassword.23@database:5432/problem"
+      ports:
+        - "6400:6400" #8080 is outside port for localhost to listen for traffic on, 2nd arg is entry point for container.
+      depends_on:
+        database:
+          condition: service_healthy
+          restart: true
