@@ -163,7 +163,7 @@ def run_tests():
     for line in results.split('\n')[:-1]:
         result = line.split(',')
         submission_id = result[0]
-        passed = bool(result[1])
+        passed = result[1] == "True"
         if submission_id not in results_dict:
             results_dict[submission_id] = {
                 'passed': passed,
