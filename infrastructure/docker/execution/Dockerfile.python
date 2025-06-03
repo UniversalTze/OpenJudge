@@ -10,7 +10,7 @@ RUN pip install --no-cache-dir uv
 COPY pyproject.toml uv.lock  ./
 
 # Copy the rest of the application
-COPY ./src .
+COPY src ./src/
 
 # Create a virtual environment and install dependencies
 RUN python -m venv /venv && \

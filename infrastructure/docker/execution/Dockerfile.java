@@ -42,7 +42,7 @@ WORKDIR /app
 COPY --from=python-base /venv /venv
 
 # Copy the application code
-COPY ./src ./src
+COPY ./src ./src/
 
 # Add virtual environment to PATH
 ENV PATH="/venv/bin:$PATH"

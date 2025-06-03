@@ -22,7 +22,7 @@ print("Test case directory: ", TEST_CASE_DIR)
 results_received = 0
 languages = ["python", "java"]
 test_cases = [test_case["test_name"] for test_case in ALL_TEST_INFO]
-test_info = ALL_TEST_INFO
+test_info = {test_case["test_name"]: test_case for test_case in ALL_TEST_INFO}
 results_dict = {}
 
 def setup_celery():
@@ -118,6 +118,7 @@ def listen_for_results(duration_seconds=30):
  
 def get_test_case(test_case, lang):
     """Get data regarding a test case"""
+    c = test_info['test_case']
     inputs = None
     outputs = None
     submission = None
@@ -190,7 +191,7 @@ def main():
             print(f"Invalid test cases: {extraneous}. Must be one of {test_cases}")
             sys.exit(1)
         test_cases = user_input_cases
-        test_info = filter(lambda x: x['test_name'] in test_cases, test_info)
+        test_info = {test_info['name']: test_case for test_case in filter(lambda x: x['test_name'] in test_cases)}
 
     run_tests()
     
