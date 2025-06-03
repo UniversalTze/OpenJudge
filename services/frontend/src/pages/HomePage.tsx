@@ -2,7 +2,6 @@ import { useRef } from "react";
 import { Link } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { ChevronRight, Code, CheckCircle, Brain, BarChart, Eye, Shield, Lock, Unlock } from "lucide-react";
-import AnimatedSection from "@/components/AnimatedSection";
 
 const HomePage = () => {
   const featuresRef = useRef<HTMLDivElement>(null);
@@ -80,7 +79,7 @@ const HomePage = () => {
                 <div className="text-sm text-muted-foreground">Test Case Visibility</div>
               </div>
               <div className="glass-card p-6 rounded-lg">
-                <div className="text-3xl font-bold text-primary mb-2">500+</div>
+                <div className="text-3xl font-bold text-primary mb-2">15+</div>
                 <div className="text-sm text-muted-foreground">Transparent Problems</div>
               </div>
               <div className="glass-card p-6 rounded-lg">
@@ -95,53 +94,51 @@ const HomePage = () => {
       {/* Problem of Traditional Platforms */}
       <section className="py-20 bg-muted/20">
         <div className="container">
-          <AnimatedSection animation="fade-in">
-            <div className="max-w-4xl mx-auto text-center mb-16">
-              <h2 className="text-3xl font-bold mb-6">The Problem with Other Platforms</h2>
-              <p className="text-xl text-muted-foreground">
-                Traditional coding platforms keep you in the dark. Here's what's broken:
+          <div className="max-w-4xl mx-auto text-center mb-16">
+            <h2 className="text-3xl font-bold mb-6">The Problem with Other Platforms</h2>
+            <p className="text-xl text-muted-foreground">
+              Traditional coding platforms keep you in the dark. Here's what's broken:
+            </p>
+          </div>
+
+          <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
+            <div className="glass-card rounded-xl p-6 border-red-500/20">
+              <div className="text-red-400 mb-4">
+                <Lock className="h-12 w-12" />
+              </div>
+              <h3 className="text-xl font-bold mb-2">Hidden Test Cases</h3>
+              <p className="text-muted-foreground">
+                You get "Wrong Answer" but have no idea what input broke your solution. Pure guesswork.
               </p>
             </div>
 
-            <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-              <div className="glass-card rounded-xl p-6 border-red-500/20">
-                <div className="text-red-400 mb-4">
-                  <Lock className="h-12 w-12" />
-                </div>
-                <h3 className="text-xl font-bold mb-2">Hidden Test Cases</h3>
-                <p className="text-muted-foreground">
-                  You get "Wrong Answer" but have no idea what input broke your solution. Pure guesswork.
-                </p>
+            <div className="glass-card rounded-xl p-6 border-yellow-500/20">
+              <div className="text-yellow-400 mb-4">
+                <Brain className="h-12 w-12" />
               </div>
-
-              <div className="glass-card rounded-xl p-6 border-yellow-500/20">
-                <div className="text-yellow-400 mb-4">
-                  <Brain className="h-12 w-12" />
-                </div>
-                <h3 className="text-xl font-bold mb-2">No Learning</h3>
-                <p className="text-muted-foreground">
-                  Without seeing edge cases, you can't understand the problem deeply or improve your debugging skills.
-                </p>
-              </div>
-
-              <div className="glass-card rounded-xl p-6 border-orange-500/20">
-                <div className="text-orange-400 mb-4">
-                  <BarChart className="h-12 w-12" />
-                </div>
-                <h3 className="text-xl font-bold mb-2">Frustrating Experience</h3>
-                <p className="text-muted-foreground">
-                  Hours wasted trying to guess what corner case you missed. Learning becomes a chore.
-                </p>
-              </div>
+              <h3 className="text-xl font-bold mb-2">No Learning</h3>
+              <p className="text-muted-foreground">
+                Without seeing edge cases, you can't understand the problem deeply or improve your debugging skills.
+              </p>
             </div>
-          </AnimatedSection>
+
+            <div className="glass-card rounded-xl p-6 border-orange-500/20">
+              <div className="text-orange-400 mb-4">
+                <BarChart className="h-12 w-12" />
+              </div>
+              <h3 className="text-xl font-bold mb-2">Frustrating Experience</h3>
+              <p className="text-muted-foreground">
+                Hours wasted trying to guess what corner case you missed. Learning becomes a chore.
+              </p>
+            </div>
+          </div>
         </div>
       </section>
 
       {/* Code Example Section */}
       <section className="py-20">
         <div className="container">
-          <AnimatedSection animation="float-up" className="max-w-6xl mx-auto">
+          <div className="max-w-6xl mx-auto">
             <div className="text-center mb-12">
               <h2 className="text-3xl font-bold mb-4">See the OpenJudge Difference</h2>
               <p className="text-xl text-muted-foreground">
@@ -190,7 +187,7 @@ const HomePage = () => {
                 </div>
               </div>
             </div>
-          </AnimatedSection>
+          </div>
         </div>
       </section>
 
@@ -205,53 +202,53 @@ const HomePage = () => {
           </div>
 
           <div className="grid md:grid-cols-2 lg:grid-cols-3 gap-8">
-            <AnimatedSection animation="float-up" delay="0ms" className="glass-card rounded-xl p-8 hover:border-primary/50 transition-all">
+            <div className="glass-card rounded-xl p-8 hover:border-primary/50 transition-all">
               <Unlock className="h-12 w-12 text-primary mb-4" />
               <h3 className="text-xl font-bold mb-2">Complete Transparency</h3>
               <p className="text-muted-foreground">
                 See every test case, including edge cases and corner cases that other platforms hide. No more guessing games.
               </p>
-            </AnimatedSection>
+            </div>
 
-            <AnimatedSection animation="float-up" delay="200ms" className="glass-card rounded-xl p-8 hover:border-primary/50 transition-all">
+            <div className="glass-card rounded-xl p-8 hover:border-primary/50 transition-all">
               <Brain className="h-12 w-12 text-primary mb-4" />
               <h3 className="text-xl font-bold mb-2">Learn Through Debugging</h3>
               <p className="text-muted-foreground">
                 Understand exactly where your solution fails. Build debugging skills that matter in real software development.
               </p>
-            </AnimatedSection>
+            </div>
 
-            <AnimatedSection animation="float-up" delay="400ms" className="glass-card rounded-xl p-8 hover:border-primary/50 transition-all">
+            <div className="glass-card rounded-xl p-8 hover:border-primary/50 transition-all">
               <Code className="h-12 w-12 text-primary mb-4" />
               <h3 className="text-xl font-bold mb-2">Language Agnostic</h3>
               <p className="text-muted-foreground">
                 Focus on algorithms and problem-solving, not language-specific tricks. Write solutions in any language you prefer.
               </p>
-            </AnimatedSection>
+            </div>
 
-            <AnimatedSection animation="float-up" delay="600ms" className="glass-card rounded-xl p-8 hover:border-primary/50 transition-all">
+            <div className="glass-card rounded-xl p-8 hover:border-primary/50 transition-all">
               <CheckCircle className="h-12 w-12 text-primary mb-4" />
               <h3 className="text-xl font-bold mb-2">Adaptive Difficulty</h3>
               <p className="text-muted-foreground">
                 Problems are sorted based on your experience level. Beginners see easy problems first, experts get challenges.
               </p>
-            </AnimatedSection>
+            </div>
 
-            <AnimatedSection animation="float-up" delay="800ms" className="glass-card rounded-xl p-8 hover:border-primary/50 transition-all">
+            <div className="glass-card rounded-xl p-8 hover:border-primary/50 transition-all">
               <Eye className="h-12 w-12 text-primary mb-4" />
               <h3 className="text-xl font-bold mb-2">Instant Feedback</h3>
               <p className="text-muted-foreground">
                 Run your code against all test cases instantly. See exactly which inputs pass and which fail.
               </p>
-            </AnimatedSection>
+            </div>
 
-            <AnimatedSection animation="float-up" delay="1000ms" className="glass-card rounded-xl p-8 hover:border-primary/50 transition-all">
+            <div className="glass-card rounded-xl p-8 hover:border-primary/50 transition-all">
               <Shield className="h-12 w-12 text-primary mb-4" />
               <h3 className="text-xl font-bold mb-2">No Gotchas</h3>
               <p className="text-muted-foreground">
                 We show you everything upfront. No hidden constraints, no surprise edge cases after submission.
               </p>
-            </AnimatedSection>
+            </div>
           </div>
         </div>
       </section>
@@ -259,44 +256,42 @@ const HomePage = () => {
       {/* Testimonial Section */}
       <section className="py-20">
         <div className="container">
-          <AnimatedSection animation="fade-in">
-            <div className="max-w-4xl mx-auto text-center">
-              <h2 className="text-3xl font-bold mb-12">What Developers Say</h2>
-              
-              <div className="grid md:grid-cols-2 gap-8">
-                <div className="glass-card p-8 rounded-xl">
-                  <div className="mb-4">
-                    <div className="flex text-yellow-400 mb-2">
-                      {"★".repeat(5)}
-                    </div>
-                    <p className="text-lg italic mb-4">
-                      "Finally! I can actually learn from my mistakes instead of endlessly guessing what went wrong. This is how coding practice should be."
-                    </p>
-                    <div className="font-medium">Sarah Chen</div>
-                    <div className="text-sm text-muted-foreground">Software Engineering Student</div>
+          <div className="max-w-4xl mx-auto text-center">
+            <h2 className="text-3xl font-bold mb-12">What Developers Say</h2>
+            
+            <div className="grid md:grid-cols-2 gap-8">
+              <div className="glass-card p-8 rounded-xl">
+                <div className="mb-4">
+                  <div className="flex text-yellow-400 mb-2 justify-center">
+                    {"★".repeat(5)}
                   </div>
+                  <p className="text-lg italic mb-4">
+                    "Finally! I can actually learn from my mistakes instead of endlessly guessing what went wrong. This is how coding practice should be."
+                  </p>
+                  <div className="font-medium">Sarah Chen</div>
+                  <div className="text-sm text-muted-foreground">Software Engineering Student</div>
                 </div>
+              </div>
 
-                <div className="glass-card p-8 rounded-xl">
-                  <div className="mb-4">
-                    <div className="flex text-yellow-400 mb-2">
-                      {"★".repeat(5)}
-                    </div>
-                    <p className="text-lg italic mb-4">
-                      "As someone who teaches algorithms, OpenJudge is a game-changer. Students can actually see and understand edge cases."
-                    </p>
-                    <div className="font-medium">Dr. Michael Rodriguez</div>
-                    <div className="text-sm text-muted-foreground">Computer Science Professor</div>
+              <div className="glass-card p-8 rounded-xl">
+                <div className="mb-4">
+                  <div className="flex text-yellow-400 mb-2 justify-center">
+                    {"★".repeat(5)}
                   </div>
+                  <p className="text-lg italic mb-4">
+                    "As someone who teaches algorithms, OpenJudge is a game-changer. Students can actually see and understand edge cases."
+                  </p>
+                  <div className="font-medium">Dr. Michael Rodriguez</div>
+                  <div className="text-sm text-muted-foreground">Computer Science Professor</div>
                 </div>
               </div>
             </div>
-          </AnimatedSection>
+          </div>
         </div>
       </section>
 
       {/* CTA Section */}
-      <AnimatedSection animation="fade-in" className="py-20 bg-primary/5">
+      <section className="py-20 bg-primary/5">
         <div className="container">
           <div className="max-w-3xl mx-auto glass-card rounded-xl p-12 text-center">
             <h2 className="text-3xl font-bold mb-6">Ready to Learn the Right Way?</h2>
@@ -329,7 +324,7 @@ const HomePage = () => {
             </p>
           </div>
         </div>
-      </AnimatedSection>
+      </section>
     </div>
   );
 };

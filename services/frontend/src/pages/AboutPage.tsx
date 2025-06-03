@@ -1,13 +1,12 @@
 import { Button } from "@/components/ui/button";
 import { Link } from "react-router-dom";
-import { CheckCircle, Code, Users, BookOpen, Globe, Github, Lightbulb, Target, Heart } from "lucide-react";
-import AnimatedSection from "@/components/AnimatedSection";
+import { CheckCircle, Code, Users, BookOpen, Globe, Github } from "lucide-react";
 
 const AboutPage = () => {
   return (
     <div className="container py-12">
       {/* Hero Section */}
-      <AnimatedSection animation="float-up" className="max-w-4xl mx-auto">
+      <div className="max-w-4xl mx-auto">
         <div className="relative mb-16 text-center">
           {/* Background Decoration */}
           <div className="absolute -z-10 inset-0">
@@ -19,7 +18,7 @@ const AboutPage = () => {
             About <span className="animated-gradient-text">OpenJudge</span>
           </h1>
           <p className="text-xl text-center text-muted-foreground mb-8">
-            Revolutionizing coding education through radical transparency
+            A learning-oriented code evaluation platform built for transparency
           </p>
           
           <div className="flex justify-center">
@@ -27,15 +26,15 @@ const AboutPage = () => {
               <div className="flex space-x-4">
                 <div className="flex items-center space-x-2">
                   <Code className="h-4 w-4 text-primary" />
-                  <span className="text-sm text-muted-foreground">Educational First</span>
+                  <span className="text-sm text-muted-foreground">Open Source</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <Users className="h-4 w-4 text-primary" />
-                  <span className="text-sm text-muted-foreground">10K+ Learners</span>
+                  <span className="text-sm text-muted-foreground">Lots of Users</span>
                 </div>
                 <div className="flex items-center space-x-2">
                   <BookOpen className="h-4 w-4 text-primary" />
-                  <span className="text-sm text-muted-foreground">500+ Problems</span>
+                  <span className="text-sm text-muted-foreground">15+ Problems</span>
                 </div>
               </div>
             </div>
@@ -43,26 +42,23 @@ const AboutPage = () => {
         </div>
         
         <div className="prose dark:prose-invert max-w-none">
-          <AnimatedSection animation="fade-in" className="mb-16">
+          {/* Mission Section */}
+          <div className="mb-16">
             <h2 className="text-2xl font-bold mb-6 flex items-center">
               <div className="rounded-full w-12 h-12 bg-primary/10 flex items-center justify-center mr-4">
-                <Lightbulb className="h-6 w-6 text-primary" />
+                <BookOpen className="h-6 w-6 text-primary" />
               </div>
-              Our Story
+              Our Mission
             </h2>
             
             <div className="glass-card p-6 rounded-xl mb-6">
-              <p className="text-lg leading-relaxed">
-                OpenJudge was born from frustration. As computer science students and educators, we were tired of platforms that kept learners in the dark with hidden test cases and cryptic "Wrong Answer" messages. We believed there had to be a better way to learn coding.
+              <p>
+                For most computer science students, platforms like LeetCode have become an essential part of learning to code. But traditional online judges often hide test cases and simply return "Wrong Answer" without helpful feedback, making it difficult for beginners to understand their mistakes and learn effectively.
               </p>
             </div>
             
-            <p className="mb-6">
-              Traditional coding platforms follow an outdated model borrowed from competitive programming contests, where hiding test cases makes sense to prevent gaming. But for <strong>learning</strong>, this approach is counterproductive. How can you improve if you don't know what you did wrong?
-            </p>
-
-            <p className="mb-6">
-              That's why we created OpenJudge with a simple mission: <em>make coding education transparent, effective, and actually helpful</em>. We show you every test case, explain every failure, and help you understand not just the "what" but the "why" behind problem-solving.
+            <p>
+              OpenJudge was born from a simple question: how can we build a code evaluation platform that puts education first? Our mission is to create a transparent, learning-focused environment where users can see all test cases—including edge cases—and receive detailed, step-by-step feedback that explains where their code went wrong and how to fix it.
             </p>
             
             <div className="grid md:grid-cols-3 gap-6 mt-10">
@@ -71,7 +67,7 @@ const AboutPage = () => {
                   <CheckCircle className="h-6 w-6 text-primary" />
                 </div>
                 <h3 className="text-lg font-bold mb-2">Transparency</h3>
-                <p className="text-muted-foreground text-sm">Every test case visible, no hidden surprises ever</p>
+                <p className="text-muted-foreground text-sm">Full visibility into test cases and expected outputs</p>
               </div>
               
               <div className="glass-card p-6 rounded-xl flex flex-col items-center text-center">
@@ -79,137 +75,42 @@ const AboutPage = () => {
                   <BookOpen className="h-6 w-6 text-primary" />
                 </div>
                 <h3 className="text-lg font-bold mb-2">Education First</h3>
-                <p className="text-muted-foreground text-sm">Designed for learning, not competition</p>
+                <p className="text-muted-foreground text-sm">Explanatory feedback designed to help you learn</p>
               </div>
               
               <div className="glass-card p-6 rounded-xl flex flex-col items-center text-center">
                 <div className="rounded-full w-12 h-12 bg-primary/10 flex items-center justify-center mb-4">
-                  <Heart className="h-6 w-6 text-primary" />
+                  <Code className="h-6 w-6 text-primary" />
                 </div>
-                <h3 className="text-lg font-bold mb-2">Developer Joy</h3>
-                <p className="text-muted-foreground text-sm">Making coding practice actually enjoyable</p>
+                <h3 className="text-lg font-bold mb-2">Practical Skills</h3>
+                <p className="text-muted-foreground text-sm">Industry-relevant problem sets and approaches</p>
               </div>
             </div>
-          </AnimatedSection>
+          </div>
           
-          <AnimatedSection animation="reveal-left" className="mb-16">
+          {/* Educational Philosophy */}
+          <div className="mb-16">
             <h2 className="text-2xl font-bold mb-6 flex items-center">
               <div className="rounded-full w-12 h-12 bg-primary/10 flex items-center justify-center mr-4">
-                <Target className="h-6 w-6 text-primary" />
+                <Users className="h-6 w-6 text-primary" />
               </div>
-              Our Mission
+              Educational Philosophy
             </h2>
-            
-            <div className="bg-primary/10 border border-primary/20 rounded-xl p-6 mb-6">
-              <h3 className="text-xl font-bold mb-4 text-primary">To democratize quality coding education</h3>
-              <p className="text-lg leading-relaxed">
-                We believe every aspiring developer deserves access to transparent, high-quality coding practice. No more guessing games, no more hidden gotchas - just clear, educational problem-solving that helps you grow as a programmer.
-              </p>
-            </div>
-
-            <p className="mb-6">
-              When you submit code on OpenJudge, you don't just get a verdict - you get insight. See exactly which test cases pass and fail, understand edge cases before you encounter them in production, and build debugging skills that will serve you throughout your career.
+            <p>
+              We believe that the best way to learn is through transparency and constructive feedback. Unlike platforms that treat coding as a competitive sport with hidden challenges, we emphasize understanding over simply "passing" tests.
             </p>
-            
-            <div className="rounded-xl overflow-hidden glass-card mt-10">
-              <div className="grid md:grid-cols-2">
-                <div className="p-6">
-                  <h3 className="text-xl font-bold mb-4">The OpenJudge Difference</h3>
-                  <ul className="space-y-3">
-                    <li className="flex items-start">
-                      <CheckCircle className="h-5 w-5 text-primary mr-2 mt-0.5" />
-                      <span><strong>100% Test Case Visibility:</strong> See every input that tests your code</span>
-                    </li>
-                    <li className="flex items-start">
-                      <CheckCircle className="h-5 w-5 text-primary mr-2 mt-0.5" />
-                      <span><strong>Detailed Feedback:</strong> Understand exactly where and why your code fails</span>
-                    </li>
-                    <li className="flex items-start">
-                      <CheckCircle className="h-5 w-5 text-primary mr-2 mt-0.5" />
-                      <span><strong>Learning-Focused:</strong> Every feature designed to help you improve</span>
-                    </li>
-                    <li className="flex items-start">
-                      <CheckCircle className="h-5 w-5 text-primary mr-2 mt-0.5" />
-                      <span><strong>No Surprises:</strong> What you see is exactly what you get</span>
-                    </li>
-                  </ul>
-                </div>
-                <div className="bg-muted/20 p-6 font-code">
-                  <div className="text-sm opacity-70 mb-2"># Example: OpenJudge Transparency</div>
-                  <pre className="text-xs">
-                    <code>
-{`✅ Test 1: nums=[2,7], target=9 → [0,1]
-✅ Test 2: nums=[3,2,4], target=6 → [1,2]  
-❌ Test 3: nums=[], target=0 → Expected: []
-   Your output: [0] 
-   Error: Index out of bounds
-   
-🔓 Hidden Test Cases (Usually Secret):
-✅ Test 4: nums=[1,1], target=2 → [0,1]
-❌ Test 5: nums=[1], target=1 → Expected: []
-   Your output: [0]
-   Error: Cannot use same element twice`}
-                    </code>
-                  </pre>
-                </div>
-              </div>
+            <p>
+              When you submit your code on OpenJudge, you'll see exactly which test cases it passed and which it failed, along with expected outputs, actual outputs, and explanations. This approach turns debugging into a valuable learning experience rather than a frustrating guessing game.
+            </p>
+            <div className="my-8 glass-card p-6 rounded-xl border border-primary/20">
+              <blockquote className="italic border-l-4 border-primary pl-4">
+                "We don't just want you to solve problems—we want you to understand the solutions and grow as a programmer."
+              </blockquote>
             </div>
-          </AnimatedSection>
+          </div>
           
-          <AnimatedSection animation="reveal-right" className="mb-16">
-            <h2 className="text-2xl font-bold mb-6 flex items-center">
-              <div className="rounded-full w-12 h-12 bg-primary/10 flex items-center justify-center mr-4">
-                <Code className="h-6 w-6 text-primary" />
-              </div>
-              What Makes Us Different
-            </h2>
-            
-            <div className="grid md:grid-cols-2 gap-8">
-              <div>
-                <h3 className="text-xl font-semibold mb-4 text-red-400">❌ Traditional Platforms</h3>
-                <ul className="space-y-3 text-muted-foreground">
-                  <li>• Hide test cases and edge cases</li>
-                  <li>• Return vague "Wrong Answer" messages</li>
-                  <li>• Focus on ranking and competition</li>
-                  <li>• Make debugging a guessing game</li>
-                  <li>• Frustrate learners with mystery failures</li>
-                  <li>• Prioritize speed over understanding</li>
-                </ul>
-              </div>
-              
-              <div>
-                <h3 className="text-xl font-semibold mb-4 text-primary">✅ OpenJudge</h3>
-                <ul className="space-y-3">
-                  <li className="flex items-start">
-                    <CheckCircle className="h-4 w-4 text-primary mr-2 mt-1" />
-                    <span>Show ALL test cases, including "hidden" ones</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle className="h-4 w-4 text-primary mr-2 mt-1" />
-                    <span>Provide detailed failure explanations</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle className="h-4 w-4 text-primary mr-2 mt-1" />
-                    <span>Focus on learning and skill building</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle className="h-4 w-4 text-primary mr-2 mt-1" />
-                    <span>Make debugging a learning experience</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle className="h-4 w-4 text-primary mr-2 mt-1" />
-                    <span>Help learners understand their mistakes</span>
-                  </li>
-                  <li className="flex items-start">
-                    <CheckCircle className="h-4 w-4 text-primary mr-2 mt-1" />
-                    <span>Prioritize understanding over speed</span>
-                  </li>
-                </ul>
-              </div>
-            </div>
-          </AnimatedSection>
-          
-          <AnimatedSection animation="fade-in" className="mb-16">
+          {/* Team Section */}
+          <div className="mb-16">
             <h2 className="text-2xl font-bold mb-6 flex items-center">
               <div className="rounded-full w-12 h-12 bg-primary/10 flex items-center justify-center mr-4">
                 <Users className="h-6 w-6 text-primary" />
@@ -217,27 +118,25 @@ const AboutPage = () => {
               Our Team
             </h2>
             <div className="glass-card p-6 rounded-xl">
-              <p className="mb-4">
-                OpenJudge was created by a team of computer science students, educators, and software engineers who share a passion for making coding education more effective and accessible.
+              <p>
+                OpenJudge was created by a team of computer science educators and students who were frustrated with the limitations of existing coding platforms. We combined our experience in education, software development, and UI/UX design to create a platform that truly serves learners.
               </p>
-              <p className="mb-4">
-                We're constantly improving OpenJudge based on feedback from our community of learners, teachers, and industry professionals. Our goal is to create the most effective coding practice platform ever built.
-              </p>
-              <p className="text-primary font-medium">
-                Built by learners, for learners. 🚀
+              <p className="mt-4">
+                We're constantly improving OpenJudge based on user feedback and educational research. Our team is committed to creating the most effective learning environment for programmers at all stages of their journey.
               </p>
             </div>
-          </AnimatedSection>
+          </div>
           
-          <AnimatedSection animation="float-up" className="text-center mt-20">
-            <h2 className="text-2xl font-bold mb-6">Join the Transparency Revolution</h2>
+          {/* CTA Section */}
+          <div className="text-center mt-20">
+            <h2 className="text-2xl font-bold mb-6">Join Our Community</h2>
             <p className="mb-6 text-lg text-muted-foreground">
-              Ready to experience coding practice the way it should be? No more hidden test cases, no more guessing games.
+              Ready to start learning in a more transparent, educational environment? Join OpenJudge today and experience a new way to practice coding.
             </p>
             <div className="flex flex-col sm:flex-row justify-center gap-4">
               <Button asChild size="lg" className="neon-border">
                 <Link to="/login">
-                  Start Learning
+                  Get Started
                 </Link>
               </Button>
               <Button variant="outline" size="lg" asChild>
@@ -246,26 +145,9 @@ const AboutPage = () => {
                 </Link>
               </Button>
             </div>
-            
-            <div className="mt-16 flex justify-center">
-              <div className="glass-card rounded-full px-8 py-4 inline-flex items-center space-x-4">
-                <a href="#" className="text-muted-foreground hover:text-primary transition-colors flex items-center">
-                  <Github className="h-5 w-5 mr-1" />
-                  <span>GitHub</span>
-                </a>
-                <a href="#" className="text-muted-foreground hover:text-primary transition-colors flex items-center">
-                  <Globe className="h-5 w-5 mr-1" />
-                  <span>Community</span>
-                </a>
-                <a href="#" className="text-muted-foreground hover:text-primary transition-colors flex items-center">
-                  <Code className="h-5 w-5 mr-1" />
-                  <span>Documentation</span>
-                </a>
-              </div>
-            </div>
-          </AnimatedSection>
+          </div>
         </div>
-      </AnimatedSection>
+      </div>
     </div>
   );
 };
