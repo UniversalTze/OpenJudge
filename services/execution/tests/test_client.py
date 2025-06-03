@@ -7,7 +7,7 @@ This script can be used to send test requests to the Celery worker and listen fo
 import os
 import sys
 import time
-from json import loads, dumps
+from json import loads
 from celery import Celery
 from pathlib import Path
 
@@ -43,17 +43,9 @@ def setup_result_listener():
     # Define a task to receive results
     @app.task(name="result", queue=output_queue)
     def receive_results(results):
-        # Get old results
-        with open(LOG_FILE, "r") as f:
-            json_results = loads(f.read())
-        
-        if type(json_results) != list:
-            print("FATAL ERROR: Couldn't parse log file as valid JSON list")
-            return
-        
-        # Add new result
-        with open(LOG_FILE, 'w') as f:
-            f.write(dumps(json_results.append(results)))
+        # Add new result in csv format
+        with open(LOG_FILE, 'a') as f:
+            f.write(results['submission_id'] + ',' + results['passed'] + '\n')
             
     return app, receive_results
 
@@ -144,8 +136,10 @@ def run_tests():
     """Run all tests in test_cases for all languages in languages"""
     # Set up Celery apps for sending and receiving
     app = setup_celery()
+    
+    # Clear log file
     with open(LOG_FILE, "w") as f:
-        f.write(dumps([]))
+        f.write('')
     
     # For each test case and language, send the request
     for lang in languages:
@@ -163,19 +157,21 @@ def run_tests():
     
     # Construct results
     with open(LOG_FILE, "r") as f:
-        results = loads(f.read())
+        results = f.read()
         
     results_dict = {}
-    for result in results:
-        submission_id = result['submission_id']
+    for line in results.split('\n'):
+        result = line.split(',')
+        submission_id = result[0]
+        passed = result[1]
         if submission_id not in results_dict:
             results_dict[submission_id] = {
-                'passed': result['passed'],
+                'passed': passed,
                 'num_tests': 1,
             }
         else:
             res = results_dict[submission_id]
-            res['passed'] = res['passed'] and result['passed']
+            res['passed'] = res['passed'] and passed
             res['num_tests'] += 1
 
     # Check results dictionary
