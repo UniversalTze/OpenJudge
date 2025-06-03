@@ -7,7 +7,7 @@ This script can be used to send test requests to the Celery worker and listen fo
 import os
 import sys
 import time
-from json import loads
+from json import loads, dumps
 from celery import Celery
 from pathlib import Path
 
@@ -23,7 +23,6 @@ results_received = 0
 languages = ["python", "java"]
 test_cases = [test_case["test_name"] for test_case in ALL_TEST_INFO]
 test_info = {test_case["test_name"]: test_case for test_case in ALL_TEST_INFO}
-results_dict = {}
 
 def setup_celery():
     """Set up Celery client with the same configuration as the worker."""
@@ -45,17 +44,7 @@ def setup_result_listener():
     @app.task(name="result", queue=output_queue)
     def receive_results(results):
         with open(LOG_FILE, 'a') as f:
-            f.write(f"\n{results}\n")
-            
-        global results_received
-        results_received += 1
-        
-        global results_dict
-        submission_id = results['submission_id']
-        if submission_id not in results_dict:
-            results_dict[submission_id] = results['passed']
-        elif results_dict[submission_id] and not results['passed']:
-            results_dict[submission_id] = False
+            f.write(dumps(results) + ",\n")
             
     return app, receive_results
 
@@ -146,6 +135,8 @@ def run_tests():
     """Run all tests in test_cases for all languages in languages"""
     # Set up Celery apps for sending and receiving
     app = setup_celery()
+    with open(LOG_FILE, "w") as f:
+        f.write("[")
     
     # For each test case and language, send the request
     for lang in languages:
@@ -160,12 +151,31 @@ def run_tests():
     # Results will be monitored asynchronously - print 20s
     listen_for_results(duration_seconds=20)
     time.sleep(2)
+    
+    # Construct results
+    with open(LOG_FILE, "a") as f:
+        f.write("]")
+    with open(LOG_FILE, "r") as f:
+        results = loads(f.read())
+        
+    results_dict = {}
+    for result in results:
+        submission_id = result['submission_id']
+        if submission_id not in results_dict:
+            results_dict[submission_id] = {
+                'passed': result['passed'],
+                'num_tests': 1,
+            }
+        else:
+            res = results_dict[submission_id]
+            res['passed'] = res['passed'] and result['passed']
+            res['num_tests'] += 1
 
     # Check results dictionary
     for lang in languages:
         for test_case in test_cases:
-            submission_id = test_case + "_" + lang
-            if not results_dict[submission_id]:
+            submission_id = test_case + "_" + lang    
+            if submission_id not in results_dict:
                 print(f"❌ Test case {test_case} failed for {lang} - no results received")
                 continue
             _, _, _, _, correct = get_test_case(test_case, lang)
