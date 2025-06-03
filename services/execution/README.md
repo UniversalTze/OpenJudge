@@ -153,17 +153,21 @@ To add new test cases, go to `services/execution/tests/test_cases`. From there, 
     "test_name": "string",
     "inputs": "list", // A list of lists of input parameters
     "outputs": "list", // A list of expected outputs
-    "function_name": "string"
+    "function_name": "string",
+    "correct": "bool" // Whether the submission code should pass this test case
 }
 ```
   
 You will then need to create a submission file for each language you wish to test for. This should be added to the relevant directory in the `submission_code` directory for the language. The filename should match the test case name (`test_{test_case_name}.{language extension}`, e.g. `test_basic_001.py`).
 
-### Integration Testing
+### Deployment Testing
+How to test deployment of just this microservice
 TODO
 
-### Deployment Testing
+### Integration Testing
+How to test this microservice integrated with other microservices (should probably reference other docs)
 TODO
 
 ### Performance Testing
+How to run performance tests for just this microservice (ie k6).
 TODO
