@@ -19,7 +19,7 @@ services:
     environment:
       CELERY_BROKER_URL: redis://redis:6379
       TARGET_QUEUE: pythonq
-      OUTPUT_QUEUE: pythonoutputq
+      OUTPUT_QUEUE: outputq
       LANGUAGE: python
     command: celery -A src.receiver.celery worker --loglevel=info
     depends_on:
@@ -34,7 +34,7 @@ services:
     environment:
       CELERY_BROKER_URL: redis://redis:6379
       TARGET_QUEUE: javaq
-      OUTPUT_QUEUE: javaoutputq
+      OUTPUT_QUEUE: outputq
       LANGUAGE: java
     command: celery -A src.receiver.celery worker --loglevel=info
     depends_on:

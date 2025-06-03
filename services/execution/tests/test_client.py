@@ -162,7 +162,7 @@ def run_tests():
     # Check results dictionary
     for lang in languages:
         for test_case in test_cases:
-            submission_id = test_cases + "_" + lang
+            submission_id = test_case + "_" + lang
             if not results_dict[submission_id]:
                 print(f"❌ Test case {test_case} failed for {lang} - no results received")
                 continue
