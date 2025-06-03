@@ -1,12 +1,50 @@
 version: '3.8'
 services:
-  app:
-    build: .
+  db:
+    image: postgres:13
     environment:
-      - FLASK_APP=app.py
-      - APP_ENV=LOCAL
-      - SQLALCHEMY_DATABASE_URI=sqlite:///submissions.db
+      POSTGRES_USER: postgres
+      POSTGRES_PASSWORD: postgres
+      POSTGRES_DB: submissions
+    ports:
+      - "5432:5432"
     volumes:
-      - .:/app
+      - db_data:/var/lib/postgresql/data
+
+  redis:
+    image: redis:6
+    ports:
+      - "6379:6379"
+
+  web:
+    build: .
+    depends_on:
+      - db
+      - redis
+    environment:
+      # Connection string for local Postgres
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/submissions
+      # Redis for RQ
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      # Use local RQ (not SQS)
+      USE_SQS: 'false'
     ports:
       - "5000:5000"
+    volumes:
+      - .:/app
+
+  worker:
+    build: .
+    depends_on:
+      - db
+      - redis
+    command: rq worker submission-tasks
+    environment:
+      DATABASE_URL: postgresql://postgres:postgres@db:5432/submissions
+      REDIS_HOST: redis
+      REDIS_PORT: 6379
+      USE_SQS: 'false'
+
+volumes:
+  db_data:
