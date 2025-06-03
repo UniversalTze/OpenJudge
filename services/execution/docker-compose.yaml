@@ -47,7 +47,7 @@ services:
       dockerfile: tests/Dockerfile.test
     environment:
       CELERY_BROKER_URL: redis://redis:6379
-    command: bash
+    command: while true; do sleep 360; done # Loop indefinitely in main thread
     depends_on:
       redis:
         condition: service_healthy

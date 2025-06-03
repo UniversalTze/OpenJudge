@@ -23,4 +23,5 @@ ENV PATH="/venv/bin:$PATH"
 # Verify installation
 RUN python --version && celery --version
 
-CMD ["bash"]
+# Sleep indefinitely
+CMD ["sleep", "36000"]
