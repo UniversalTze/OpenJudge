@@ -143,7 +143,11 @@ An executor file must be created in the `src/executor` directory. This file must
 
 ## Testing
 ### Local Unit Tests
-To run tests locally, first you can run the provided test client in a docker container with DOCKER COMPOSE then run a specific set of tests with the following command: TODO
+To run tests locally, first you can run the provided test client in a docker container with DOCKER COMPOSE/TASK then run a specific set of tests with the following command: 
+
+```bash
+docker compose exec test-client python test_client.py
+```
   
 To specify which language to test, add the flag `--lang {python|java}` to the command. To specify which test cases to run, add the test case names as additional arguments to the command at the end of the command line.
   

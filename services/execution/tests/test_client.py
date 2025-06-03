@@ -116,13 +116,25 @@ def listen_for_results(duration_seconds=30):
         print(f"📊 Total results received: {results_received}")
     return 
  
+def get_ext(lang):
+    """Get the extension for a given language"""
+    match lang:
+        case "python":
+            return "py"
+        case "java":
+            return "java"
+    raise ValueError(f"Unsupported language: {lang}")
+ 
 def get_test_case(test_case, lang):
     """Get data regarding a test case"""
-    c = test_info['test_case']
-    inputs = None
-    outputs = None
-    submission = None
-    function_name = None
+    c = test_info[test_case]
+    inputs = c['inputs']
+    outputs = c['outputs']
+    function_name = c['function_name']
+    
+    with open(TEST_CASE_DIR / lang / f"test_{test_case}.{get_ext(lang)}", "r") as f:
+        submission = f.read()
+    
     return inputs, outputs, submission, function_name
 
 def run_tests():
