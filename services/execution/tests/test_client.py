@@ -54,8 +54,8 @@ def setup_result_listener():
         submission_id = results['submission_id']
         if submission_id not in results_dict:
             results_dict[submission_id] = results['passed']
-        elif results_dict['submission_id'] and not results['passed']:
-            results_dict[results['submission_id']] = False
+        elif results_dict[submission_id] and not results['passed']:
+            results_dict[submission_id] = False
             
     return app, receive_results
 

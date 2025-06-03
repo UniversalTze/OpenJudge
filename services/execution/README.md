@@ -174,7 +174,7 @@ To add new test cases, go to `services/execution/tests/test_cases`. From there, 
 }
 ```
   
-You will then need to create a submission file for each language you wish to test for. This should be added to the relevant directory in the `submission_code` directory for the language. The filename should match the test case name (`test_{test_name}.{language extension}`, e.g. `test_basic_001.py`).
+You will then need to create a submission file for each language you wish to test for. This should be added to the relevant directory in the `submission_code` directory for the language. The filename should match the test case name (`test_{test_name}.{language extension}`, e.g. `test_basic_001.py`). Finally, the language extension needs to be added to the `get_ext` function in the `test_client.py` file.
 
 ### Deployment Testing
 How to test deployment of just this microservice
