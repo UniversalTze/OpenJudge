@@ -12,6 +12,20 @@ tasks:
 
   test:auth:
 
+  # EXECUTION SERVICE COMMANDS
+  run:execution:
+    desc: Run the execution service in development mode.
+    cmds:
+      - docker compose -f infrastructure/docker/docker-compose-execution.yaml up --build -d
+    silent: false
+
+  test:execution:
+    desc: Run the execution service in development mode, and then runs unit tests against this service.
+    cmds:
+      - docker compose -f infrastructure/docker/docker-compose-execution.yaml up --build -d
+      - docker compose exec test-client python test_client.py
+    silent: false
+
   # APPLICATION COMMANDS
   run:app:
 

@@ -1,0 +1,27 @@
+FROM python:3.12-slim
+
+# Set working directory
+WORKDIR /tests
+
+# Install uv
+RUN pip install --no-cache-dir uv
+
+# Copy requirements first to leverage Docker cache
+COPY pyproject.toml ./
+COPY uv.lock ./
+
+# Copy the rest of the application
+COPY tests .
+
+# Create a virtual environment and install dependencies
+RUN python -m venv /venv && \
+    /venv/bin/pip install --no-cache-dir -e .
+
+# Add virtual environment to PATH
+ENV PATH="/venv/bin:$PATH"
+
+# Verify installation
+RUN python --version && celery --version
+
+# Sleep indefinitely
+CMD ["sleep", "36000"]

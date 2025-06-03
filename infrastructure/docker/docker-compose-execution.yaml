@@ -13,7 +13,7 @@ services:
 
   python-worker:
     build:
-      context: .
+      context: ../../services/execution
       dockerfile: ../../infrastructure/docker/execution/Dockerfile.python
     restart: always
     environment:
@@ -28,7 +28,7 @@ services:
 
   java-worker:
     build:
-      context: .
+      context: ../../services/execution
       dockerfile: ../../infrastructure/docker/execution/Dockerfile.java
     restart: always
     environment:
@@ -43,8 +43,8 @@ services:
 
   test-client:
     build:
-      context: .
-      dockerfile: tests/Dockerfile.test
+      context: ../../services/execution
+      dockerfile: ../../infrastructure/docker/execution/Dockerfile.test
     environment:
       CELERY_BROKER_URL: redis://redis:6379
     command: bash -c "echo 'Test client container is running. Connect with `docker compose exec test-client bash`'; while true; do sleep 360; done" # Loop indefinitely in main thread
