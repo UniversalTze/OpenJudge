@@ -7,11 +7,10 @@ WORKDIR /app
 RUN pip install --no-cache-dir uv
 
 # Copy requirements first to leverage Docker cache
-COPY pyproject.toml ./
-COPY uv.lock ./
+COPY pyproject.toml uv.lock  ./
 
 # Copy the rest of the application
-COPY ./src ./src
+COPY ./src .
 
 # Create a virtual environment and install dependencies
 RUN python -m venv /venv && \

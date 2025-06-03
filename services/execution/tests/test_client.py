@@ -12,10 +12,11 @@ from celery import Celery
 from pathlib import Path
 
 # Global constants for testing purposes
-LOG_FILE = Path.cwd() / 'test_client.log'
-TEST_CASE_DIR = Path.cwd() / "test_cases"
+LOG_FILE = Path(__file__).parent / 'test_client.log'
+TEST_CASE_DIR = Path(__file__).parent / "test_cases"
 with open(TEST_CASE_DIR / "test_cases.json", "r") as f:
     ALL_TEST_INFO = loads(f.read())
+print("Test case directory: ", TEST_CASE_DIR)
 
 # Global variables for testing purposes
 results_received = 0
