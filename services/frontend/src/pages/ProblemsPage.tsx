@@ -1,6 +1,6 @@
-import { useState, useEffect } from "react";
+import { useState, useEffect, useMemo } from "react";
 import { Link } from "react-router-dom";
-import { Search, Filter, Tag, CheckCircle, Eye } from "lucide-react";
+import { Search, Filter, CheckCircle, Eye } from "lucide-react";
 import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,27 +12,42 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuCheckboxItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu";
 
 import { problems, Problem } from "@/data/problems";
+import { useAuth } from "@/contexts/AuthContext";
 
 const ProblemsPage = () => {
+  const { state } = useAuth();
   const [searchQuery, setSearchQuery] = useState("");
-  const [difficultyFilter, setDifficultyFilter] = useState<string | undefined>("");
-  const [selectedTags, setSelectedTags] = useState<string[]>([]);
-  const [filteredProblems, setFilteredProblems] = useState<Problem[]>(problems);
+  const [difficultyFilter, setDifficultyFilter] = useState<string>("");
+  const [filteredProblems, setFilteredProblems] = useState<Problem[]>([]);
 
-  const allTags = Array.from(
-    new Set(problems.flatMap(problem => problem.tags))
-  ).sort();
+  // Sort problems based on user experience level
+  const sortedProblems = useMemo(() => {
+    const experienceLevel = state.user?.experienceLevel || 'beginner';
+    
+    let sorted = [...problems];
+    
+    if (experienceLevel === 'beginner') {
+      // Easy first, then Medium, then Hard
+      sorted.sort((a, b) => {
+        const difficultyOrder = { 'Easy': 0, 'Medium': 1, 'Hard': 2 };
+        return difficultyOrder[a.difficulty] - difficultyOrder[b.difficulty];
+      });
+    } else if (experienceLevel === 'advanced') {
+      // Hard first, then Medium, then Easy
+      sorted.sort((a, b) => {
+        const difficultyOrder = { 'Hard': 0, 'Medium': 1, 'Easy': 2 };
+        return difficultyOrder[a.difficulty] - difficultyOrder[b.difficulty];
+      });
+    }
+    // Intermediate keeps default order (mixed)
+    
+    return sorted;
+  }, [state.user?.experienceLevel]);
 
   useEffect(() => {
-    let result = problems;
+    let result = sortedProblems;
 
     // Filter by search query
     if (searchQuery) {
@@ -44,37 +59,20 @@ const ProblemsPage = () => {
     }
 
     // Filter by difficulty
-    if (difficultyFilter) {
+    if (difficultyFilter && difficultyFilter !== "all") {
       result = result.filter(problem => 
         problem.difficulty === difficultyFilter
       );
     }
 
-    // Filter by tags
-    if (selectedTags.length > 0) {
-      result = result.filter(problem =>
-        selectedTags.every(tag => problem.tags.includes(tag))
-      );
-    }
-
     setFilteredProblems(result);
-  }, [searchQuery, difficultyFilter, selectedTags]);
-
-  const toggleTag = (tag: string) => {
-    setSelectedTags(prev =>
-      prev.includes(tag)
-        ? prev.filter(t => t !== tag)
-        : [...prev, tag]
-    );
-  };
+  }, [searchQuery, difficultyFilter, sortedProblems]);
 
   const clearFilters = () => {
     setSearchQuery("");
     setDifficultyFilter("");
-    setSelectedTags([]);
   };
 
-  // Get difficulty label with color
   const getDifficultyBadge = (difficulty: string) => {
     switch (difficulty) {
       case 'Easy':
@@ -88,12 +86,29 @@ const ProblemsPage = () => {
     }
   };
 
+  const getExperienceMessage = () => {
+    const experienceLevel = state.user?.experienceLevel || 'beginner';
+    switch (experienceLevel) {
+      case 'beginner':
+        return "Problems are sorted with easier ones first to help you learn progressively.";
+      case 'advanced':
+        return "Problems are sorted with challenging ones first to match your expertise.";
+      default:
+        return "Problems are sorted in a balanced order to match your intermediate level.";
+    }
+  };
+
   return (
     <div className="container py-8">
-      <h1 className="text-3xl font-bold mb-2">Problem Set</h1>
-      <p className="text-muted-foreground mb-8">
-        Explore coding challenges across different topics and difficulty levels
-      </p>
+      <div className="mb-6">
+        <h1 className="text-3xl font-bold mb-2">Problem Set</h1>
+        <p className="text-muted-foreground mb-2">
+          Explore coding challenges with complete transparency - see all test cases!
+        </p>
+        <p className="text-sm text-primary">
+          {getExperienceMessage()}
+        </p>
+      </div>
 
       {/* Background Elements */}
       <div className="fixed inset-0 -z-10 overflow-hidden pointer-events-none">
@@ -127,35 +142,7 @@ const ProblemsPage = () => {
               </SelectContent>
             </Select>
 
-            <DropdownMenu>
-              <DropdownMenuTrigger asChild>
-                <Button variant="outline" size="sm" className="h-10">
-                  <Tag className="h-4 w-4 mr-2" />
-                  Tags
-                  {selectedTags.length > 0 && (
-                    <Badge
-                      variant="secondary"
-                      className="ml-2 px-1 rounded-full"
-                    >
-                      {selectedTags.length}
-                    </Badge>
-                  )}
-                </Button>
-              </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
-                {allTags.map((tag) => (
-                  <DropdownMenuCheckboxItem
-                    key={tag}
-                    checked={selectedTags.includes(tag)}
-                    onCheckedChange={() => toggleTag(tag)}
-                  >
-                    {tag}
-                  </DropdownMenuCheckboxItem>
-                ))}
-              </DropdownMenuContent>
-            </DropdownMenu>
-
-            {(searchQuery || difficultyFilter || selectedTags.length > 0) && (
+            {(searchQuery || difficultyFilter) && (
               <Button variant="ghost" size="sm" onClick={clearFilters} className="h-10">
                 Clear Filters
               </Button>
@@ -171,7 +158,7 @@ const ProblemsPage = () => {
           {/* Sample Result Link */}
           <Link to="/sample-problem-result" className="text-primary hover:underline flex items-center">
             <Eye className="h-4 w-4 mr-1" />
-            View Sample Problem Results
+            View Sample Results
           </Link>
         </div>
       </div>
@@ -206,7 +193,7 @@ const ProblemsPage = () => {
                 </CardContent>
                 <CardFooter className="bg-muted/20 py-3 px-6 flex justify-between">
                   <div className="text-sm text-muted-foreground">
-                    Languages: {problem.languages.join(", ")}
+                    All test cases visible • Language agnostic
                   </div>
                   {problem.lastAttempt && (
                     <div className="flex items-center">
@@ -227,7 +214,7 @@ const ProblemsPage = () => {
         ) : (
           <div className="text-center py-16 glass-card rounded-xl">
             <h3 className="text-xl font-medium mb-2">No problems match your filters</h3>
-            <p className="text-muted-foreground mt-2 mb-6">Try adjusting your search or filter criteria</p>
+            <p className="text-muted-foreground mt-2 mb-6">Try adjusting your search criteria</p>
             <Button variant="outline" onClick={clearFilters}>
               Clear Filters
             </Button>

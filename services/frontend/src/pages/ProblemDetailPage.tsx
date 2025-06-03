@@ -23,13 +23,20 @@ const ProblemDetailPage = () => {
 
   const problem = problems.find(p => p.id === id);
   
-  const [language, setLanguage] = useState<string>("Python");
+  // Store language preference in localStorage
+  const [defaultLanguage, setDefaultLanguage] = useLocalStorage<string>('preferred-language', 'Python');
+  const [language, setLanguage] = useState<string>(defaultLanguage);
   const [code, setCode] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showHiddenTestCases, setShowHiddenTestCases] = useState(false);
 
   // Custom hook to save/retrieve code from localStorage
   const [savedCode, setSavedCode] = useLocalStorage<Record<string, Record<string, string>>>('saved-code', {});
+
+  // Update default language when changed
+  useEffect(() => {
+    setDefaultLanguage(language);
+  }, [language, setDefaultLanguage]);
 
   // Set initial code based on language or previously saved code
   useEffect(() => {
@@ -43,6 +50,9 @@ const ProblemDetailPage = () => {
     } else if (language === 'Java') {
       setCode(problemSavedCode.java || 
         `class Solution {\n    public int[] solution(int[] nums) {\n        // Write your Java solution here\n        return new int[0];\n    }\n\n    // Example usage:\n    // public static void main(String[] args) {\n    //     Solution sol = new Solution();\n    //     sol.solution(new int[]{1, 2, 3});\n    // }\n}`);
+    } else if (language === 'JavaScript') {
+      setCode(problemSavedCode.javascript ||
+        `function solution(nums) {\n    // Write your JavaScript solution here\n    return [];\n}\n\n// Example usage:\n// solution([1, 2, 3]);`);
     }
   }, [language, problem, savedCode]);
 
@@ -335,9 +345,10 @@ const ProblemDetailPage = () => {
                 <SelectValue placeholder="Select Language" />
               </SelectTrigger>
               <SelectContent>
-                {problem.languages.map(lang => (
-                  <SelectItem key={lang} value={lang}>{lang}</SelectItem>
-                ))}
+                <SelectItem value="Python">Python</SelectItem>
+                <SelectItem value="Java">Java</SelectItem>
+                <SelectItem value="JavaScript">JavaScript</SelectItem>
+                <SelectItem value="C++">C++</SelectItem>
               </SelectContent>
             </Select>
             

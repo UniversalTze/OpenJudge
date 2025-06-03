@@ -1,4 +1,3 @@
-
 import { useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
@@ -8,14 +7,17 @@ import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle }
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { useToast } from "@/hooks/use-toast";
 import { LogIn, UserPlus, ArrowRight } from "lucide-react";
+import { useAuth } from "@/contexts/AuthContext";
 
 const LoginPage = () => {
   const { toast } = useToast();
   const navigate = useNavigate();
+  const { login, setLoading } = useAuth();
   
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
-  const [signupName, setSignupName] = useState("");
+  const [signupFirstName, setSignupFirstName] = useState("");
+  const [signupLastName, setSignupLastName] = useState("");
   const [signupEmail, setSignupEmail] = useState("");
   const [signupPassword, setSignupPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
@@ -23,51 +25,89 @@ const LoginPage = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setLoading(true);
     
-    // Simulate authentication
-    setTimeout(() => {
-      // Store a user object in localStorage to simulate authentication
-      localStorage.setItem("user", JSON.stringify({
+    try {
+      // Simulate API call for now
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Mock user data - replace with real API call
+      const mockUser = {
+        id: "1",
         email: loginEmail,
-        name: "Demo User"
-      }));
+        firstName: "Demo",
+        lastName: "User",
+        experienceLevel: "intermediate" as const
+      };
+      
+      const mockToken = "mock-jwt-token";
+      
+      login(mockUser, mockToken);
       
       toast({
         title: "Logged in successfully",
-        description: "Redirecting to onboarding...",
+        description: "Welcome back!",
       });
+      
+      navigate("/problems");
+    } catch (error) {
+      toast({
+        title: "Login failed",
+        description: "Please check your credentials and try again.",
+        variant: "destructive"
+      });
+    } finally {
       setIsLoading(false);
-      navigate("/onboarding");
-    }, 1500);
+      setLoading(false);
+    }
   };
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    setLoading(true);
     
-    // Simulate registration
-    setTimeout(() => {
-      // Store a user object in localStorage to simulate authentication
-      localStorage.setItem("user", JSON.stringify({
+    try {
+      // Simulate API call for now
+      await new Promise(resolve => setTimeout(resolve, 1000));
+      
+      // Mock user data - replace with real API call
+      const mockUser = {
+        id: "2",
         email: signupEmail,
-        name: signupName
-      }));
+        firstName: signupFirstName,
+        lastName: signupLastName,
+        experienceLevel: "beginner" as const // Default to beginner, will be updated in onboarding
+      };
+      
+      const mockToken = "mock-jwt-token-new";
+      
+      login(mockUser, mockToken);
       
       toast({
         title: "Account created",
-        description: "Welcome to OpenJudge! Redirecting to onboarding...",
+        description: "Welcome to OpenJudge! Let's set up your experience.",
       });
-      setIsLoading(false);
+      
       navigate("/onboarding");
-    }, 1500);
+    } catch (error) {
+      toast({
+        title: "Registration failed",
+        description: "Please try again.",
+        variant: "destructive"
+      });
+    } finally {
+      setIsLoading(false);
+      setLoading(false);
+    }
   };
 
   return (
     <div className="container flex items-center justify-center min-h-[calc(100vh-150px)] py-8">
       {/* Background Decoration */}
       <div className="absolute -z-10 inset-0 overflow-hidden">
-        <div className="absolute top-1/4 -right-[10%] w-[30%] h-[30%] bg-primary/5 rounded-full blur-3xl rotating"></div>
-        <div className="absolute bottom-1/4 -left-[10%] w-[30%] h-[30%] bg-accent/5 rounded-full blur-3xl rotating"></div>
+        <div className="absolute top-1/4 -right-[10%] w-[30%] h-[30%] bg-primary/5 rounded-full blur-3xl animate-rotate"></div>
+        <div className="absolute bottom-1/4 -left-[10%] w-[30%] h-[30%] bg-accent/5 rounded-full blur-3xl animate-rotate animation-delay-1000"></div>
       </div>
       
       <div className="w-full max-w-md">
@@ -75,7 +115,7 @@ const LoginPage = () => {
           <CardHeader className="text-center">
             <CardTitle className="text-2xl">Welcome to OpenJudge</CardTitle>
             <CardDescription>
-              Sign in to access personalized coding challenges
+              Sign in to access transparent coding challenges
             </CardDescription>
           </CardHeader>
           <CardContent>
@@ -139,16 +179,29 @@ const LoginPage = () => {
               
               <TabsContent value="signup">
                 <form onSubmit={handleSignup} className="space-y-4">
-                  <div className="space-y-2">
-                    <Label htmlFor="signup-name">Full Name</Label>
-                    <Input
-                      id="signup-name"
-                      placeholder="John Doe"
-                      value={signupName}
-                      onChange={(e) => setSignupName(e.target.value)}
-                      className="bg-background/50"
-                      required
-                    />
+                  <div className="grid grid-cols-2 gap-4">
+                    <div className="space-y-2">
+                      <Label htmlFor="signup-firstname">First Name</Label>
+                      <Input
+                        id="signup-firstname"
+                        placeholder="John"
+                        value={signupFirstName}
+                        onChange={(e) => setSignupFirstName(e.target.value)}
+                        className="bg-background/50"
+                        required
+                      />
+                    </div>
+                    <div className="space-y-2">
+                      <Label htmlFor="signup-lastname">Last Name</Label>
+                      <Input
+                        id="signup-lastname"
+                        placeholder="Doe"
+                        value={signupLastName}
+                        onChange={(e) => setSignupLastName(e.target.value)}
+                        className="bg-background/50"
+                        required
+                      />
+                    </div>
                   </div>
                   <div className="space-y-2">
                     <Label htmlFor="signup-email">Email</Label>
@@ -193,7 +246,7 @@ const LoginPage = () => {
             </Tabs>
           </CardContent>
           <CardFooter className="flex justify-center">
-            <div className="text-sm text-muted-foreground">
+            <div className="text-sm text-muted-foreground text-center">
               By continuing, you agree to our{" "}
               <Link to="/terms" className="text-primary hover:underline">
                 Terms of Service

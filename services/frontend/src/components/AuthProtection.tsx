@@ -1,7 +1,7 @@
-
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { useToast } from "@/hooks/use-toast";
+import { useAuth } from "@/contexts/AuthContext";
 
 type AuthProtectionProps = {
   children: React.ReactNode;
@@ -10,13 +10,10 @@ type AuthProtectionProps = {
 const AuthProtection = ({ children }: AuthProtectionProps) => {
   const { toast } = useToast();
   const navigate = useNavigate();
-  
-  // In a real app, you would check if the user is logged in here
-  // For this demo, we'll simulate auth by checking localStorage
-  const isAuthenticated = localStorage.getItem("user") !== null;
+  const { state } = useAuth();
 
   useEffect(() => {
-    if (!isAuthenticated) {
+    if (!state.isLoading && !state.isAuthenticated) {
       toast({
         title: "Authentication Required",
         description: "Please sign in to access this page",
@@ -24,9 +21,17 @@ const AuthProtection = ({ children }: AuthProtectionProps) => {
       });
       navigate("/login");
     }
-  }, [isAuthenticated, navigate, toast]);
+  }, [state.isAuthenticated, state.isLoading, navigate, toast]);
 
-  if (!isAuthenticated) {
+  if (state.isLoading) {
+    return (
+      <div className="container flex items-center justify-center min-h-[50vh]">
+        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
+
+  if (!state.isAuthenticated) {
     return null;
   }
 
