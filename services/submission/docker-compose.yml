@@ -1,4 +1,5 @@
 version: '3.8'
+
 services:
   db:
     image: postgres:13
@@ -10,6 +11,7 @@ services:
       - "5432:5432"
     volumes:
       - db_data:/var/lib/postgresql/data
+      - ./init.sql:/docker-entrypoint-initdb.d/init.sql
 
   redis:
     image: redis:6
@@ -18,33 +20,27 @@ services:
 
   web:
     build: .
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/submissions
+      - REDIS_URL=redis://redis:6379/0
+    ports:
+      - "5000:5000"
     depends_on:
       - db
       - redis
-    environment:
-      # Connection string for local Postgres
-      DATABASE_URL: postgresql://postgres:postgres@db:5432/submissions
-      # Redis for RQ
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-      # Use local RQ (not SQS)
-      USE_SQS: 'false'
-    ports:
-      - "5000:5000"
-    volumes:
-      - .:/app
+    # Change directory into app/ and run Gunicorn on main:app
+    command: gunicorn --chdir app --bind 0.0.0.0:5000 main:app
 
   worker:
     build: .
+    environment:
+      - DATABASE_URL=postgresql://postgres:postgres@db:5432/submissions
+      - REDIS_URL=redis://redis:6379/0
     depends_on:
       - db
       - redis
-    command: rq worker submission-tasks
-    environment:
-      DATABASE_URL: postgresql://postgres:postgres@db:5432/submissions
-      REDIS_HOST: redis
-      REDIS_PORT: 6379
-      USE_SQS: 'false'
+    # Change directory into app/ so Celery finds queue_utils and worker modules
+    command: bash -c "cd app && celery -A queue_utils.celery_app worker --loglevel=info -Q pythonq"
 
 volumes:
   db_data:
