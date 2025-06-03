@@ -41,7 +41,7 @@ def setup_result_listener():
     app.conf.task_default_queue = output_queue
 
     # Define a task to receive results
-    @app.task(name="receive_results", queue=output_queue)
+    @app.task(name="result", queue=output_queue)
     def receive_results(results):
         with open(LOG_FILE, 'a') as f:
             f.write(f"\n{results}\n")
