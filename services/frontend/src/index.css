@@ -211,60 +211,72 @@
   }
 }
 
+/* Enhanced Animation Utilities */
 @layer utilities {
-  /* Animation utilities */
-  .animate-shine {
-    animation: shine 5s linear infinite;
+  /* Smooth entrance animations */
+  .animate-slide-in {
+    animation: slideInSmooth 0.7s ease-out forwards;
   }
-
-  .animate-float {
-    animation: floating 3s ease-in-out infinite;
+  
+  .animate-fade-in {
+    animation: fadeInSmooth 0.6s ease-out forwards;
   }
-
-  .animate-rotate {
-    animation: rotating 20s linear infinite;
+  
+  .animate-scale-in {
+    animation: scaleInSmooth 0.5s ease-out forwards;
   }
-
-  /* Responsive utilities */
-  .responsive-text {
-    font-size: clamp(var(--font-size-sm), 2vw, var(--font-size-lg));
-  }
-
-  .responsive-heading {
-    font-size: clamp(var(--font-size-xl), 4vw, var(--font-size-3xl));
-  }
-
-  /* Animation delays */
-  .delay-100 { animation-delay: 100ms; }
-  .delay-200 { animation-delay: 200ms; }
-  .delay-300 { animation-delay: 300ms; }
-  .delay-500 { animation-delay: 500ms; }
-  .delay-1000 { animation-delay: 1000ms; }
-  .delay-1500 { animation-delay: 1500ms; }
+  
+  /* Stagger animation delays */
+  .animate-delay-100 { animation-delay: 100ms; }
+  .animate-delay-200 { animation-delay: 200ms; }
+  .animate-delay-300 { animation-delay: 300ms; }
+  .animate-delay-400 { animation-delay: 400ms; }
+  .animate-delay-500 { animation-delay: 500ms; }
+  .animate-delay-600 { animation-delay: 600ms; }
+  .animate-delay-700 { animation-delay: 700ms; }
+  .animate-delay-800 { animation-delay: 800ms; }
 }
 
-/* Keyframe animations */
-@keyframes shine {
-  to {
-    background-position: 200% center;
-  }
-}
-
-@keyframes floating {
-  0%, 100% {
-    transform: translateY(0px);
-  }
-  50% {
-    transform: translateY(-15px);
-  }
-}
-
-@keyframes rotating {
+/* Smooth keyframe animations */
+@keyframes slideInSmooth {
   from {
-    transform: rotateY(0deg);
+    opacity: 0;
+    transform: translateY(30px);
   }
   to {
-    transform: rotateY(360deg);
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+@keyframes fadeInSmooth {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
+@keyframes scaleInSmooth {
+  from {
+    opacity: 0;
+    transform: scale(0.95);
+  }
+  to {
+    opacity: 1;
+    transform: scale(1);
+  }
+}
+
+/* Reduced motion support */
+@media (prefers-reduced-motion: reduce) {
+  .animate-slide-in,
+  .animate-fade-in,
+  .animate-scale-in {
+    animation: none !important;
+    opacity: 1 !important;
+    transform: none !important;
   }
 }
 
