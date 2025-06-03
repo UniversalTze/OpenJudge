@@ -20,7 +20,19 @@ For each supported language (described below), there must exist a unique input a
 **Language:** Python </br> **Package Manager** uv </br> **Concurrency:** Celery </br> **Message Broker:** Redis (Local) / SQS (Production) </br> **Containerisation:** Docker </br> **Sandboxing:** Firejail (TBC)
 
 ### Getting Started
-A `test_client.py` and `docker-compose.yaml` have been included for testing purposes. Note, before starting you can use the following command to build faster (only works if the docker build kit is available):
+Run the service from root using the following command.
+
+```
+task run:execution
+```
+
+Test the service from root using the following command.
+
+```
+task test:execution
+```
+  
+Alternatively, a `test_client.py` and `docker-compose.yaml` have been included for testing purposes. Note, before starting you can use the following command to build faster (only works if the docker build kit is available):
 
 ```bash
 export COMPOSE_BAKE=true
@@ -34,8 +46,8 @@ docker compose up --build -d
 
 This will build start the services in the background using the docker compose file. You can then use docker compose to check the logs of each worker and access the local redis instance via:
 ```bash
-docker compose logs -f python-worker
-docker compose logs -f java-worker
+docker compose logs python-worker
+docker compose logs java-worker
 docker compose exec redis redis-cli
 ```
 
@@ -162,7 +174,7 @@ To add new test cases, go to `services/execution/tests/test_cases`. From there, 
 }
 ```
   
-You will then need to create a submission file for each language you wish to test for. This should be added to the relevant directory in the `submission_code` directory for the language. The filename should match the test case name (`test_{test_case_name}.{language extension}`, e.g. `test_basic_001.py`).
+You will then need to create a submission file for each language you wish to test for. This should be added to the relevant directory in the `submission_code` directory for the language. The filename should match the test case name (`test_{test_name}.{language extension}`, e.g. `test_basic_001.py`).
 
 ### Deployment Testing
 How to test deployment of just this microservice

@@ -131,13 +131,14 @@ def get_test_case(test_case, lang):
     inputs = c['inputs']
     outputs = c['outputs']
     function_name = c['function_name']
+    correct = c['correct']
     
     lang_dir = TEST_CASE_DIR / "submission_code" / lang
     test_file = f"test_{test_case}.{get_ext(lang)}"
     with open(lang_dir / test_file, "r") as f:
         submission = f.read()
     
-    return inputs, outputs, submission, function_name
+    return inputs, outputs, submission, function_name, correct
 
 def run_tests():
     """Run all tests in test_cases for all languages in languages"""
