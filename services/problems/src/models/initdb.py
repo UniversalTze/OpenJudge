@@ -46,7 +46,6 @@ async def seed_from_json(json_path: str, db:AsyncSession):
                 select(Problems).where(Problems.problem_id == str(problem["id"]))
             )
             existing = result.scalar_one_or_none()
-            print(f"============================================================={existing}")
 
             if existing: 
                 logger.info(f"{problem['title']} already exists in DB. Skipping...")

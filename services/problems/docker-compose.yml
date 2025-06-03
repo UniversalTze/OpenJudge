@@ -17,12 +17,13 @@ services:
       build: 
         context: .
         dockerfile: Dockerfile.Problems
+      image: massive-problem
       restart: always
       environment:
         SQLALCHEMY_DATABASE_URI: "postgresql+asyncpg:\
           //problem_user:superSecretPassword.23@database:5432/problem"
       ports:
-        - "8080:6400" #8080 is outside port for localhost to listen for traffic on, 2nd arg is entry point for container.
+        - "6400:6400" #8080 is outside port for localhost to listen for traffic on, 2nd arg is entry point for container.
       depends_on:
         database:
           condition: service_healthy

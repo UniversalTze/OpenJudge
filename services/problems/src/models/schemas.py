@@ -4,7 +4,7 @@ from pydantic import BaseModel
 from typing import List
 
 ### Problem set
-class Problem(BaseModel):
+class Problem_Response(BaseModel):
     problem_id: str
     problem_title: str
     difficulty: str
