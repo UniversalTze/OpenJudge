@@ -1,13 +1,13 @@
-import { env, API_ENDPOINTS } from '@/config/env';
+import { env } from "@/config/env";
 
-// Types
-export interface ApiResponse<T = any> {
-  data: T;
-  message?: string;
+export interface ApiResponse<T> {
+  data: T | null;
+  message: string;
+  status: number;
   success: boolean;
-  errors?: string[];
 }
 
+// TODO: check this implementation?
 export interface PaginatedResponse<T> extends ApiResponse<T[]> {
   pagination: {
     page: number;
@@ -17,170 +17,101 @@ export interface PaginatedResponse<T> extends ApiResponse<T[]> {
   };
 }
 
-export interface ApiError {
-  message: string;
-  status: number;
-  code?: string;
-  details?: any;
-}
-
-// Request interceptor type
-type RequestInterceptor = (config: RequestInit) => RequestInit | Promise<RequestInit>;
-type ResponseInterceptor<T = any> = (response: Response) => Promise<T>;
-
 class ApiClient {
-  private baseURL: string;
-  private timeout: number;
-  private requestInterceptors: RequestInterceptor[] = [];
-  private responseInterceptors: ResponseInterceptor[] = [];
+  private baseURL: string = env.API_BASE_URL;
 
-  constructor(baseURL: string, timeout: number = 10000) {
-    this.baseURL = baseURL.replace(/\/$/, '');
-    this.timeout = timeout;
-  }
-
-  // Add request interceptor
-  addRequestInterceptor(interceptor: RequestInterceptor) {
-    this.requestInterceptors.push(interceptor);
-  }
-
-  // Add response interceptor
-  addResponseInterceptor(interceptor: ResponseInterceptor) {
-    this.responseInterceptors.push(interceptor);
-  }
-
-  // Get auth token
-  private getAuthToken(): string | null {
-    return localStorage.getItem('auth_token');
-  }
-
-  // Create request config
-  private async createConfig(config: RequestInit = {}): Promise<RequestInit> {
-    let requestConfig: RequestInit = {
-      headers: {
-        'Content-Type': 'application/json',
-        ...config.headers,
-      },
+  async request<T>(endpoint: string, config: RequestInit = {}) {
+    const controller = new AbortController();
+    const timeoutId = setTimeout(() => controller.abort(), 30000);
+    const requestConfig: RequestInit = {
       ...config,
+      signal: controller.signal,
     };
 
-    // Add auth token
-    const token = this.getAuthToken();
-    if (token) {
-      requestConfig.headers = {
-        ...requestConfig.headers,
-        Authorization: `Bearer ${token}`,
-      };
+    if (env.ENV === "local") {
+      console.log(`API Request: ${this.baseURL}${endpoint}`, requestConfig);
     }
 
-    // Apply request interceptors
-    for (const interceptor of this.requestInterceptors) {
-      requestConfig = await interceptor(requestConfig);
-    }
-
-    return requestConfig;
-  }
-
-  // Handle response
-  private async handleResponse<T>(response: Response): Promise<T> {
-    // Apply response interceptors
-    let processedResponse = response;
-    for (const interceptor of this.responseInterceptors) {
-      processedResponse = await interceptor(processedResponse);
-    }
-
-    if (!processedResponse.ok) {
-      const errorData = await processedResponse.json().catch(() => ({}));
-      const error: ApiError = {
-        message: errorData.message || `HTTP ${processedResponse.status}`,
-        status: processedResponse.status,
-        code: errorData.code,
-        details: errorData,
-      };
-      throw error;
-    }
-
-    return processedResponse.json();
-  }
-
-  // Generic request method
-  async request<T>(endpoint: string, config: RequestInit = {}): Promise<T> {
-    const controller = new AbortController();
-    const timeoutId = setTimeout(() => controller.abort(), this.timeout);
+    let result: ApiResponse<T>;
 
     try {
-      const requestConfig = await this.createConfig({
-        ...config,
-        signal: controller.signal,
-      });
-
-      const response = await fetch(`${this.baseURL}${endpoint}`, requestConfig);
-      return await this.handleResponse<T>(response);
-    } catch (error) {
-      if (error instanceof Error && error.name === 'AbortError') {
-        throw new Error('Request timeout');
-      }
-      throw error;
-    } finally {
+      const response: Response = await fetch(`${this.baseURL}${endpoint}`, requestConfig);
       clearTimeout(timeoutId);
+      let data = null;
+      let message = "Request successful";
+      if (response.headers.get("content-type")?.includes("application/json")) {
+        data = await response.json();
+      } else {
+        message = await response.text();
+      }
+
+      result = {
+        data,
+        message,
+        status: response.status,
+        success: response.ok,
+      };
+    } catch (error) {
+      clearTimeout(timeoutId);
+      if (error instanceof Error && error.name === "AbortError") {
+        result = {
+          data: null,
+          message: "Request timed out",
+          status: 408,
+          success: false,
+        };
+      } else {
+        result = {
+          data: null,
+          message: error instanceof Error ? error.message : "Unknown error",
+          status: 500,
+          success: false,
+        };
+      }
+    } finally {
+      if (env.ENV === "local") {
+        console.log(`API Response:`, result);
+      }
     }
+    return result;
   }
 
-  // HTTP methods
-  async get<T>(endpoint: string, params?: Record<string, string>): Promise<T> {
+  async get<T>(
+    endpoint: string,
+    config: RequestInit,
+    params?: Record<string, string>
+  ): Promise<ApiResponse<T>> {
     const url = params ? `${endpoint}?${new URLSearchParams(params)}` : endpoint;
-    return this.request<T>(url, { method: 'GET' });
-  }
-
-  async post<T>(endpoint: string, data?: any): Promise<T> {
-    return this.request<T>(endpoint, {
-      method: 'POST',
-      body: data ? JSON.stringify(data) : undefined,
+    return this.request<T>(url, {
+      ...config,
+      method: "GET",
     });
   }
 
-  async put<T>(endpoint: string, data?: any): Promise<T> {
+  async post<T>(endpoint: string, config: RequestInit): Promise<ApiResponse<T>> {
     return this.request<T>(endpoint, {
-      method: 'PUT',
-      body: data ? JSON.stringify(data) : undefined,
+      ...config,
+      method: "POST",
     });
   }
 
-  async patch<T>(endpoint: string, data?: any): Promise<T> {
+  async put<T>(endpoint: string, config: RequestInit): Promise<ApiResponse<T>> {
     return this.request<T>(endpoint, {
-      method: 'PATCH',
-      body: data ? JSON.stringify(data) : undefined,
+      ...config,
+      method: "PUT",
     });
   }
 
-  async delete<T>(endpoint: string): Promise<T> {
-    return this.request<T>(endpoint, { method: 'DELETE' });
+  async patch<T>(endpoint: string, config: RequestInit): Promise<ApiResponse<T>> {
+    return this.request<T>(endpoint, {
+      ...config,
+      method: "PATCH",
+    });
+  }
+
+  async delete<T>(endpoint: string, config: RequestInit): Promise<ApiResponse<T>> {
+    return this.request<T>(endpoint, { ...config, method: "DELETE" });
   }
 }
 
-// Create API client instance
-export const apiClient = new ApiClient(env.API_BASE_URL, env.API_TIMEOUT);
-
-// Add default request interceptor for logging
-if (env.DEBUG) {
-  apiClient.addRequestInterceptor((config) => {
-    console.log('API Request:', config);
-    return config;
-  });
-
-  apiClient.addResponseInterceptor(async (response) => {
-    console.log('API Response:', response);
-    return response;
-  });
-}
-
-// Add auth error interceptor
-apiClient.addResponseInterceptor(async (response) => {
-  if (response.status === 401) {
-    // Handle token expiration
-    localStorage.removeItem('auth_token');
-    localStorage.removeItem('user');
-    window.location.href = '/login';
-  }
-  return response;
-});
+export const apiClient = new ApiClient();

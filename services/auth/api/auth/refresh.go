@@ -11,7 +11,7 @@ import (
 
 func Refresh(c *fiber.Ctx) error {
 	// Retrieve and validate the refresh token from the cookies
-	refreshToken := c.Cookies("refresh_token")
+	refreshToken := c.Cookies("refreshToken")
 	if refreshToken == "" {
 		return c.Status(fiber.StatusBadRequest).SendString("Refresh token not found")
 	}
@@ -42,7 +42,7 @@ func Refresh(c *fiber.Ctx) error {
 	}
 
 	c.Cookie(&fiber.Cookie{
-		Name:     "refresh_token",
+		Name:     "refreshToken",
 		Value:    newRefreshToken,
 		Path: 	 "/",
 		Secure:   true,
@@ -53,6 +53,6 @@ func Refresh(c *fiber.Ctx) error {
 	})
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"access_token": newAccessToken,
+		"accessToken": newAccessToken,
 	})
 }

@@ -26,20 +26,12 @@ func main() {
 	}
 	log.Println("Status: User database connection established")
 
-	log.Println("Status: Initialising object store connection")
-	objectStore := core.InitialiseObjectStore(cfg)
-	log.Println("Status: Object store connection established")
-
-	log.Println("Status: Initialising revocation KV store connection")
-	revocationStore := core.InitialiseRevocationStore(cfg)
-	log.Println("Status: Revocation KV store connection established")
-
 	log.Println("Status: Initialising email service")
 	emailClient := core.InitialiseEmailService(cfg)
 	log.Println("Status: Email service connection established")
 
 	log.Println("Status: Initialising API")
-	api := api.InitialiseAPI(database, cfg, emailClient, objectStore, revocationStore)
+	api := api.InitialiseAPI(database, cfg, emailClient)
 	log.Println("Status: API connection established")
 	log.Fatalf("Error: %v", api.Listen("0.0.0.0:8080")) 
 }

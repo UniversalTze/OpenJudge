@@ -8,7 +8,7 @@ email-based multi-factor authentication (MFA), rate-limitng, argon2 hashing, etc
 
 **Language:** Go </br> **Database:** PostgreSQL (deployed on the compatible AWS RDS infra) using
 GORM </br> **Cache/Session Store:** Redis (deployed on the compatible AWS ElastiCache infra) </br>
-**Authentication Method:** JWTs </br> **Object Store:** Minio (deployed on the compatible s3 infra)
+**Authentication Method:** JWTs </br> 
 
 ## Getting Started
 
@@ -40,6 +40,7 @@ Content-Type: application/json
 {
   "firstName": "string",
   "lastName": "string",
+  "skill": "string",
   "email": "string",
   "password": "string"
 }
@@ -80,7 +81,7 @@ Accept: application/json
 
 ```json
 {
-  "access_token": "string"
+  "accessToken": "string"
 }
 ```
 
@@ -96,7 +97,7 @@ the access token.
 | 401 | Unauthorized. Invalid email or password |
 | 500 | Internal server error. |
 
-### GET `/verify`
+### POST `/verify`
 
 **Description:** Verifies a user's email address using a token. <br/><br/> **Request Headers:**
 
@@ -131,11 +132,11 @@ Accept: application/json
 
 ```json
 {
-  "access_token": "string"
+  "accessToken": "string"
 }
 ```
 
-**Notes:** A new `refresh_token` is set as an HTTP-only cookie.
+**Notes:** A new `refreshToken` is set as an HTTP-only cookie.
 
 **Responses:**
 | Status | Description |
@@ -200,7 +201,7 @@ Content-Type: application/json
 
 ```http
 Accept: application/json
-Authorization: Bearer <access_token>
+Authorization: Bearer <accessToken>
 ```
 
 **Response Body:**
@@ -209,9 +210,9 @@ Authorization: Bearer <access_token>
 {
   "id": "string",
   "email": "string",
-  "first_name": "string",
-  "last_name": "string",
-  "avatar": "string",
+  "firstName": "string",
+  "lastName": "string",
+  "skill": "string",
   "verified": true
 }
 ```
@@ -230,7 +231,7 @@ Authorization: Bearer <access_token>
 
 ```http
 Content-Type: application/json
-Authorization: Bearer <access_token>
+Authorization: Bearer <accessToken>
 ```
 
 **Request Body:**
@@ -238,8 +239,8 @@ Authorization: Bearer <access_token>
 ```json
 {
   "email": "string (optional)",
-  "first_name": "string (optional)",
-  "last_name": "string (optional)"
+  "firstName": "string (optional)",
+  "lastName": "string (optional)"
 }
 ```
 **Notes:** At least one field is required. If the email is changed, a new verification email is sent and the user is marked as unverified.
@@ -258,61 +259,12 @@ Authorization: Bearer <access_token>
 **Description:** Deletes the authenticated user's account. <br/><br/> **Request Headers:**
 
 ```http
-Authorization: Bearer <access_token>
+Authorization: Bearer <accessToken>
 ```
 **Responses:**
 | Status | Description |
 | --- | --- |
 | 204 | User deleted successfully |
-| 401 | Invalid or missing access token |
-| 404 | User not found |
-| 500 | Internal server error |
-
-### POST `/user/avatar`
-
-**Description:** Uploads a new avatar for the authenticated user.<br/><br/> **Request Headers:**
-
-```http
-Authorization: Bearer <access_token>
-Content-Type: multipart/form-data
-Accept: application/json
-```
-
-**Request Body:**  
-```http
-avatar: <binary>
-```
-
-**Response Body:**
-
-```json
-{
-  "url": "string"
-}
-```
-**Notes:** Must be multipart form-data with a file field named `avatar` (JPEG, PNG, or WebP, max 200KB after server-side compression).
-
-**Responses:**
-| Status | Description |
-| --- | --- |
-| 201 | Avatar uploaded successfully |
-| 400 | Invalid file, unsupported type, or image too large |
-| 401 | Invalid or missing access token |
-| 404 | User not found |
-| 500 | Internal server error |
-
-### DELETE `/user/avatar`
-
-**Description:** Deletes the authenticated user's avatar. <br/> <br/> **Request Headers:**
-
-```http
-Authorization: Bearer <access_token>
-```
-
-**Responses:**
-| Status | Description |
-| --- | --- |
-| 204 | Avatar deleted successfully |
 | 401 | Invalid or missing access token |
 | 404 | User not found |
 | 500 | Internal server error |

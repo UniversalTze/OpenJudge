@@ -13,8 +13,9 @@ import (
 
 type UpdateUserRequestBody struct {
 	Email     string `json:"email"`
-	FirstName string `json:"first_name"`
-	LastName  string `json:"last_name"`
+	Skill			string `json:"skill"`
+	FirstName string `json:"firstName"`
+	LastName  string `json:"lastName"`
 }
 
 func UpdateUser(c *fiber.Ctx) error {
@@ -54,8 +55,12 @@ func UpdateUser(c *fiber.Ctx) error {
 	if err := c.BodyParser(&updateUser); err != nil {
 		return c.Status(fiber.StatusBadRequest).SendString("Invalid request body")
 	}
-	if updateUser.Email == "" && updateUser.FirstName == "" && updateUser.LastName == "" {
+	if updateUser.Email == "" && updateUser.FirstName == "" && updateUser.LastName == "" && updateUser.Skill == "" {
 		return c.Status(fiber.StatusBadRequest).SendString("No fields to update")
+	}
+	if updateUser.Skill != "" && !(updateUser.Skill == "Beginner" || 
+		updateUser.Skill == "Intermediate" || updateUser.Skill == "Advanced") {
+		return c.Status(fiber.StatusBadRequest).SendString("Invalid skill level")
 	}
 
 	if updateUser.Email != "" {
@@ -80,6 +85,9 @@ func UpdateUser(c *fiber.Ctx) error {
 	}
 	if updateUser.LastName != "" {
 		user.LastName = updateUser.LastName
+	}
+	if updateUser.Skill != "" {
+		user.Skill = updateUser.Skill
 	}
 
 	if err := database.Save(&user).Error; err != nil {

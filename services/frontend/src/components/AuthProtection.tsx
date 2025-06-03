@@ -10,10 +10,10 @@ type AuthProtectionProps = {
 const AuthProtection = ({ children }: AuthProtectionProps) => {
   const { toast } = useToast();
   const navigate = useNavigate();
-  const { state } = useAuth();
+  const { isLoading, accessToken, refresh, getUser } = useAuth();
 
   useEffect(() => {
-    if (!state.isLoading && !state.isAuthenticated) {
+    if (!isLoading && !accessToken) {
       toast({
         title: "Authentication Required",
         description: "Please sign in to access this page",
@@ -21,9 +21,9 @@ const AuthProtection = ({ children }: AuthProtectionProps) => {
       });
       navigate("/login");
     }
-  }, [state.isAuthenticated, state.isLoading, navigate, toast]);
+  }, [isLoading, accessToken, toast, navigate]);
 
-  if (state.isLoading) {
+  if (isLoading) {
     return (
       <div className="container flex items-center justify-center min-h-[50vh]">
         <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
@@ -31,7 +31,7 @@ const AuthProtection = ({ children }: AuthProtectionProps) => {
     );
   }
 
-  if (!state.isAuthenticated) {
+  if (!accessToken) {
     return null;
   }
 

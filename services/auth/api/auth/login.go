@@ -45,18 +45,18 @@ func Login(c *fiber.Ctx) error {
 	}
 
 	// Generate tokens and set cookies
-	access_token, err := core.GenerateJWT(user.ID.String(), false, c.Locals("config").(config.Config))
+	accessToken, err := core.GenerateJWT(user.ID.String(), false, c.Locals("config").(config.Config))
 	if err != nil {
 		return err
 	}
-	refresh_token, err := core.GenerateJWT(user.ID.String(), true, c.Locals("config").(config.Config))
+	refreshToken, err := core.GenerateJWT(user.ID.String(), true, c.Locals("config").(config.Config))
 	if err != nil {
 		return err
 	}
 
 	c.Cookie(&fiber.Cookie{
-		Name:     "refresh_token",
-		Value:    refresh_token,
+		Name:     "refreshToken",
+		Value:    refreshToken,
 		Path: 	 "/",
 		Secure:   true,
 		SameSite: fiber.CookieSameSiteStrictMode,
@@ -66,6 +66,6 @@ func Login(c *fiber.Ctx) error {
 	})
 
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
-		"access_token": access_token,
+		"accessToken": accessToken,
 	})
 }

@@ -7,9 +7,7 @@ import (
 	"fmt"
 	"log"
 
-	"github.com/go-redis/redis/v8"
 	"github.com/gofiber/fiber/v2"
-	"github.com/minio/minio-go/v7"
 	"gopkg.in/gomail.v2"
 	"gorm.io/gorm"
 )
@@ -41,7 +39,7 @@ func Health(c *fiber.Ctx) error {
 /*
  * Initialises the API.
  */
-func InitialiseAPI(database *gorm.DB, config config.Config, emailClient *gomail.Dialer, objectStore *minio.Client, revocationKVStore *redis.Client) *fiber.App {
+func InitialiseAPI(database *gorm.DB, config config.Config, emailClient *gomail.Dialer) *fiber.App {
 	app := fiber.New(fiber.Config{
 		AppName:      "OpenJudge Authentication Service",
 		ErrorHandler: InternalServerError,
@@ -50,8 +48,6 @@ func InitialiseAPI(database *gorm.DB, config config.Config, emailClient *gomail.
 		c.Locals("database", database)
 		c.Locals("config", config)
 		c.Locals("mailer", emailClient)
-		c.Locals("objectStore", objectStore)
-		c.Locals("revocationKVStore", revocationKVStore)
 		return c.Next()
 	})
 
@@ -59,15 +55,13 @@ func InitialiseAPI(database *gorm.DB, config config.Config, emailClient *gomail.
 	app.Get("/health", Health)
 	app.Post("/register", auth.Register)
 	app.Post("/login", auth.Login)
-	app.Get("/verify", auth.Verify)
+	app.Post("/verify", auth.Verify)
 	app.Post("/refresh", auth.Refresh)
 	app.Post("/forgot", auth.Forgot)
 	app.Post("/reset", auth.Reset)
 	app.Get("/user", user.GetUser)
 	app.Put("/user", user.UpdateUser)
 	app.Delete("/user", user.DeleteUser)
-	app.Post("/user/avatar", user.SetAvatar)
-	app.Delete("/user/avatar", user.DeleteAvatar)
 
 	return app
 }

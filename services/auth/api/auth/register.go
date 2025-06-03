@@ -22,6 +22,7 @@ type RegisterRequestBody struct {
 	FirstName string `json:"firstName"`
 	LastName  string `json:"lastName"`
 	Email     string `json:"email"`
+	Skill			string `json:"skill"`
 	Password  string `json:"password"`
 }
 
@@ -107,6 +108,11 @@ func Register(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).SendString("Invalid email format")
 	}
 
+	// Check skill value
+	if body.Skill != "Beginner" && body.Skill != "Intermediate" && body.Skill != "Advanced" {
+		return c.Status(fiber.StatusBadRequest).SendString("Invalid skill level")
+	}
+
 	// Check if the password meets complexity requirements
 	if strong, err := IsPasswordValid(body.Password); err != nil {
 		return err
@@ -129,6 +135,7 @@ func Register(c *fiber.Ctx) error {
 			FirstName: body.FirstName,
 			LastName:  body.LastName,
 			Email:     body.Email,
+			Skill:		 body.Skill,
 			Password:  hashedPassword,
 		}
 

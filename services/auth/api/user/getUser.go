@@ -44,9 +44,9 @@ func GetUser(c *fiber.Ctx) error {
 	return c.Status(fiber.StatusOK).JSON(fiber.Map{
 		"id":         user.ID,
 		"email":      user.Email,
-		"first_name": user.FirstName,
-		"last_name":  user.LastName,
-		"avatar":     user.Avatar,
+		"firstName": user.FirstName,
+		"lastName":  user.LastName,
+		"skill":     user.Skill,
 		"verified":   user.Verified,
 	})
 }

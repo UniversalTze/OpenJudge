@@ -16,8 +16,8 @@ type User struct {
 	LastName  string
 	Email     string `gorm:"uniqueIndex"`
 	Password  string
-	Avatar    *string
-	Verified  bool `gorm:"default:false"`
+	Skill     string `gorm:"type:skill_level"`
+	Verified  bool   `gorm:"default:false"`
 	CreatedAt time.Time
 	UpdatedAt time.Time
 }
@@ -65,9 +65,21 @@ func InitialiseDatabase(config config.Config) *gorm.DB {
 		log.Fatalf("Error: Failed to create enum type: %v", err)
 	}
 
+	err = client.Exec(`
+		DO $$
+		BEGIN
+			IF NOT EXISTS (SELECT 1 FROM pg_type WHERE typname = 'skill_level') THEN
+				CREATE TYPE skill_level AS ENUM ('Beginner', 'Intermediate', 'Advanced');
+			END IF;
+		END$$;
+	`).Error
+	if err != nil {
+		log.Fatalf("Error: Failed to create enum type: %v", err)
+	}
+
 	if err := client.AutoMigrate(&User{}, &Token{}); err != nil {
 		log.Fatalf("Error: Failed to migrate database: %v", err)
 	}
-	
+
 	return client.Debug()
 }

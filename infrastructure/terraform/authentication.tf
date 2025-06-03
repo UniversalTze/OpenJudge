@@ -50,41 +50,6 @@ resource "aws_security_group" "UserDatabaseSecurityGroup" {
   }
 }
 
-resource "aws_s3_bucket" "ObjectStore" {
-  bucket        = "ObjectStore-${random_id.ObjectStoreID.hex}"
-  force_destroy = true
-}
-
-resource "random_id" "ObjectStoreID" {
-  byte_length = 4
-}
-
-resource "aws_s3_bucket_public_access_block" "ObjectStoreAccessBlock" {
-  bucket = aws_s3_bucket.ObjectStore.id
-
-  block_public_acls       = false
-  block_public_policy     = false
-  ignore_public_acls      = false
-  restrict_public_buckets = false
-}
-
-resource "aws_s3_bucket_policy" "ObjectStorePolicy" {
-  bucket = aws_s3_bucket.ObjectStore.id
-  policy = jsonencode({
-    Version = "2012-10-17"
-    Statement = [
-      {
-        Sid       = "PublicReadGetObject"
-        Effect    = "Allow"
-        Principal = "*"
-        Action    = "s3:GetObject"
-        Resource  = "${aws_s3_bucket.ObjectStore.arn}/*"
-      },
-    ]
-  })
-  depends_on = [aws_s3_bucket_public_access_block.ObjectStoreAccessBlock]
-}
-
 resource "aws_ecs_cluster" "AuthenticationServiceCluster" {
   name = "AuthenticationServiceCluster"
 }
@@ -142,38 +107,6 @@ resource "aws_ecs_task_definition" "AuthenticationAPITask" {
         {
           name  = "USER_DATABASE_URL"
           value = "postgres://${var.USER_DATABASE_USER}:${var.USER_DATABASE_PASSWORD}@${aws_db_instance.UserDatabase.endpoint}?sslmode=require"
-        },
-        {
-          name  = "REVOCATION_KV_STORE_URL"
-          value = "redis://${aws_elasticache_replication_group.TokenRevocationList.primary_endpoint_address}:${aws_elasticache_replication_group.TokenRevocationList.port}"
-        },
-        {
-          name  = "OBJECT_STORE_URL"
-          value = "https://${aws_s3_bucket.ObjectStore.bucket}.s3.${var.AWS_REGION}.amazonaws.com"
-        },
-        {
-          name  = "OBJECT_STORE_PORT"
-          value = "0"
-        },
-        {
-          name  = "OBJECT_STORE_BUCKET"
-          value = aws_s3_bucket.ObjectStore.bucket
-        },
-        {
-          name  = "OBJECT_STORE_REGION"
-          value = var.AWS_REGION
-        },
-        {
-          name  = "OBJECT_STORE_TOKEN"
-          value = var.AWS_SESSION_TOKEN
-        },
-        {
-          name  = "OBJECT_STORE_KEY"
-          value = var.AWS_ACCESS_KEY
-        },
-        {
-          name  = "OBJECT_STORE_SECRET"
-          value = var.AWS_SECRET_KEY
         },
         {
           name  = "SMTP_HOST"

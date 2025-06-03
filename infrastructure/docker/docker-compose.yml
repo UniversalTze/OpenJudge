@@ -1,12 +1,13 @@
 services:
   authentication_service:
-    build: { context: ../../services/auth, dockerfile:  ../../infrastructure/docker/Dockerfile.authentication }
+    build: { 
+      context: ../../services/auth, 
+      dockerfile:  ../../infrastructure/docker/Dockerfile.authentication 
+    }
     container_name: authentication_service
     restart: unless-stopped
     environment:
       USER_DATABASE_URL: "postgres://${USER_DATABASE_USER}:${USER_DATABASE_PASSWORD}@user_database:5432/${USER_DATABASE_NAME}?sslmode=disable"
-      REVOCATION_KV_STORE_URL: "redis://trl:6379"
-      OBJECT_STORE_URL: "objectstorage:9000"
     env_file:
       - ../../.env
     ports:
@@ -14,7 +15,6 @@ services:
     depends_on:
       - user_database
       - trl
-      - objectstorage
 
   user_database:
     image: postgres:15
@@ -38,21 +38,22 @@ services:
     volumes:
       - token_revocation_list:/data
 
-  objectstorage:
-    image: minio/minio
-    container_name: objectstorage
+  application:
+    build: { 
+      context: ../../services/frontend, 
+      dockerfile:  ../../infrastructure/docker/Dockerfile.application 
+    }
+    container_name: application
     restart: unless-stopped
+    env_file:
+      - ../../.env
     ports:
-      - "${OBJECT_STORE_PORT}:9000"
-      - "9105:9001"
-    volumes:
-      - object_store:/data
-    environment:
-      MINIO_ROOT_USER: ${OBJECT_STORE_KEY}
-      MINIO_ROOT_PASSWORD: ${OBJECT_STORE_SECRET}
-    command: server --console-address ":9001" /data
+      - "${FRONTEND_PORT}:8080"
+    depends_on:
+      - user_database
+      - trl
+      - authentication_service
 
 volumes:
   user_data:
   token_revocation_list:
-  object_store:

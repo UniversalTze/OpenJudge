@@ -22,8 +22,8 @@ tasks:
   test:execution:
     desc: Run the execution service in development mode, and then runs unit tests against this service.
     cmds:
-      - docker compose -f infrastructure/docker/docker-compose-execution.yaml -p openjudge-execution up --build -d
-      - docker compose exec test-client python test_client.py
+      - docker compose -f infrastructure/docker/docker-compose-execution.yaml up --build -d
+      - docker compose -f infrastructure/docker/docker-compose-execution.yaml exec test-client python test_client.py
     silent: true
 
   # APPLICATION COMMANDS

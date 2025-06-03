@@ -18,14 +18,6 @@ type Config struct {
 	JWT_SECRET              ed25519.PrivateKey
 	JWT_PUBLIC_KEY          ed25519.PublicKey
 	USER_DATABASE_URL       string
-	REVOCATION_KV_STORE_URL string
-	OBJECT_STORE_URL        string
-	OBJECT_STORE_PORT       string
-	OBJECT_STORE_BUCKET     string
-	OBJECT_STORE_REGION     string
-	OBJECT_STORE_TOKEN      string
-	OBJECT_STORE_KEY        string
-	OBJECT_STORE_SECRET     string
 	SMTP_HOST               string
 	SMTP_PORT               int
 	SMTP_USER               string
@@ -84,35 +76,6 @@ func Load() Config {
 	if udb == "" {
 		log.Fatalf("Error: Environment variable 'USER_DATABASE_URL' is not set.")
 	}
-	rkv := os.Getenv("REVOCATION_KV_STORE_URL")
-	if rkv == "" {
-		log.Fatalf("Error: Environment variable 'REVOCATION_KV_STORE_URL' is not set.")
-	}
-	osu := os.Getenv("OBJECT_STORE_URL")
-	if osu == "" {
-		log.Fatalf("Error: Environment variable 'OBJECT_STORE_URL' is not set.")
-	}
-	osb := os.Getenv("OBJECT_STORE_BUCKET")
-	if osb == "" {
-		log.Fatalf("Error: Environment variable 'OBJECT_STORE_BUCKET' is not set.")
-	}
-	osr := os.Getenv("OBJECT_STORE_REGION")
-	if osr == "" {
-		log.Fatalf("Error: Environment variable 'OBJECT_STORE_REGION' is not set.")
-	}
-	osp := os.Getenv("OBJECT_STORE_PORT")
-	if osp == "" {
-		log.Fatalf("Error: Environment variable 'OBJECT_STORE_PORT' is not set.")
-	}
-	oss := os.Getenv("OBJECT_STORE_SECRET")
-	if oss == "" {
-		log.Fatalf("Error: Environment variable 'OBJECT_STORE_SECRET' is not set.")
-	}
-	ost := os.Getenv("OBJECT_STORE_TOKEN")
-	osk := os.Getenv("OBJECT_STORE_KEY")
-	if osk == "" {
-		log.Fatalf("Error: Environment variable 'OBJECT_STORE_KEY' is not set.")
-	}
 	smtpHost := os.Getenv("SMTP_HOST")
 	if smtpHost == "" {
 		log.Fatalf("Error: Environment variable 'SMTP_HOST' is not set.")
@@ -145,14 +108,6 @@ func Load() Config {
 		JWT_SECRET:              jwtPrivKey,
 		JWT_PUBLIC_KEY:          jwtPubKey,
 		USER_DATABASE_URL:       udb,
-		REVOCATION_KV_STORE_URL: rkv,
-		OBJECT_STORE_URL:        osu,
-		OBJECT_STORE_BUCKET:     osb,
-		OBJECT_STORE_PORT:       osp,
-		OBJECT_STORE_REGION:     osr,
-		OBJECT_STORE_TOKEN:      ost,
-		OBJECT_STORE_SECRET:     oss,
-		OBJECT_STORE_KEY:        osk,
 		SMTP_HOST:               smtpHost,
 		SMTP_PORT:               smtpPortInt,
 		SMTP_USER:               smtpUser,
