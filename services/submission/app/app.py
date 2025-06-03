@@ -10,7 +10,6 @@ from queue_utils import enqueue_submission, check_queue_health, USE_SQS
 
 app = Flask(__name__)
 
-# Database configuration (PostgreSQL)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
     'DATABASE_URL',
     'postgresql://postgres:postgres@db:5432/submissions'
@@ -18,14 +17,10 @@ app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
 app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 db.init_app(app)
 
-# Timeout for execution callback (in seconds; default = 600)
 CALLBACK_TIMEOUT_SECONDS = int(os.getenv('CALLBACK_TIMEOUT_SECONDS', '600'))
 
 @app.before_first_request
 def initialize():
-    """
-    Create tables (if they don’t exist) and start the timeout monitor thread.
-    """
     db.create_all()
     monitor = threading.Thread(target=timeout_monitor, daemon=True)
     monitor.start()
