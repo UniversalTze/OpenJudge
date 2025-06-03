@@ -132,7 +132,9 @@ def get_test_case(test_case, lang):
     outputs = c['outputs']
     function_name = c['function_name']
     
-    with open(TEST_CASE_DIR / lang / f"test_{test_case}.{get_ext(lang)}", "r") as f:
+    lang_dir = TEST_CASE_DIR / "submission_code" / lang
+    test_file = f"test_{test_case}.{get_ext(lang)}"
+    with open(lang_dir / test_file, "r") as f:
         submission = f.read()
     
     return inputs, outputs, submission, function_name
