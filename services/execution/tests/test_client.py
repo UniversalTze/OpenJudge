@@ -181,9 +181,12 @@ def run_tests():
             if submission_id not in results_dict:
                 print(f"❌ Test case {test_case} failed for {lang} - no results received")
                 continue
-            _, _, _, _, correct = get_test_case(test_case, lang)
-            if results_dict[submission_id] != correct:
-                print(f"❌ Test case {test_case} failed for {lang} - expected {correct}, got {results_dict[submission_id]}")
+            inputs, _, _, _, correct = get_test_case(test_case, lang)
+            if results_dict[submission_id]['passed'] != correct:
+                print(f"❌ Test case {test_case} failed for {lang} - expected {correct}, got {results_dict[submission_id]['passed']}")
+                continue
+            if results_dict[submission_id]['num_tests'] != len(inputs):
+                print(f"❌ Test case {test_case} failed for {lang} - expected {len(inputs)} results, got {results_dict[submission_id]['num_tests']}")
                 continue
             print(f"✅ Test case {test_case} passed for {lang}")
 
