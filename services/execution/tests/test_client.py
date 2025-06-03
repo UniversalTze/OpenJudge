@@ -43,8 +43,17 @@ def setup_result_listener():
     # Define a task to receive results
     @app.task(name="result", queue=output_queue)
     def receive_results(results):
+        # Get old results
+        with open(LOG_FILE, "r") as f:
+            json_results = loads(f.read())
+        
+        if type(json_results) != list:
+            print("FATAL ERROR: Couldn't parse log file as valid JSON list")
+            return
+        
+        # Add new result
         with open(LOG_FILE, 'a') as f:
-            f.write(dumps(results) + ",\n")
+            f.write(dumps(json_results.append(results)) + ",\n")
             
     return app, receive_results
 
@@ -136,7 +145,7 @@ def run_tests():
     # Set up Celery apps for sending and receiving
     app = setup_celery()
     with open(LOG_FILE, "w") as f:
-        f.write("[")
+        f.write("[]")
     
     # For each test case and language, send the request
     for lang in languages:
@@ -153,8 +162,6 @@ def run_tests():
     time.sleep(2)
     
     # Construct results
-    with open(LOG_FILE, "a") as f:
-        f.write("]")
     with open(LOG_FILE, "r") as f:
         results = loads(f.read())
         

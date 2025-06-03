@@ -174,7 +174,9 @@ To add new test cases, go to `services/execution/tests/test_cases`. From there, 
 }
 ```
   
-You will then need to create a submission file for each language you wish to test for. This should be added to the relevant directory in the `submission_code` directory for the language. The filename should match the test case name (`test_{test_name}.{language extension}`, e.g. `test_basic_001.py`). Finally, the language extension needs to be added to the `get_ext` function in the `test_client.py` file.
+You will then need to create a submission file for each language you wish to test for. This should be added to the relevant directory in the `submission_code` directory for the language. The filename should match the test case name (`test_{test_name}.{language extension}`, e.g. `test_basic_001.py`). The language extension also needs to be added to the `get_ext` function in the `test_client.py` file.  
+
+Finally, to check the exact results, open the container with `docker compose exec test-client bash` and run `cat test_client.log` to see the full results that were received.
 
 ### Deployment Testing
 How to test deployment of just this microservice
