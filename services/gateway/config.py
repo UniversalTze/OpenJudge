@@ -19,5 +19,6 @@ class Config:
     FRONTEND_URL = get_env("FRONTEND_URL")
     AUTH_SERVICE_URL = get_env("AUTH_SERVICE_URL")
     SUBMISSION_SERVICE_URL = get_env("SUBMISSION_SERVICE_URL")
+    REDIS_URL = get_env("REDIS_URL")
 
 config = Config()

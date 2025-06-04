@@ -1,7 +1,7 @@
 import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/components/AuthContext";
 
 export default function AuthProtection({ children }: {children: React.ReactNode}) {
   const navigate = useNavigate();

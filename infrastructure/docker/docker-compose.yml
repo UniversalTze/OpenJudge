@@ -14,7 +14,7 @@ services:
       - "${AUTH_SERVICE_PORT}:8080"
     depends_on:
       - user_database
-      - trl
+      - redis
 
   user_database:
     image: postgres:15
@@ -29,14 +29,14 @@ services:
     volumes:
       - user_data:/var/lib/postgresql/data
 
-  trl:
+  redis:
     image: redis:7
-    container_name: trl
+    container_name: redis
     restart: unless-stopped
     ports:
-      - "${REVOCATION_KV_STORE_PORT}:6379"
+      - "${REDIS_PORT}:6379"
     volumes:
-      - token_revocation_list:/data
+      - redis_data:/data
 
   application:
     build: { 
@@ -50,10 +50,8 @@ services:
     ports:
       - "${FRONTEND_PORT}:8080"
     depends_on:
-      - user_database
-      - trl
       - authentication_service
 
 volumes:
   user_data:
-  token_revocation_list:
+  redis_data:

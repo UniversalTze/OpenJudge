@@ -1,6 +1,6 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
-import { apiClient, ApiResponse } from '@/services/api';
-import { API_ENDPOINTS } from '@/config/env';
+import { apiClient, ApiResponse } from '@/lib/api';
+import { API_ENDPOINTS } from '@/lib/env';
 
 export interface User {
   id: string;
@@ -80,7 +80,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         {
           headers: {
             'Content-Type': 'application/json',
-            'Accept': 'application/json'
+            'Accept': 'application/json',
+            'credentials': "include"
           },
           body: JSON.stringify(body)
         }
@@ -113,7 +114,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         {
           headers: {
             'Authorization': `Bearer ${accessToken}`,
-            'Accept': 'application/json'
+            'Accept': 'application/json',
+            'credentials': "include"
           }
         }
       );
@@ -129,7 +131,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
       const response = await apiClient.post<RefreshResponse>(
         API_ENDPOINTS.AUTH.REFRESH, {
         headers: {
-          'Accept': 'application/json'
+          'Accept': 'application/json',
+          'credentials': "include",
         }
       }
       )

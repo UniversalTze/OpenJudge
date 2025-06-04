@@ -3,7 +3,7 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Menu, X, Code, LogIn } from "lucide-react";
-import { useAuth } from '@/contexts/AuthContext';
+import { useAuth } from '@/components/AuthContext';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);

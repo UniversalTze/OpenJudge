@@ -4,12 +4,6 @@ This service provides secure authentication functionality for users signing in t
 exposes endpoints through an API Gateway and uses industry best practices including JWTs,
 email-based multi-factor authentication (MFA), rate-limitng, argon2 hashing, etc.
 
-## Technologies
-
-**Language:** Go </br> **Database:** PostgreSQL (deployed on the compatible AWS RDS infra) using
-GORM </br> **Cache/Session Store:** Redis (deployed on the compatible AWS ElastiCache infra) </br>
-**Authentication Method:** JWTs </br> 
-
 ## Getting Started
 
 Run the service from root using the following command.
@@ -25,6 +19,8 @@ task test:auth
 ```
 
 ## Documentation
+
+The Auth service is built in golang fiber using a postgresql database for user data.
 
 ### POST `/register`
 

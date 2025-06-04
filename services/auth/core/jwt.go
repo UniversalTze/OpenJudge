@@ -13,18 +13,18 @@ func GenerateJWT(userID string, refresh bool, cfg config.Config) (string, error)
 	var claims jwt.MapClaims
 	if refresh {
 		claims = jwt.MapClaims{
-			"id": uuid.New().String(),
+			"jti": uuid.New().String(),
 			"type": "refresh",
 			"sub": userID,
-			"iss": cfg.API_GATEWAY_URL + "/auth",
+			"iss": cfg.API_GATEWAY_URL,
 			"iat": time.Now().Unix(),
 			"exp": time.Now().Add(time.Hour * 24 * 30).Unix(),
 		}
 	} else {
 		claims = jwt.MapClaims{
-			"id": uuid.New().String(),
+			"jti": uuid.New().String(),
 			"sub": userID,
-			"iss": cfg.API_GATEWAY_URL + "/auth",
+			"iss": cfg.API_GATEWAY_URL,
 			"iat": time.Now().Unix(),
 			"exp": time.Now().Add(time.Hour).Unix(),
 		}

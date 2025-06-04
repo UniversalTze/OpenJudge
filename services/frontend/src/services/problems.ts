@@ -1,5 +1,5 @@
-import { apiClient, ApiResponse, PaginatedResponse } from './api';
-import { API_ENDPOINTS } from '@/config/env';
+import { apiClient, ApiResponse, PaginatedResponse } from '../lib/api';
+import { API_ENDPOINTS } from '@/lib/env';
 
 export interface Problem {
   id: string;

@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/select";
 
 import { problems, Problem } from "@/data/problems";
-import { useAuth } from "@/contexts/AuthContext";
+import { useAuth } from "@/components/AuthContext";
 
 const ProblemsPage = () => {
   const { state } = useAuth();

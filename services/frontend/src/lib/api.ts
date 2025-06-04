@@ -1,4 +1,4 @@
-import { env } from "@/config/env";
+import { env } from "@/lib/env";
 
 export interface ApiResponse<T> {
   data: T | null;
