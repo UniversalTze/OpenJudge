@@ -25,7 +25,7 @@ resource "docker_registry_image" "ExecutionJavaImageName" {
 }
 
 ############################################################################
-# Security Group (No External Network Access)
+# Security Group (No External Network Access Bar SQS)
 resource "aws_security_group" "ExecutionSecurityGroup" {
   name        = "ExecutionSecurityGroup"
   description = "Execution Security Group Blocking External Input/Output"
@@ -38,7 +38,15 @@ resource "aws_security_group" "ExecutionSecurityGroup" {
     description = "No inbound traffic allowed"
   }
 
-  # TODO - SET UP SO ONLY SQS TRAFFIC ALLOWED!
+  # TODO - SET UP SO ONLY SQS TRAFFIC ALLOWED - THIS IS STILL BROADER THAN NECESSARY!
+  # Allow HTTPS outbound to port 443 (required for SQS API)
+  egress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "Allow outbound HTTPS to AWS services"
+  }
 }
 
 ############################################################################
@@ -56,9 +64,9 @@ resource "aws_ecs_service" "ExecutionPythonService" {
   launch_type     = "FARGATE"
 
   depends_on = [
-    # TODO - ADD SQS QUEUES AND CORRECT DOCKER REGISTRY IMAGE IN HERE!
     docker_registry_image.ExecutionPythonImageName,
-    # SQS QUEUE (OUTPUT AND PYTHON)
+    aws_sqs_queue.ExecutionPythonQueue,
+    aws_sqs_queue.ExecutionResultsQueue,
   ]
 
   network_configuration {
@@ -68,7 +76,6 @@ resource "aws_ecs_service" "ExecutionPythonService" {
   }
 }
 
-# TODO - SET ALL ENVIRONMENT VARIABLES!!!
 resource "aws_ecs_task_definition" "ExecutionPythonTask" {
   # Explicitly set linux for sandboxing
   runtime_platform {
@@ -103,6 +110,23 @@ resource "aws_ecs_task_definition" "ExecutionPythonTask" {
           name  = "ENV"
           value = "production"
         },
+        {
+          name  = "CELERY_BROKER_URL"
+          value = "sqs://"
+        },
+        {
+          name  = "TARGET_QUEUE"
+          value = "${aws_sqs_queue.ExecutionPythonQueue.name}"
+        },
+        {
+          name  = "OUTPUT_QUEUE"
+          value = "${aws_sqs_queue.ExecutionResultsQueue.name}"
+        },
+        {
+          name  = "LANGUAGE"
+          value = "python"
+        },
+        # TODO - ADD IN SANDBOX VARIABLE!!!
       ]
     }
   ])
@@ -117,9 +141,9 @@ resource "aws_ecs_service" "ExecutionJavaService" {
   launch_type     = "FARGATE"
 
   depends_on = [
-    # TODO - ADD SQS QUEUES AND CORRECT DOCKER REGISTRY IMAGE IN HERE!
     docker_registry_image.ExecutionJavaImageName,
-    # SQS QUEUE (OUTPUT AND PYTHON)
+    aws_sqs_queue.ExecutionJavaQueue,
+    aws_sqs_queue.ExecutionResultsQueue,
   ]
 
   network_configuration {
@@ -164,6 +188,23 @@ resource "aws_ecs_task_definition" "ExecutionJavaTask" {
           name  = "ENV"
           value = "production"
         },
+        {
+          name  = "CELERY_BROKER_URL"
+          value = "sqs://"
+        },
+        {
+          name  = "TARGET_QUEUE"
+          value = "${aws_sqs_queue.ExecutionJavaQueue.name}"
+        },
+        {
+          name  = "OUTPUT_QUEUE"
+          value = "${aws_sqs_queue.ExecutionResultsQueue.name}"
+        },
+        {
+          name  = "LANGUAGE"
+          value = "java"
+        },
+        # TODO - ADD IN SANDBOX VARIABLE!!!
       ]
     }
   ])

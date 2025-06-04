@@ -21,3 +21,5 @@ resource "aws_sqs_queue" "ExecutionJavaQueue" {
 }
 
 ############################################################################
+# TODO - ADD QUEUE POLICIES TO ONLY ALLOW INPUT FROM SUBMISSION SERVICE
+# AND EXECUTION SERVICE!
