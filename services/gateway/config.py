@@ -20,5 +20,9 @@ class Config:
         self.AUTH_SERVICE_URL = get_env("AUTH_SERVICE_URL")
         self.SUBMISSION_SERVICE_URL = get_env("SUBMISSION_SERVICE_URL")
         self.REDIS_URL = get_env("REDIS_URL")
+        
+        print(self.JWT_PUBLIC_KEY, self.ENV, self.PROBLEM_SERVICE_URL,
+              self.FRONTEND_URL, self.AUTH_SERVICE_URL,
+              self.SUBMISSION_SERVICE_URL, self.REDIS_URL)
 
 config = Config()

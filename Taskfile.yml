@@ -7,7 +7,7 @@ tasks:
   run:auth:
     desc: Run the authentication service in development mode.
     cmds:
-      - docker-compose -f infrastructure/docker/docker-compose.yml -p openjudge-auth up authentication_service user_database -d
+      - docker-compose -f infrastructure/docker/docker-compose.yml -p openjudge up authentication_service user_database --build -d 
     silent: true
 
   #test:auth:
@@ -16,14 +16,14 @@ tasks:
   run:execution:
     desc: Run the execution service in development mode.
     cmds:
-      - docker compose -f infrastructure/docker/docker-compose-execution.yaml -p openjudge-execution up --build -d
+      - docker compose -f infrastructure/docker/docker-compose-execution.yaml -p openjudge up --build -d
     silent: true
 
   test:execution:
     desc: Run the execution service in development mode, and then runs unit tests against this service.
     cmds:
-      - docker compose -f infrastructure/docker/docker-compose-execution.yaml up --build -d
-      - docker compose -f infrastructure/docker/docker-compose-execution.yaml exec test-client python test_client.py
+      - task run:execution
+      - docker compose -f infrastructure/docker/docker-compose-execution.yaml -p openjudge exec test-client python test_client.py
     silent: true
 
   # FRONTEND COMMANDS
@@ -35,15 +35,15 @@ tasks:
   run:gateway:
     desc: Run the API Gateway in development mode.
     cmds:
-      - docker-compose -f infrastructure/docker/docker-compose.yml -p openjudge-gateway up redis gateway -d --build
+      - docker-compose -f infrastructure/docker/docker-compose.yml -p openjudge up redis gateway --build -d
     silent: true
 
   test:gateway:
     desc: Run the API Gateway in development mode, and then runs unit tests against this service.
     cmds:
       - task run:gateway
-      - docker-compose -f infrastructure/docker/docker-compose.yml -p openjudge-gateway exec gateway python -m pytest tests.py -v
-      - docker-compose -f infrastructure/docker/docker-compose.yml -p openjudge-gateway down
+      - docker-compose -f infrastructure/docker/docker-compose.yml -p openjudge exec gateway python -m pytest tests.py -v
+      - docker-compose -f infrastructure/docker/docker-compose.yml -p openjudge down
     silent: true
 
   # PROJECT COMMANDS

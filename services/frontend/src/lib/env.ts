@@ -1,6 +1,6 @@
 export const env = {
-  API_BASE_URL: import.meta.env.API_GATEWAY_URL as string,
-  ENV: import.meta.env.ENV as "local" | "production",
+  API_BASE_URL: import.meta.env.VITE_API_GATEWAY_URL as string,
+  ENV: import.meta.env.VITE_ENV as "local" | "production",
 } as const;
 
 export const API_ENDPOINTS = {

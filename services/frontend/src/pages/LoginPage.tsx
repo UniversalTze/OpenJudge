@@ -8,11 +8,12 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { LogIn, UserPlus, ArrowRight } from "lucide-react";
 import { useAuth } from "@/components/AuthContext";
 import { toast } from "sonner";
+import SkillSlider from "@/components/Slider";
 
 const LoginPage = () => {
   const navigate = useNavigate();
   const { login, register } = useAuth();
-  
+  const [skillLevel, setSkillLevel] = useState<"Beginner" | "Intermediate" | "Advanced">("Beginner");
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
   const [signupFirstName, setSignupFirstName] = useState("");
@@ -50,21 +51,25 @@ const LoginPage = () => {
         email: signupEmail,
         firstName: signupFirstName,
         lastName: signupLastName,
-        experienceLevel: "Beginner", // TODO: Fix later
+        skill: skillLevel,
         password: signupPassword
       })
+
+      if (!response || !response.success) {
+        throw new Error(response.message || "Registration failed");
+      }
       
-      toast.success("Registration successful")
-      navigate("/problems");
+      toast.success("Registration successful. Please check your email to verify your account.");
+      navigate("/");
     } catch (error) {
-      toast.error("Registration failed")
+      toast.error(error.message || "Registration failed");
     } finally {
       setIsLoading(false);
     }
   };
 
   return (
-    <div className="container flex items-center justify-center min-h-[calc(100vh-150px)] py-8">
+    <div className="container flex sm:items-center justify-center sm:min-h-[calc(100vh-200px)] py-8">
       {/* Background Decoration */}
       <div className="absolute -z-10 inset-0 overflow-hidden">
         <div className="absolute top-1/4 -right-[10%] w-[30%] h-[30%] bg-primary/5 rounded-full blur-3xl animate-rotate"></div>
@@ -164,6 +169,7 @@ const LoginPage = () => {
                       />
                     </div>
                   </div>
+                  <SkillSlider setSkillLevel={setSkillLevel} />
                   <div className="space-y-2">
                     <Label htmlFor="signup-email">Email</Label>
                     <Input

@@ -20,7 +20,7 @@ export interface LoginRequest {
 export interface RegisterRequest {
   firstName: string;
   lastName: string;
-  experienceLevel: 'Beginner' | 'Intermediate' | 'Advanced';
+  skill: 'Beginner' | 'Intermediate' | 'Advanced';
   email: string;
   password: string;
 }
@@ -45,7 +45,7 @@ export interface ResetPasswordRequest {
 export interface UserUpdateRequest {
   firstName: string;
   lastName: string;
-  experienceLevel: 'Beginner' | 'Intermediate' | 'Advanced';
+  skill: 'Beginner' | 'Intermediate' | 'Advanced';
   email: string;
 }
 
@@ -80,10 +80,10 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         {
           headers: {
             'Content-Type': 'application/json',
-            'Accept': 'application/json',
-            'credentials': "include"
+            'Accept': 'application/json'
           },
-          body: JSON.stringify(body)
+          body: JSON.stringify(body),
+          credentials: 'include'
         }
       );
       
@@ -115,8 +115,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
           headers: {
             'Authorization': `Bearer ${accessToken}`,
             'Accept': 'application/json',
-            'credentials': "include"
-          }
+          },
+          credentials: 'include'
         }
       );
       
@@ -132,8 +132,8 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
         API_ENDPOINTS.AUTH.REFRESH, {
         headers: {
           'Accept': 'application/json',
-          'credentials': "include",
-        }
+        },
+        credentials: 'include'
       }
       )
 

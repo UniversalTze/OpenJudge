@@ -1,4 +1,5 @@
-from fastapi import FastAPI, Request, HTTPException, Response
+from fastapi import FastAPI, Request, Response
+from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
 from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
@@ -28,23 +29,22 @@ async def lifespan(app: FastAPI):
 
 app = FastAPI(title="OpenJudge API Gateway", lifespan=lifespan)
 
-# Security middleware
-if config.ENV != "local":
-    app.add_middleware(
-        CORSMiddleware,
-        allow_origins=[config.FRONTEND_URL],
-        allow_credentials=True,
-        allow_methods=["*"],
-        allow_headers=["*"],
-    )
-    app.add_middleware(TrustedHostMiddleware, allowed_hosts=[config.FRONTEND_URL])
-    app.add_middleware(HTTPSRedirectMiddleware)
-
 # Process time, rate limiting, and authorization middleware
-app.middleware("http")(rate_limit_middleware)
 app.middleware("http")(process_time)
+app.middleware("http")(rate_limit_middleware)
 app.middleware("http")(authorise_request)
 
+# Security middleware
+app.add_middleware(
+    CORSMiddleware,
+    allow_origins=[config.FRONTEND_URL, "http://localhost:8080"],
+    allow_credentials=True,
+    allow_methods=["*"],
+    allow_headers=["*"],
+)
+if config.ENV != "local":
+    app.add_middleware(TrustedHostMiddleware, allowed_hosts=[config.FRONTEND_URL])
+    app.add_middleware(HTTPSRedirectMiddleware)
 
 # Health check endpoints
 @app.get("/health")
@@ -55,16 +55,50 @@ async def health_check():
 @app.get("/status")
 async def status_check(request: Request):
     client = request.app.state.http_client
-    auth_response = await client.get(f"{config.AUTH_SERVICE_URL}/health")
-    problem_response = await client.get(f"{config.PROBLEM_SERVICE_URL}/health")
-    submission_response = await client.get(
-        f"{config.SUBMISSION_SERVICE_URL}/health"
-    )
-    return {
-        "auth_service": auth_response.json(),
-        "problem_service": problem_response.json(),
-        "submission_service": submission_response.json(),
+    
+    response = {
+        "auth_service": "unknown",
+        "problem_service": "unknown",
+        "submission_service": "unknown",
     }
+    
+    try:
+        r = await client.get(f"{config.AUTH_SERVICE_URL}/health")
+        if r.status_code != 200:
+            response["auth_service"] = "unavailable"
+        else:
+            response["auth_service"] = "operational"
+    except Exception as e:
+        response["auth_service"] = "unavailable"
+    try:
+        r = await client.get(
+            f"{config.PROBLEM_SERVICE_URL}/health"
+        )
+        if r.status_code != 200:
+            response["problem_service"] = "unavailable"
+        else:
+            response["problem_service"] = "operational"
+    except:
+        response["problem_service"] = "unavailable"
+    try:
+        r = await client.get(
+            f"{config.SUBMISSION_SERVICE_URL}/health"
+        )
+        if r.status_code != 200:
+            response["submission_service"] = "unavailable"
+        else:
+            response["submission_service"] = "operational"
+    except:
+        response["submission_service"] = "unavailable"
+
+    if (
+        response["auth_service"] == "operational"
+        and response["problem_service"] == "operational"
+        and response["submission_service"] == "operational"
+    ):
+        return JSONResponse(content=response, status_code=200)
+    else:
+        return JSONResponse(content=response, status_code=503)
 
 
 # Authentication endpoints
