@@ -153,7 +153,6 @@ resource "aws_ecs_service" "ExecutionJavaService" {
   }
 }
 
-# TODO - SET ALL ENVIRONMENT VARIABLES!!!
 resource "aws_ecs_task_definition" "ExecutionJavaTask" {
   # Explicitly set linux for sandboxing
   runtime_platform {
@@ -274,4 +273,5 @@ resource "null_resource" "summary" {
     EOT
   }
 }
+
 ############################################################################

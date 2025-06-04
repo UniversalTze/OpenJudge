@@ -2,6 +2,10 @@
 # and execution service per language.
 
 ############################################################################
+# Queue Policies
+# ...TODO
+
+############################################################################
 # Results Queue
 resource "aws_sqs_queue" "ExecutionResultsQueue" {
   name = "outputq"
@@ -21,5 +25,17 @@ resource "aws_sqs_queue" "ExecutionJavaQueue" {
 }
 
 ############################################################################
-# TODO - ADD QUEUE POLICIES TO ONLY ALLOW INPUT FROM SUBMISSION SERVICE
-# AND EXECUTION SERVICE!
+# Output
+resource "null_resource" "summary" {
+  provisioner "local-exec" {
+    command = <<EOT
+      echo "==== OpenJudge Execution-Submission Queues Deployment Complete! ===="
+      echo "Results Queue Name: ${aws_sqs_queue.ExecutionResultsQueue.name}"
+      echo "Python Queue Name: ${aws_sqs_queue.ExecutionPythonQueue.name}"
+      echo "Java Queue Name: ${aws_sqs_queue.ExecutionJavaQueue.name}"
+      echo ""
+    EOT
+  }
+}
+
+############################################################################
