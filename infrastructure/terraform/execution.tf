@@ -1,7 +1,7 @@
 ############################################################################
 # Docker Images
 resource "docker_image" "ExecutionPythonImage" {
-  name = "${aws_ecr_repository.OpenJudgeECR.repository_url}:execution:python:latest"
+  name = "${aws_ecr_repository.open-judge-ecr.repository_url}:execution:python:latest"
   build {
     context    = "../../services/execution"
     dockerfile = "../../infrastructure/docker/execution/Dockerfile.python"
@@ -9,7 +9,7 @@ resource "docker_image" "ExecutionPythonImage" {
 }
 
 resource "docker_image" "ExecutionJavaImage" {
-  name = "${aws_ecr_repository.OpenJudgeECR.repository_url}:execution:java:latest"
+  name = "${aws_ecr_repository.open-judge-ecr.repository_url}:execution:java:latest"
   build {
     context    = "../../services/execution"
     dockerfile = "../../infrastructure/docker/execution/Dockerfile.java"
@@ -94,7 +94,7 @@ resource "aws_ecs_task_definition" "ExecutionPythonTask" {
   container_definitions = jsonencode([
     {
       name      = "ExecutionPythonTask"
-      image     = "${aws_ecr_repository.OpenJudgeECR.repository_url}:execution:python:latest"
+      image     = "${aws_ecr_repository.open-judge-ecr.repository_url}:execution:python:latest"
       essential = true
       logConfiguration = {
         logDriver = "awslogs"
@@ -171,7 +171,7 @@ resource "aws_ecs_task_definition" "ExecutionJavaTask" {
   container_definitions = jsonencode([
     {
       name      = "ExecutionPythonTask"
-      image     = "${aws_ecr_repository.OpenJudgeECR.repository_url}:execution:java:latest"
+      image     = "${aws_ecr_repository.open-judge-ecr.repository_url}:execution:java:latest"
       essential = true
       logConfiguration = {
         logDriver = "awslogs"
@@ -268,7 +268,7 @@ resource "null_resource" "summary_execution" {
   provisioner "local-exec" {
     command = <<EOT
       echo "==== OpenJudge Execution Deployment Complete! ===="
-      echo "Execution Image Repo URL: ${aws_ecr_repository.OpenJudgeECR.repository_url}"
+      echo "Execution Image Repo URL: ${aws_ecr_repository.open-judge-ecr.repository_url}"
       echo ""
     EOT
   }

@@ -52,8 +52,8 @@ provider "docker" {
   }
 }
 
-resource "aws_ecr_repository" "OpenJudgeECR" {
-  name = "OpenJudgeECR"
+resource "aws_ecr_repository" "open-judge-ecr" {
+  name = "open-judge-ecr"
 }
 
 ############################################################################

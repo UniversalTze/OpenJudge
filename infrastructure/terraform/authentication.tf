@@ -1,7 +1,7 @@
 ############################################################################
 # Docker Image
 resource "docker_image" "AuthenticationAPIImage" {
-  name = "${aws_ecr_repository.OpenJudgeECR.repository_url}:authentication:latest"
+  name = "${aws_ecr_repository.open-judge-ecr.repository_url}:authentication:latest"
   build {
     context    = "../../services/auth"
     dockerfile = "../../infrastructure/docker/Dockerfile.authentication"
@@ -94,7 +94,7 @@ resource "aws_ecs_task_definition" "AuthenticationAPITask" {
   container_definitions = jsonencode([
     {
       name      = "AuthenticationAPI"
-      image     = "${aws_ecr_repository.OpenJudgeECR.repository_url}:authentication:latest"
+      image     = "${aws_ecr_repository.open-judge-ecr.repository_url}:authentication:latest"
       essential = true
       logConfiguration = {
         logDriver = "awslogs"
@@ -314,7 +314,7 @@ resource "null_resource" "summary_authentication" {
   provisioner "local-exec" {
     command = <<EOT
       echo "==== OpenJudge Authentication Deployment Complete! ===="
-      echo "Authentication API Image Repository URL: ${aws_ecr_repository.OpenJudgeECR.repository_url}"
+      echo "Authentication API Image Repository URL: ${aws_ecr_repository.open-judge-ecr.repository_url}"
       echo "Authentication API URL: http://${aws_lb.AuthenticationAPILoadBalancer.dns_name}"
       echo "Database URL: postgres://${var.USER_DATABASE_USER}:${var.USER_DATABASE_PASSWORD}@${aws_db_instance.UserDatabase.endpoint}?sslmode=require"
       echo "Redis URL: redis://${aws_elasticache_replication_group.TokenRevocationList.primary_endpoint_address}:${aws_elasticache_replication_group.TokenRevocationList.port}"
