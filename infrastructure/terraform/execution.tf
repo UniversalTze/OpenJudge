@@ -72,7 +72,7 @@ resource "aws_ecs_service" "ExecutionPythonService" {
   network_configuration {
     subnets          = data.aws_subnets.private.ids
     security_groups  = [aws_security_group.ExecutionSecurityGroup.id]
-    assign_public_ip = false
+    assign_public_ip = true # TODO - CHANGE THIS TO A NAT GATEWAY INSTEAD!
   }
 }
 
@@ -149,7 +149,7 @@ resource "aws_ecs_service" "ExecutionJavaService" {
   network_configuration {
     subnets          = data.aws_subnets.private.ids
     security_groups  = [aws_security_group.ExecutionSecurityGroup.id]
-    assign_public_ip = false
+    assign_public_ip = true # TODO - CHANGE THIS TO A NAT GATEWAY INSTEAD!
   }
 }
 
