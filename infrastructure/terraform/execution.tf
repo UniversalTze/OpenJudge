@@ -94,7 +94,7 @@ resource "aws_ecs_task_definition" "ExecutionPythonTask" {
   container_definitions = jsonencode([
     {
       name      = "ExecutionPythonTask"
-      image     = "${aws_ecr_repository.open-judge-ecr.repository_url}:execution:python:latest"
+      image     = "${docker_image.ExecutionPythonImage.name}"
       essential = true
       logConfiguration = {
         logDriver = "awslogs"
@@ -171,7 +171,7 @@ resource "aws_ecs_task_definition" "ExecutionJavaTask" {
   container_definitions = jsonencode([
     {
       name      = "ExecutionPythonTask"
-      image     = "${aws_ecr_repository.open-judge-ecr.repository_url}:execution:java:latest"
+      image     = "${docker_image.ExecutionJavaImage.name}"
       essential = true
       logConfiguration = {
         logDriver = "awslogs"

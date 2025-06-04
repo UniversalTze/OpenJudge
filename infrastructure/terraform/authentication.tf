@@ -94,7 +94,7 @@ resource "aws_ecs_task_definition" "AuthenticationAPITask" {
   container_definitions = jsonencode([
     {
       name      = "AuthenticationAPI"
-      image     = "${aws_ecr_repository.open-judge-ecr.repository_url}:authentication:latest"
+      image     = "${docker_image.AuthenticationAPIImage.name}"
       essential = true
       logConfiguration = {
         logDriver = "awslogs"
