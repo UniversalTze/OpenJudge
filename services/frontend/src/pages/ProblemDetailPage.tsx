@@ -3,96 +3,67 @@ import { useParams, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Badge } from "@/components/ui/badge";
 import { Tabs, TabsList, TabsTrigger, TabsContent } from "@/components/ui/tabs";
-import { 
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { useToast } from "@/hooks/use-toast";
 import { CheckCircle, Play, ChevronLeft, Lock, Unlock, Eye, EyeOff } from "lucide-react";
+import { toast } from "sonner";
 
 import { problems, Problem } from "@/data/problems";
-import useLocalStorage from "@/hooks/useLocalStorage";
 
 const ProblemDetailPage = () => {
   const { id } = useParams<{ id: string }>();
-  const { toast } = useToast();
   const navigate = useNavigate();
-
-  const problem = problems.find(p => p.id === id);
-  
-  // Store language preference in localStorage
-  const [defaultLanguage, setDefaultLanguage] = useLocalStorage<string>('preferred-language', 'Python');
-  const [language, setLanguage] = useState<string>(defaultLanguage);
+  const problem = problems.find((p) => p.id === id);
+  const [language, setLanguage] = useState<"Java" | "Python">("Python");
   const [code, setCode] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showHiddenTestCases, setShowHiddenTestCases] = useState(false);
 
-  // Custom hook to save/retrieve code from localStorage
-  const [savedCode, setSavedCode] = useLocalStorage<Record<string, Record<string, string>>>('saved-code', {});
-
-  // Update default language when changed
-  useEffect(() => {
-    setDefaultLanguage(language);
-  }, [language, setDefaultLanguage]);
-
-  // Set initial code based on language or previously saved code
-  useEffect(() => {
-    if (!problem) return;
-
-    const problemSavedCode = savedCode[problem.id] || {};
-    
-    if (language === 'Python') {
-      setCode(problemSavedCode.python || 
-        `def solution(nums):\n    # Write your Python solution here\n    pass\n\n# Example usage:\n# solution([1, 2, 3])`);
-    } else if (language === 'Java') {
-      setCode(problemSavedCode.java || 
-        `class Solution {\n    public int[] solution(int[] nums) {\n        // Write your Java solution here\n        return new int[0];\n    }\n\n    // Example usage:\n    // public static void main(String[] args) {\n    //     Solution sol = new Solution();\n    //     sol.solution(new int[]{1, 2, 3});\n    // }\n}`);
-    } else if (language === 'JavaScript') {
-      setCode(problemSavedCode.javascript ||
-        `function solution(nums) {\n    // Write your JavaScript solution here\n    return [];\n}\n\n// Example usage:\n// solution([1, 2, 3]);`);
+  function loadCodeFromLocalStorage(setCode: (value: string) => void): void {
+    const code = localStorage.getItem(id);
+    if (code !== null) {
+      setCode(code);
     }
-  }, [language, problem, savedCode]);
+  }
 
-  // Save code when it changes
   useEffect(() => {
-    if (!problem) return;
-    
-    // Debounced save to localStorage
-    const timer = setTimeout(() => {
-      const updatedSavedCode = { ...savedCode };
-      
-      if (!updatedSavedCode[problem.id]) {
-        updatedSavedCode[problem.id] = {};
-      }
-      
-      // Save based on current language
-      updatedSavedCode[problem.id][language.toLowerCase()] = code;
-      
-      setSavedCode(updatedSavedCode);
-    }, 500);
-    
-    return () => clearTimeout(timer);
-  }, [code, language, problem, savedCode, setSavedCode]);
-  
+    loadCodeFromLocalStorage(setCode);
+  }, []);
+
+  function debounce<T extends (...args: any[]) => void>(fn: T, delay: number): T {
+    let timeoutId: ReturnType<typeof setTimeout>;
+    return function (...args: Parameters<T>) {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => fn(...args), delay);
+    } as T;
+  }
+
+  const saveCodeToLocalStorage = debounce((code: string) => {
+    localStorage.setItem("code", code);
+  }, 500);
+
   if (!problem) {
     return (
       <div className="container py-12 text-center">
         <h2 className="text-2xl font-bold mb-4">Problem not found</h2>
-        <Button onClick={() => navigate('/problems')}>Back to Problems</Button>
+        <Button onClick={() => navigate("/problems")}>Back to Problems</Button>
       </div>
     );
   }
 
   const handleCodeChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
     setCode(e.target.value);
+    saveCodeToLocalStorage(e.target.value);
   };
 
   const handleSubmit = () => {
     setIsSubmitting(true);
-    
+
     // Simulate submission for now
     setTimeout(() => {
       toast({
@@ -100,26 +71,38 @@ const ProblemDetailPage = () => {
         description: "Your solution has been sent for evaluation.",
       });
       setIsSubmitting(false);
-      navigate('/submission-success');
+      navigate("/submission-success");
     }, 1500);
   };
 
   const handleRunCode = () => {
-    toast({
-      title: "Code executed",
-      description: "Running against visible test cases...",
-    });
+    toast.success("Job submitted");
   };
 
   // Generate difficulty badge
   const getDifficultyBadge = (difficulty: string) => {
     switch (difficulty) {
-      case 'Easy':
-        return <Badge variant="outline" className="bg-green-500/10 text-green-500 border-green-500/20">Easy</Badge>;
-      case 'Medium':
-        return <Badge variant="outline" className="bg-yellow-500/10 text-yellow-500 border-yellow-500/20">Medium</Badge>;
-      case 'Hard':
-        return <Badge variant="outline" className="bg-red-500/10 text-red-500 border-red-500/20">Hard</Badge>;
+      case "Easy":
+        return (
+          <Badge variant="outline" className="bg-green-500/10 text-green-500 border-green-500/20">
+            Easy
+          </Badge>
+        );
+      case "Medium":
+        return (
+          <Badge
+            variant="outline"
+            className="bg-yellow-500/10 text-yellow-500 border-yellow-500/20"
+          >
+            Medium
+          </Badge>
+        );
+      case "Hard":
+        return (
+          <Badge variant="outline" className="bg-red-500/10 text-red-500 border-red-500/20">
+            Hard
+          </Badge>
+        );
       default:
         return null;
     }
@@ -133,23 +116,21 @@ const ProblemDetailPage = () => {
   return (
     <div className="container py-4">
       {/* Back navigation */}
-      <Button 
-        variant="ghost" 
-        onClick={() => navigate('/problems')} 
-        className="mb-4"
-      >
+      <Button variant="ghost" onClick={() => navigate("/problems")} className="mb-4">
         <ChevronLeft className="mr-2 h-4 w-4" /> Back to Problems
       </Button>
-      
+
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6">
         {/* Problem Description */}
         <div className="space-y-6">
           <div>
             <div className="flex justify-between items-start mb-2">
-              <h1 className="text-2xl font-bold">{problem.id}. {problem.title}</h1>
+              <h1 className="text-2xl font-bold">
+                {problem.id}. {problem.title}
+              </h1>
               {getDifficultyBadge(problem.difficulty)}
             </div>
-            
+
             <div className="flex flex-wrap gap-2 mb-4">
               {problem.tags.map((tag) => (
                 <Badge key={tag} variant="secondary" className="font-normal">
@@ -201,7 +182,9 @@ const ProblemDetailPage = () => {
               <ul className="list-disc pl-6 space-y-2">
                 {problem.constraints.map((constraint, index) => (
                   <li key={index} className="text-sm">
-                    <code className="font-code bg-secondary/50 px-1.5 py-0.5 rounded">{constraint}</code>
+                    <code className="font-code bg-secondary/50 px-1.5 py-0.5 rounded">
+                      {constraint}
+                    </code>
                   </li>
                 ))}
               </ul>
@@ -211,20 +194,26 @@ const ProblemDetailPage = () => {
               {problem.solutionHint ? (
                 <div className="bg-accent/20 border border-accent/30 rounded-md p-4">
                   <h3 className="font-medium mb-2 flex items-center">
-                    <svg 
-                      xmlns="http://www.w3.org/2000/svg" 
-                      className="h-5 w-5 text-accent-foreground mr-2" 
-                      viewBox="0 0 20 20" 
+                    <svg
+                      xmlns="http://www.w3.org/2000/svg"
+                      className="h-5 w-5 text-accent-foreground mr-2"
+                      viewBox="0 0 20 20"
                       fill="currentColor"
                     >
-                      <path fillRule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2h-1V9a1 1 0 00-1-1z" clipRule="evenodd" />
+                      <path
+                        fillRule="evenodd"
+                        d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2h-1V9a1 1 0 00-1-1z"
+                        clipRule="evenodd"
+                      />
                     </svg>
                     Hint
                   </h3>
                   <p className="text-sm">{problem.solutionHint}</p>
                 </div>
               ) : (
-                <p className="text-muted-foreground text-sm">No hints available for this problem.</p>
+                <p className="text-muted-foreground text-sm">
+                  No hints available for this problem.
+                </p>
               )}
             </TabsContent>
           </Tabs>
@@ -238,7 +227,7 @@ const ProblemDetailPage = () => {
                 Transparent Testing
               </Badge>
             </h3>
-            
+
             {/* Visible Test Cases */}
             <div className="space-y-3 mb-4">
               {visibleTestCases.map((testCase, index) => (
@@ -271,8 +260,8 @@ const ProblemDetailPage = () => {
             {/* Hidden Test Cases Toggle - THE MAIN FEATURE */}
             {hiddenTestCases.length > 0 && (
               <div className="space-y-3">
-                <Button 
-                  variant="outline" 
+                <Button
+                  variant="outline"
                   className="w-full"
                   onClick={() => setShowHiddenTestCases(!showHiddenTestCases)}
                 >
@@ -285,7 +274,10 @@ const ProblemDetailPage = () => {
                     <>
                       <Eye className="h-4 w-4 mr-2" />
                       Show {hiddenTestCases.length} Hidden Test Cases
-                      <Badge variant="secondary" className="ml-2 text-xs bg-primary/20 text-primary">
+                      <Badge
+                        variant="secondary"
+                        className="ml-2 text-xs bg-primary/20 text-primary"
+                      >
                         🔥 OpenJudge Exclusive
                       </Badge>
                     </>
@@ -301,12 +293,16 @@ const ProblemDetailPage = () => {
                         Hidden Test Cases - Usually Secret!
                       </div>
                       <p className="text-xs text-muted-foreground">
-                        These test cases are typically hidden on other platforms like LeetCode. OpenJudge shows them to help you learn and debug your solutions effectively.
+                        These test cases are typically hidden on other platforms like LeetCode.
+                        OpenJudge shows them to help you learn and debug your solutions effectively.
                       </p>
                     </div>
-                    
+
                     {hiddenTestCases.map((testCase, index) => (
-                      <div key={index} className="bg-primary/5 border border-primary/10 rounded-md p-3 text-sm">
+                      <div
+                        key={index}
+                        className="bg-primary/5 border border-primary/10 rounded-md p-3 text-sm"
+                      >
                         <div className="flex justify-between items-center mb-2">
                           <span className="font-medium">Hidden Test {index + 1}</span>
                           <span className="text-primary flex items-center">
@@ -340,7 +336,14 @@ const ProblemDetailPage = () => {
         {/* Code Editor */}
         <div className="border rounded-lg overflow-hidden flex flex-col">
           <div className="bg-secondary p-4 border-b flex justify-between items-center">
-            <Select value={language} onValueChange={setLanguage}>
+            <Select
+              value={language}
+              onValueChange={(v) => {
+                if (v === "Java" || v === "Python") {
+                  setLanguage(v);
+                }
+              }}
+            >
               <SelectTrigger className="w-[180px]">
                 <SelectValue placeholder="Select Language" />
               </SelectTrigger>
@@ -351,25 +354,18 @@ const ProblemDetailPage = () => {
                 <SelectItem value="C++">C++</SelectItem>
               </SelectContent>
             </Select>
-            
+
             <div className="flex gap-2">
-              <Button 
-                variant="outline"
-                onClick={handleRunCode}
-                disabled={isSubmitting}
-              >
+              <Button variant="outline" onClick={handleRunCode} disabled={isSubmitting}>
                 <Play className="h-4 w-4 mr-1" />
                 Run
               </Button>
-              <Button 
-                onClick={handleSubmit} 
-                disabled={isSubmitting}
-              >
+              <Button onClick={handleSubmit} disabled={isSubmitting}>
                 {isSubmitting ? "Submitting..." : "Submit"}
               </Button>
             </div>
           </div>
-          
+
           <div className="relative flex-grow code-editor-container">
             <textarea
               className="w-full h-full p-4 font-code text-sm resize-none bg-background border-none focus:outline-none"

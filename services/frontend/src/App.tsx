@@ -7,7 +7,6 @@ import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import HomePage from "./pages/HomePage";
 import LoginPage from "./pages/LoginPage";
-import OnboardingPage from "./pages/OnboardingPage";
 import ProblemsPage from "./pages/ProblemsPage";
 import ProblemDetailPage from "./pages/ProblemDetailPage";
 import SubmissionPage from "./pages/SubmissionPage";
@@ -19,7 +18,7 @@ import SampleProblemResultPage from "./pages/SampleProblemResultPage";
 const App = () => (
   <AuthProvider>
     <TooltipProvider>
-      <Toaster toastOptions={{ className: "bg-black text-white" }} />
+      <Toaster toastOptions={{ className: "bg-black text-white border-zinc-800 border" }} />
       <BrowserRouter>
         <div className="flex flex-col min-h-screen">
           <Navbar />
@@ -27,14 +26,6 @@ const App = () => (
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/login" element={<LoginPage />} />
-              <Route
-                path="/onboarding"
-                element={
-                  <AuthProtection>
-                    <OnboardingPage />
-                  </AuthProtection>
-                }
-              />
               <Route
                 path="/problems"
                 element={

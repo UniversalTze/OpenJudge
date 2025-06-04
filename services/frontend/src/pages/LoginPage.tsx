@@ -55,7 +55,7 @@ const LoginPage = () => {
       })
       
       toast.success("Registration successful")
-      navigate("/onboarding");
+      navigate("/problems");
     } catch (error) {
       toast.error("Registration failed")
     } finally {
