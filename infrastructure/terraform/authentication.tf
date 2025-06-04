@@ -310,7 +310,7 @@ resource "aws_security_group" "TokenRevocationListSecurityGroup" {
 
 ############################################################################
 # Output
-resource "null_resource" "summary" {
+resource "null_resource" "summary_authentication" {
   provisioner "local-exec" {
     command = <<EOT
       echo "==== OpenJudge Authentication Deployment Complete! ===="
