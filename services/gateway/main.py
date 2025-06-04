@@ -201,9 +201,3 @@ async def list_user_submissions(request: Request):
     client = request.app.state.http_client
     target_url = f"{config.SUBMISSION_SERVICE_URL}/submissions"
     return await forward_request(request, target_url, client)
-
-
-if __name__ == "__main__":
-    import uvicorn
-
-    uvicorn.run(app, host="0.0.0.0", port=8000)

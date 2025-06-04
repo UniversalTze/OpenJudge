@@ -14,7 +14,6 @@ services:
       - "${AUTH_SERVICE_PORT}:8080"
     depends_on:
       - user_database
-      - redis
 
   user_database:
     image: postgres:15
@@ -51,23 +50,21 @@ services:
     env_file:
       - ../../.env
     ports:
-      - "${GATEWAY_PORT}:8080"
+      - "${API_GATEWAY_PORT}:8080"
     depends_on:
-      - authentication_service
+      - redis
 
-  application:
+  frontend:
     build: { 
       context: ../../services/frontend, 
-      dockerfile:  ../../infrastructure/docker/Dockerfile.application 
+      dockerfile:  ../../infrastructure/docker/Dockerfile.frontend 
     }
-    container_name: application
+    container_name: frontend
     restart: unless-stopped
     env_file:
       - ../../.env
     ports:
       - "${FRONTEND_PORT}:8080"
-    depends_on:
-      - authentication_service
 
 volumes:
   user_data:

@@ -7,7 +7,7 @@ tasks:
   run:auth:
     desc: Run the authentication service in development mode.
     cmds:
-      - docker-compose -f infrastructure/docker/docker-compose.yml -p openjudge-auth up authentication_service trl user_database objectstorage -d
+      - docker-compose -f infrastructure/docker/docker-compose.yml -p openjudge-auth up authentication_service user_database -d
     silent: true
 
   #test:auth:
@@ -26,7 +26,7 @@ tasks:
       - docker compose -f infrastructure/docker/docker-compose-execution.yaml exec test-client python test_client.py
     silent: true
 
-  # APPLICATION COMMANDS
+  # FRONTEND COMMANDS
   #run:app:
 
   #test:app:
@@ -35,14 +35,15 @@ tasks:
   run:gateway:
     desc: Run the API Gateway in development mode.
     cmds:
-      - docker-compose -f infrastructure/docker/docker-compose-gateway.yml -p openjudge-gateway up -d
+      - docker-compose -f infrastructure/docker/docker-compose.yml -p openjudge-gateway up redis gateway -d --build
     silent: true
 
   test:gateway:
     desc: Run the API Gateway in development mode, and then runs unit tests against this service.
     cmds:
-      - docker-compose -f infrastructure/docker/docker-compose-gateway.yml up -d
-      - docker-compose -f infrastructure/docker/docker-compose-gateway.yml exec test-client python test_client.py
+      - task run:gateway
+      - docker-compose -f infrastructure/docker/docker-compose.yml -p openjudge-gateway exec gateway python -m pytest tests.py -v
+      - docker-compose -f infrastructure/docker/docker-compose.yml -p openjudge-gateway down
     silent: true
 
   # PROJECT COMMANDS
