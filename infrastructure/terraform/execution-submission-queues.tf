@@ -26,7 +26,7 @@ resource "aws_sqs_queue" "ExecutionJavaQueue" {
 
 ############################################################################
 # Output
-resource "null_resource" "summary" {
+resource "null_resource" "summary_execution_submission_queues" {
   provisioner "local-exec" {
     command = <<EOT
       echo "==== OpenJudge Execution-Submission Queues Deployment Complete! ===="

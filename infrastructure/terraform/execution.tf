@@ -264,7 +264,7 @@ resource "aws_appautoscaling_policy" "ExecutionJavaAutoScalingPolicy" {
 
 ############################################################################
 # Output
-resource "null_resource" "summary" {
+resource "null_resource" "summary_execution" {
   provisioner "local-exec" {
     command = <<EOT
       echo "==== OpenJudge Execution Deployment Complete! ===="
