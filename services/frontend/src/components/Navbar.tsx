@@ -8,7 +8,7 @@ import { useAuth } from '@/contexts/AuthContext';
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
 
-  const { isAuthenticated } = useAuth();
+  const { accessToken } = useAuth();
 
   const toggleMenu = () => setIsOpen(!isOpen);
 
@@ -26,7 +26,7 @@ const Navbar = () => {
           <Link to="/problems" className="text-foreground/80 hover:text-foreground transition-colors">Problems</Link>
           <Link to="/about" className="text-foreground/80 hover:text-foreground transition-colors">About</Link>
           
-          {isAuthenticated() ? (
+          {accessToken ? (
             <Link to="/dashboard">
               <Button variant="outline">Dashboard</Button>
             </Link>
@@ -79,7 +79,7 @@ const Navbar = () => {
               About
             </Link>
             <div className="pt-4">
-              {isAuthenticated() ? (
+              {accessToken ? (
                 <Link to="/dashboard" onClick={() => setIsOpen(false)}>
                   <Button className="w-full">Dashboard</Button>
                 </Link>

@@ -57,8 +57,6 @@ export interface VerifyRequest {
 export type AuthContextType = {
   user: User | null;
   accessToken: string | null;
-  isLoading: boolean;
-  isAuthenticated: () => boolean;
   login: (body: LoginRequest) => Promise<ApiResponse<LoginResponse>>;
   register: (body: RegisterRequest) => Promise<ApiResponse<null>>;
   logout: () => Promise<ApiResponse<null>>;
@@ -76,12 +74,6 @@ export const AuthContext = createContext<AuthContextType | null>(null);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = React.useState<User | null>(null);
   const [accessToken, setAccessToken] = React.useState<string | null>(null);
-  const [isLoading, setIsLoading] = React.useState<boolean>(true);
-
-  const isAuthenticated = () => {
-    if (accessToken) return true
-    return false
-  }
   
   async function login(body: LoginRequest) {
       const response = await apiClient.post<LoginResponse>(
@@ -249,8 +241,6 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     <AuthContext.Provider value={{
       user,
       accessToken,
-      isLoading,
-      isAuthenticated,
       login,
       register,
       logout,

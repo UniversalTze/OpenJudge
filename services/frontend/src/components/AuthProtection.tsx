@@ -1,6 +1,6 @@
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useNavigate } from "react-router-dom";
-import { useToast } from "@/hooks/use-toast";
+import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 
 type AuthProtectionProps = {
@@ -8,31 +8,34 @@ type AuthProtectionProps = {
 };
 
 const AuthProtection = ({ children }: AuthProtectionProps) => {
-  const { toast } = useToast();
   const navigate = useNavigate();
-  const { isLoading, accessToken, refresh, getUser } = useAuth();
+  const [loading, setLoading] = useState(true);
+  const { accessToken, refresh, getUser } = useAuth();
 
   useEffect(() => {
-    if (!isLoading && !accessToken) {
-      toast({
-        title: "Authentication Required",
-        description: "Please sign in to access this page",
-        variant: "destructive",
-      });
-      navigate("/login");
-    }
-  }, [isLoading, accessToken, toast, navigate]);
+    const validateRequest = async () => {
+      if (accessToken) {
+        setLoading(false);
+      } else {
+        const response = await refresh();
+        await new Promise((resolve) => setTimeout(resolve, 1000));
+        if (response.success && accessToken) {
+          setLoading(false);
+        } else {
+          toast.error("Please sign in to access this page");
+          navigate("/login");
+        }
+      }
+    };
+    validateRequest();
+  }, []);
 
-  if (isLoading) {
+  if (loading) {
     return (
       <div className="container flex items-center justify-center min-h-[50vh]">
-        <div className="animate-spin rounded-full h-8 w-8 border-b-2 border-primary"></div>
+        <div className="animate-spin rounded-full size-20 border-b-2 border-primary"></div>
       </div>
     );
-  }
-
-  if (!accessToken) {
-    return null;
   }
 
   return <>{children}</>;
