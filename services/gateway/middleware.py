@@ -128,6 +128,8 @@ async def authorise_request(request: Request, call_next):
             raise HTTPException(status_code=401, detail="Invalid token")
         except Exception as e:
             raise HTTPException(status_code=401, detail="Token validation failed")
+        
+    return await call_next(request)    
 
 
 async def process_time(request: Request, call_next):

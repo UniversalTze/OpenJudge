@@ -31,6 +31,20 @@ tasks:
 
   #test:app:
 
+  # API GATEWAY COMMANDS
+  run:gateway:
+    desc: Run the API Gateway in development mode.
+    cmds:
+      - docker-compose -f infrastructure/docker/docker-compose-gateway.yml -p openjudge-gateway up -d
+    silent: true
+
+  test:gateway:
+    desc: Run the API Gateway in development mode, and then runs unit tests against this service.
+    cmds:
+      - docker-compose -f infrastructure/docker/docker-compose-gateway.yml up -d
+      - docker-compose -f infrastructure/docker/docker-compose-gateway.yml exec test-client python test_client.py
+    silent: true
+
   # PROJECT COMMANDS
   run: 
     desc: Run the project in development mode.

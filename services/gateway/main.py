@@ -16,7 +16,7 @@ import jwt
 async def lifespan(app: FastAPI):
     app.state.http_client = httpx.AsyncClient()
     pool = redis.ConnectionPool.from_url(
-        config.TRL_URL,
+        config.REDIS_URL,
         max_connections=10,
         decode_responses=True,
     )
@@ -55,10 +55,10 @@ async def health_check():
 @app.get("/status")
 async def status_check(request: Request):
     client = request.app.state.http_client
-    auth_response = await client.get(f"{config.AUTH_SERVICE_BASE_URL}/health")
-    problem_response = await client.get(f"{config.PROBLEM_SERVICE_BASE_URL}/health")
+    auth_response = await client.get(f"{config.AUTH_SERVICE_URL}/health")
+    problem_response = await client.get(f"{config.PROBLEM_SERVICE_URL}/health")
     submission_response = await client.get(
-        f"{config.SUBMISSION_SERVICE_BASE_URL}/health"
+        f"{config.SUBMISSION_SERVICE_URL}/health"
     )
     return {
         "auth_service": auth_response.json(),
@@ -71,63 +71,63 @@ async def status_check(request: Request):
 @app.post("/register")
 async def register_user(request: Request):
     client = request.app.state.http_client
-    target_url = f"{config.AUTH_SERVICE_BASE_URL}/register"
+    target_url = f"{config.AUTH_SERVICE_URL}/register"
     return await forward_request(request, target_url, client)
 
 
-@app.post("login")
+@app.post("/login")
 async def login_user(request: Request):
     client = request.app.state.http_client
-    target_url = f"{config.AUTH_SERVICE_BASE_URL}/login"
+    target_url = f"{config.AUTH_SERVICE_URL}/login"
     return await forward_request(request, target_url, client)
 
 
 @app.post("/verify")
 async def verify_email(request: Request):
     client = request.app.state.http_client
-    target_url = f"{config.AUTH_SERVICE_BASE_URL}/verify"
+    target_url = f"{config.AUTH_SERVICE_URL}/verify"
     return await forward_request(request, target_url, client)
 
 
 @app.post("/refresh")
 async def refresh_token(request: Request):
     client = request.app.state.http_client
-    target_url = f"{config.AUTH_SERVICE_BASE_URL}/refresh"
+    target_url = f"{config.AUTH_SERVICE_URL}/refresh"
     return await forward_request(request, target_url, client)
 
 
 @app.post("/forgot")
 async def forgot_password(request: Request):
     client = request.app.state.http_client
-    target_url = f"{config.AUTH_SERVICE_BASE_URL}/forgot"
+    target_url = f"{config.AUTH_SERVICE_URL}/forgot"
     return await forward_request(request, target_url, client)
 
 
 @app.post("/reset")
 async def reset_password(request: Request):
     client = request.app.state.http_client
-    target_url = f"{config.AUTH_SERVICE_BASE_URL}/reset"
+    target_url = f"{config.AUTH_SERVICE_URL}/reset"
     return await forward_request(request, target_url, client)
 
 
 @app.get("/user")
 async def get_user_info(request: Request):
     client = request.app.state.http_client
-    target_url = f"{config.AUTH_SERVICE_BASE_URL}/user"
+    target_url = f"{config.AUTH_SERVICE_URL}/user"
     return await forward_request(request, target_url, client)
 
 
 @app.put("/user")
 async def update_user_info(request: Request):
     client = request.app.state.http_client
-    target_url = f"{config.AUTH_SERVICE_BASE_URL}/user"
+    target_url = f"{config.AUTH_SERVICE_URL}/user"
     return await forward_request(request, target_url, client)
 
 
 @app.delete("/user")
 async def delete_user_account(request: Request):
     client = request.app.state.http_client
-    target_url = f"{config.AUTH_SERVICE_BASE_URL}/user"
+    target_url = f"{config.AUTH_SERVICE_URL}/user"
     return await forward_request(request, target_url, client)
 
 
@@ -170,14 +170,14 @@ async def logout_user(request: Request):
 @app.get("/problems?id={id}")
 async def get_problem_details(request: Request, id: int):
     client = request.app.state.http_client
-    target_url = f"{config.PROBLEM_SERVICE_BASE_URL}/problems?id={id}"
+    target_url = f"{config.PROBLEM_SERVICE_URL}/problems?id={id}"
     return await forward_request(request, target_url, client)
 
 
 @app.get("/problems")
 async def list_problems(request: Request):
     client = request.app.state.http_client
-    target_url = f"{config.PROBLEM_SERVICE_BASE_URL}/problems"
+    target_url = f"{config.PROBLEM_SERVICE_URL}/problems"
     return await forward_request(request, target_url, client)
 
 
@@ -185,21 +185,21 @@ async def list_problems(request: Request):
 @app.post("/submissions")
 async def submit_code_for_problem(request: Request):
     client = request.app.state.http_client
-    target_url = f"{config.SUBMISSION_SERVICE_BASE_URL}/submissions"
+    target_url = f"{config.SUBMISSION_SERVICE_URL}/submissions"
     return await forward_request(request, target_url, client)
 
 
 @app.get("/submissions?id={id}")
 async def get_submission_details(request: Request, id: int):
     client = request.app.state.http_client
-    target_url = f"{config.SUBMISSION_SERVICE_BASE_URL}/submissions?id={id}"
+    target_url = f"{config.SUBMISSION_SERVICE_URL}/submissions?id={id}"
     return await forward_request(request, target_url, client)
 
 
 @app.get("/submissions")
 async def list_user_submissions(request: Request):
     client = request.app.state.http_client
-    target_url = f"{config.SUBMISSION_SERVICE_BASE_URL}/submissions"
+    target_url = f"{config.SUBMISSION_SERVICE_URL}/submissions"
     return await forward_request(request, target_url, client)
 
 

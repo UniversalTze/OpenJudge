@@ -8,7 +8,18 @@ dependencies = [
     "dotenv>=0.9.9",
     "fastapi[standard]>=0.115.12",
     "pyjwt>=2.10.1",
-    "redis[async]>=6.2.0",
+    "pytest>=8.4.0",
+    "pytest-asyncio>=1.0.0",
+    "redis>=6.2.0",
     "slowapi>=0.1.9",
     "uvicorn>=0.34.2",
+    "httpx>=0.28.0",
+    "flake8>=6.0.0",
+]
+
+[project.optional-dependencies]
+test = [
+    "pytest>=8.4.0",
+    "httpx>=0.28.0",
+    "flake8>=6.0.0",
 ]
