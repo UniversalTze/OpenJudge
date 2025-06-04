@@ -1,5 +1,5 @@
 from fastapi import FastAPI, Request
-from problems import healthrouter, problemrouter
+from problems.src.application import healthrouter, problemrouter
 
 
 app = FastAPI()
