@@ -1,6 +1,5 @@
-import { Toaster } from "@/components/ui/toaster";
-import { Toaster as Sonner } from "@/components/ui/sonner";
 import { TooltipProvider } from "@/components/ui/tooltip";
+import { Toaster } from "sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
 
@@ -19,15 +18,13 @@ import NotFound from "./pages/NotFound";
 import AuthProtection from "./components/AuthProtection";
 import SampleProblemResultPage from "./pages/SampleProblemResultPage";
 
-const queryClient = new QueryClient();
+const queryClient = new QueryClient(); // WHY IS THIS HERE?
 
 const App = () => (
   <QueryClientProvider client={queryClient}>
-    <ThemeProvider>
       <AuthProvider>
         <TooltipProvider>
           <Toaster />
-          <Sonner />
           <BrowserRouter>
             <div className="flex flex-col min-h-screen">
               <Navbar />
@@ -69,7 +66,6 @@ const App = () => (
           </BrowserRouter>
         </TooltipProvider>
       </AuthProvider>
-    </ThemeProvider>
   </QueryClientProvider>
 );
 
