@@ -6,7 +6,7 @@ from .dbmodels import Problems
 from sqlalchemy.ext.asyncio import AsyncSession
 from sqlalchemy import select
 
-FILE_PATH = "problems/src/models/problems.json"
+FILE_PATH = "problems/problems.json"
 
 async def init_db():
     await wait_for_db(max_retries=10, delay=5)
