@@ -1,6 +1,10 @@
 # Multi-stage build for Java execution environment
 FROM python:3.12-slim AS python-base
 
+# TODO - SWITCH TO NON-ROOT USER FOR CELERY
+# RUN adduser --system --no-create-home --group celeryuser
+# USER celeryuser
+
 # Install uv
 RUN pip install --no-cache-dir uv
 

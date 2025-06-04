@@ -1,5 +1,9 @@
 FROM python:3.12-slim
 
+# TODO - SWITCH TO NON-ROOT USER FOR CELERY
+# RUN adduser --system --no-create-home --group celeryuser
+# USER celeryuser
+
 # Set working directory
 WORKDIR /app
 
