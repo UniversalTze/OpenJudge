@@ -8,18 +8,44 @@ PostgreSQL to store and retrieve problems.
 
 ## Technologies
 
-**Language:** Python. (FastAPI framwework) </br> 
+**Language:** Python. (FastAPI web framwework) </br> 
 **Database:** PostgreSQL (deployed on AWS RDS) </br>
-
-## Built in Python: FastAPI
-
-## Additional Notes
-- Either store the problems in DB (associated with an id or within a category and then a number then)
+**ORM:** SQLAlchemy
+**Response Schemas:** Pydantic</br>
+**Package Manager:** uv </br>
+**Containerisation:** Docker </br>
 
 ### Getting Started
-- In the Postgress db, it will store an id that will generate the problem environment.
-- Need to get the questions into DB somehow. 
-- Using uv and fastapi with uvicorn
+Run the service from root using the following command.
+
+```
+task run:problem
+```
+
+Test the service from root using the following command.
+
+```
+task test:problem
+```
+
+Alternatively, a `docker-compose.yaml` have been included for local testing purposes. 
+
+**Note:** before starting you can use the following command to build faster (only works if the docker build kit is available):
+
+```bash
+export COMPOSE_BAKE=true
+```
+
+To run locally, from the `services/problems` directory, run the following commands:
+
+```bash
+docker compose up --build -d
+```  
+
+To stop the containers, run:
+```bash
+docker compose down
+```
 
 ### Documentation
 (Change what is below)
