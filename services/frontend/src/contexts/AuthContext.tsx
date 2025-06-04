@@ -1,7 +1,6 @@
 import React, { createContext, useContext, useReducer, useEffect } from 'react';
 import { apiClient, ApiResponse } from '@/services/api';
 import { API_ENDPOINTS } from '@/config/env';
-import { useToast } from '@/hooks/use-toast';
 
 export interface User {
   id: string;

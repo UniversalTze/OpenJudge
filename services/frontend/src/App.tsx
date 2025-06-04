@@ -19,7 +19,7 @@ import SampleProblemResultPage from "./pages/SampleProblemResultPage";
 const App = () => (
   <AuthProvider>
     <TooltipProvider>
-      <Toaster />
+      <Toaster toastOptions={{ className: "bg-black text-white" }} />
       <BrowserRouter>
         <div className="flex flex-col min-h-screen">
           <Navbar />

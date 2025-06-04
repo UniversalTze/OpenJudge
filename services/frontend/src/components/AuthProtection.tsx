@@ -3,11 +3,7 @@ import { useNavigate } from "react-router-dom";
 import { toast } from "sonner";
 import { useAuth } from "@/contexts/AuthContext";
 
-type AuthProtectionProps = {
-  children: React.ReactNode;
-};
-
-const AuthProtection = ({ children }: AuthProtectionProps) => {
+export default function AuthProtection({ children }: {children: React.ReactNode}) {
   const navigate = useNavigate();
   const [loading, setLoading] = useState(true);
   const { accessToken, refresh, getUser } = useAuth();
@@ -40,5 +36,3 @@ const AuthProtection = ({ children }: AuthProtectionProps) => {
 
   return <>{children}</>;
 };
-
-export default AuthProtection;

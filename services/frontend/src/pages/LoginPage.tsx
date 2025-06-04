@@ -5,14 +5,13 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent, CardDescription, CardFooter, CardHeader, CardTitle } from "@/components/ui/card";
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
-import { useToast } from "@/hooks/use-toast";
 import { LogIn, UserPlus, ArrowRight } from "lucide-react";
 import { useAuth } from "@/contexts/AuthContext";
+import { toast } from "sonner";
 
 const LoginPage = () => {
-  const { toast } = useToast();
   const navigate = useNavigate();
-  const { login, setLoading } = useAuth();
+  const { login, register } = useAuth();
   
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
@@ -25,80 +24,42 @@ const LoginPage = () => {
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setLoading(true);
     
     try {
-      // Simulate API call for now
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Mock user data - replace with real API call
-      const mockUser = {
-        id: "1",
+      const response = await login({
         email: loginEmail,
-        firstName: "Demo",
-        lastName: "User",
-        experienceLevel: "intermediate" as const
-      };
-      
-      const mockToken = "mock-jwt-token";
-      
-      login(mockUser, mockToken);
-      
-      toast({
-        title: "Logged in successfully",
-        description: "Welcome back!",
+        password: loginPassword
       });
+      
+      toast.success("Logged in successfully!");
       
       navigate("/problems");
     } catch (error) {
-      toast({
-        title: "Login failed",
-        description: "Please check your credentials and try again.",
-        variant: "destructive"
-      });
+      toast.error("Login failed - please check your credentials and try again.")
     } finally {
       setIsLoading(false);
-      setLoading(false);
     }
   };
 
   const handleSignup = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    setLoading(true);
     
     try {
-      // Simulate API call for now
-      await new Promise(resolve => setTimeout(resolve, 1000));
-      
-      // Mock user data - replace with real API call
-      const mockUser = {
-        id: "2",
+      const response = await register({
         email: signupEmail,
         firstName: signupFirstName,
         lastName: signupLastName,
-        experienceLevel: "beginner" as const // Default to beginner, will be updated in onboarding
-      };
+        experienceLevel: "Beginner", // TODO: Fix later
+        password: signupPassword
+      })
       
-      const mockToken = "mock-jwt-token-new";
-      
-      login(mockUser, mockToken);
-      
-      toast({
-        title: "Account created",
-        description: "Welcome to OpenJudge! Let's set up your experience.",
-      });
-      
+      toast.success("Registration successful")
       navigate("/onboarding");
     } catch (error) {
-      toast({
-        title: "Registration failed",
-        description: "Please try again.",
-        variant: "destructive"
-      });
+      toast.error("Registration failed")
     } finally {
       setIsLoading(false);
-      setLoading(false);
     }
   };
 
