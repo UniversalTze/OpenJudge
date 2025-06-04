@@ -1,7 +1,7 @@
 ############################################################################
 # Docker Images
 resource "docker_image" "ExecutionPythonImage" {
-  name = "${aws_ecr_repository.open-judge-ecr.repository_url}:execution:python:latest"
+  name = "${aws_ecr_repository.open-judge-ecr.repository_url}:execution/python/latest"
   build {
     context    = "../../services/execution"
     dockerfile = "../../infrastructure/docker/execution/Dockerfile.python"
@@ -9,7 +9,7 @@ resource "docker_image" "ExecutionPythonImage" {
 }
 
 resource "docker_image" "ExecutionJavaImage" {
-  name = "${aws_ecr_repository.open-judge-ecr.repository_url}:execution:java:latest"
+  name = "${aws_ecr_repository.open-judge-ecr.repository_url}:execution/java/latest"
   build {
     context    = "../../services/execution"
     dockerfile = "../../infrastructure/docker/execution/Dockerfile.java"
