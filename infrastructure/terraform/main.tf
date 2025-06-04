@@ -1,3 +1,5 @@
+############################################################################
+# Main/Providers
 terraform {
   required_providers {
     aws = {
@@ -22,6 +24,8 @@ provider "aws" {
   }
 }
 
+############################################################################
+# Data
 data "aws_iam_role" "lab" {
   name = "LabRole"
 }
@@ -37,6 +41,8 @@ data "aws_subnets" "private" {
   }
 }
 
+############################################################################
+# ECR
 data "aws_ecr_authorization_token" "ecr_token" {}
 provider "docker" {
   registry_auth {
@@ -46,6 +52,12 @@ provider "docker" {
   }
 }
 
+resource "aws_ecr_repository" "OpenJudgeECR" {
+  name = "OpenJudgeECR"
+}
+
+############################################################################
+# Input Variables
 variable "AWS_REGION" {
   type = string
 }
@@ -101,3 +113,5 @@ variable "SMTP_PASSWORD" {
 variable "SMTP_FROM" {
   type = string
 }
+
+############################################################################

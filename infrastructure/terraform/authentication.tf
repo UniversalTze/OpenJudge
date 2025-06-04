@@ -1,9 +1,7 @@
-resource "aws_ecr_repository" "AuthenticationAPIRepository" {
-  name = "AuthenticationAPI"
-}
-
+############################################################################
+# Docker Image
 resource "docker_image" "AuthenticationAPIImage" {
-  name = "${aws_ecr_repository.AuthenticationAPIRepository.repository_url}:latest"
+  name = "${aws_ecr_repository.OpenJudgeECR.repository_url}:authentication:latest"
   build {
     context    = "../../services/auth"
     dockerfile = "../../infrastructure/docker/Dockerfile.authentication"
@@ -14,6 +12,8 @@ resource "docker_registry_image" "AuthenticationAPIImageName" {
   name = docker_image.AuthenticationAPIImage.name
 }
 
+############################################################################
+# UserDatabase
 resource "aws_db_instance" "UserDatabase" {
   identifier                   = "UserDatabase"
   allocated_storage            = 20
@@ -50,8 +50,36 @@ resource "aws_security_group" "UserDatabaseSecurityGroup" {
   }
 }
 
+############################################################################
+# ECS
 resource "aws_ecs_cluster" "AuthenticationServiceCluster" {
   name = "AuthenticationServiceCluster"
+}
+
+resource "aws_ecs_service" "AuthenticationAPI" {
+  name            = "AuthenticationAPI"
+  cluster         = aws_ecs_cluster.AuthenticationServiceCluster.id
+  task_definition = aws_ecs_task_definition.AuthenticationAPI.arn
+  desired_count   = 1
+  launch_type     = "FARGATE"
+
+  depends_on = [
+    aws_db_instance.UserDatabase,
+    docker_registry_image.AuthenticationAPIImageName,
+    aws_lb_listener.AuthenticationAPILoadBalancerListener
+  ]
+
+  network_configuration {
+    subnets          = data.aws_subnets.private.ids
+    security_groups  = [aws_security_group.AuthenticationAPISecurityGroup.id]
+    assign_public_ip = true
+  }
+
+  load_balancer {
+    target_group_arn = aws_lb_target_group.AuthenticationAPILoadBalancerTargetGroup.arn
+    container_name   = "AuthenticationAPI"
+    container_port   = 8080
+  }
 }
 
 resource "aws_ecs_task_definition" "AuthenticationAPITask" {
@@ -66,7 +94,7 @@ resource "aws_ecs_task_definition" "AuthenticationAPITask" {
   container_definitions = jsonencode([
     {
       name      = "AuthenticationAPI"
-      image     = "${aws_ecr_repository.AuthenticationAPIRepository.repository_url}:latest"
+      image     = "${aws_ecr_repository.OpenJudgeECR.repository_url}:authentication:latest"
       essential = true
       logConfiguration = {
         logDriver = "awslogs"
@@ -133,6 +161,8 @@ resource "aws_ecs_task_definition" "AuthenticationAPITask" {
   ])
 }
 
+############################################################################
+# Load Balancer
 resource "aws_lb" "AuthenticationAPILoadBalancer" {
   name               = "AuthenticationAPILoadBalancer"
   internal           = false
@@ -173,8 +203,8 @@ resource "aws_lb_target_group" "AuthenticationAPILoadBalancerTargetGroup" {
 }
 
 resource "aws_security_group" "AuthenticationAPILoadBalancerSecurityGroup" {
-  name        = "AuthenticationAPILoadBalancerSecurityGroup"
-  vpc_id      = data.aws_vpc.default.id
+  name   = "AuthenticationAPILoadBalancerSecurityGroup"
+  vpc_id = data.aws_vpc.default.id
 
   ingress {
     from_port       = 80
@@ -191,39 +221,15 @@ resource "aws_security_group" "AuthenticationAPILoadBalancerSecurityGroup" {
   }
 }
 
-resource "aws_ecs_service" "AuthenticationAPI" {
-  name            = "AuthenticationAPI"
-  cluster         = aws_ecs_cluster.AuthenticationServiceCluster.id
-  task_definition = aws_ecs_task_definition.AuthenticationAPI.arn
-  desired_count   = 1
-  launch_type     = "FARGATE"
-
-  depends_on = [ 
-    aws_db_instance.UserDatabase,
-    docker_registry_image.AuthenticationAPIImageName,
-    aws_lb_listener.AuthenticationAPILoadBalancerListener
-  ]
-
-  network_configuration {
-    subnets          = data.aws_subnets.private.ids
-    security_groups  = [aws_security_group.AuthenticationAPISecurityGroup.id]
-    assign_public_ip = true
-  }
-
-  load_balancer {
-    target_group_arn = aws_lb_target_group.AuthenticationAPILoadBalancerTargetGroup.arn
-    container_name   = "AuthenticationAPI"
-    container_port   = 8080
-  }
-}
-
+############################################################################
+# Autoscaling
 resource "aws_appautoscaling_target" "AuthenticationAPIAutoScalingTarget" {
   max_capacity       = 3
   min_capacity       = 1
   resource_id        = "service/${aws_ecs_cluster.AuthenticationServiceCluster.name}/${aws_ecs_service.AuthenticationAPI.name}"
   scalable_dimension = "ecs:service:DesiredCount"
   service_namespace  = "ecs"
-  }
+}
 
 resource "aws_appautoscaling_policy" "AuthenticationAPIAutoScalingPolicy" {
   name               = "AuthenticationAPIAutoScalingPolicy"
@@ -242,8 +248,8 @@ resource "aws_appautoscaling_policy" "AuthenticationAPIAutoScalingPolicy" {
 }
 
 resource "aws_security_group" "AuthenticationAPISecurityGroup" {
-  name        = "AuthenticationAPISecurityGroup"
-  vpc_id      = data.aws_vpc.default.id
+  name   = "AuthenticationAPISecurityGroup"
+  vpc_id = data.aws_vpc.default.id
 
   ingress {
     from_port       = 8080
@@ -261,19 +267,21 @@ resource "aws_security_group" "AuthenticationAPISecurityGroup" {
   }
 }
 
+############################################################################
+# Token Revocation List
 resource "aws_elasticache_replication_group" "TokenRevocationList" {
-  replication_group_id          = "TokenRevocationList"
-  description                   = "TokenRevocationList"
-  node_type                     = "cache.t3.medium"
-  num_cache_clusters            = 1
-  port                          = 6379
-  engine                        = "redis"
-  engine_version                = "7.x"
-  parameter_group_name          = "default.redis7"
-  subnet_group_name             = aws_elasticache_subnet_group.TokenRevocationListSubnetGroup.name
-  security_group_ids            = [aws_security_group.TokenRevocationListSecurityGroup.id]
-  automatic_failover_enabled    = false
-  transit_encryption_enabled    = true
+  replication_group_id       = "TokenRevocationList"
+  description                = "TokenRevocationList"
+  node_type                  = "cache.t3.medium"
+  num_cache_clusters         = 1
+  port                       = 6379
+  engine                     = "redis"
+  engine_version             = "7.x"
+  parameter_group_name       = "default.redis7"
+  subnet_group_name          = aws_elasticache_subnet_group.TokenRevocationListSubnetGroup.name
+  security_group_ids         = [aws_security_group.TokenRevocationListSecurityGroup.id]
+  automatic_failover_enabled = false
+  transit_encryption_enabled = true
 }
 
 resource "aws_elasticache_subnet_group" "TokenRevocationListSubnetGroup" {
@@ -300,11 +308,13 @@ resource "aws_security_group" "TokenRevocationListSecurityGroup" {
   }
 }
 
+############################################################################
+# Output
 resource "null_resource" "summary" {
   provisioner "local-exec" {
     command = <<EOT
-      echo "==== OpenJudge Deployment Complete! ===="
-      echo "Authentication API Image URL: ${aws_ecr_repository.AuthenticationAPIRepository.repository_url}"
+      echo "==== OpenJudge Authentication Deployment Complete! ===="
+      echo "Authentication API Image Repository URL: ${aws_ecr_repository.OpenJudgeECR.repository_url}"
       echo "Authentication API URL: http://${aws_lb.AuthenticationAPILoadBalancer.dns_name}"
       echo "Database URL: postgres://${var.USER_DATABASE_USER}:${var.USER_DATABASE_PASSWORD}@${aws_db_instance.UserDatabase.endpoint}?sslmode=require"
       echo "Redis URL: redis://${aws_elasticache_replication_group.TokenRevocationList.primary_endpoint_address}:${aws_elasticache_replication_group.TokenRevocationList.port}"
@@ -313,3 +323,5 @@ resource "null_resource" "summary" {
     EOT
   }
 }
+
+############################################################################
