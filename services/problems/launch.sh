@@ -5,4 +5,4 @@ set -e  # stop on error
 python -m problems.src.models.initdb
 
 # Start app
-uvicorn problems.main:app --host 0.0.0.0 --port 6400
+uvicorn problems.src.application.main:app --host 0.0.0.0 --port 6400
