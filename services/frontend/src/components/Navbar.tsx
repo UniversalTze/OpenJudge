@@ -3,15 +3,17 @@ import { useState } from 'react';
 import { Link } from 'react-router-dom';
 import { Button } from "@/components/ui/button";
 import { Menu, X, Code, LogIn } from "lucide-react";
+import { useAuth } from '@/contexts/AuthContext';
 
 const Navbar = () => {
   const [isOpen, setIsOpen] = useState(false);
-  const [isAuthenticated, setIsAuthenticated] = useState(false);
+
+  const { isAuthenticated } = useAuth();
 
   const toggleMenu = () => setIsOpen(!isOpen);
 
   return (
-    <header className="sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
+    <header className={isOpen ? "sticky top-0 z-40 w-full border-b bg-black bg-background/95" : "sticky top-0 z-40 w-full border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60"}>
       <nav className="container flex items-center justify-between py-4">
         <Link to="/" className="flex items-center space-x-2">
           <Code className="h-8 w-8 text-codepurple-600" />
@@ -24,7 +26,7 @@ const Navbar = () => {
           <Link to="/problems" className="text-foreground/80 hover:text-foreground transition-colors">Problems</Link>
           <Link to="/about" className="text-foreground/80 hover:text-foreground transition-colors">About</Link>
           
-          {isAuthenticated ? (
+          {isAuthenticated() ? (
             <Link to="/dashboard">
               <Button variant="outline">Dashboard</Button>
             </Link>
@@ -53,8 +55,8 @@ const Navbar = () => {
 
       {/* Mobile Navigation */}
       {isOpen && (
-        <div className="fixed inset-0 top-16 z-50 bg-background md:hidden">
-          <div className="container py-6 flex flex-col space-y-4">
+        <div className="fixed inset-0 top-16 z-50 bg-black/50 md:hidden">
+          <div className="container py-6 flex flex-col space-y-4 bg-black">
             <Link 
               to="/" 
               className="text-lg font-medium p-3 rounded-md hover:bg-secondary transition-colors"
@@ -77,7 +79,7 @@ const Navbar = () => {
               About
             </Link>
             <div className="pt-4">
-              {isAuthenticated ? (
+              {isAuthenticated() ? (
                 <Link to="/dashboard" onClick={() => setIsOpen(false)}>
                   <Button className="w-full">Dashboard</Button>
                 </Link>

@@ -15,7 +15,7 @@ const AboutPage = () => {
             <div className="absolute bottom-0 left-1/4 w-40 h-40 bg-accent/10 rounded-full blur-3xl"></div>
           </div>
 
-          <h1 className="text-4xl font-bold mb-4 text-center relative">
+          <h1 className="text-4xl font-bold mt-16 mb-4 text-center relative">
             About <span className="animated-gradient-text">OpenJudge</span>
           </h1>
           <p className="text-xl text-center text-muted-foreground mb-8">
@@ -45,8 +45,8 @@ const AboutPage = () => {
         
       <div className="prose dark:prose-invert max-w-none">
         {/* Mission Section */}
-        <AnimatedSection animation="float-up" delay="200ms" className="mb-16">
-          <h2 className="text-2xl font-bold mb-6 flex items-center">
+        <AnimatedSection animation="float-up" delay="200ms" className="mb-16 text-muted-foreground">
+          <h2 className="text-2xl font-bold mb-6 flex items-center text-white">
             <div className="rounded-full w-12 h-12 bg-primary/10 flex items-center justify-center mr-4">
               <BookOpen className="h-6 w-6 text-primary" />
             </div>
@@ -64,37 +64,37 @@ const AboutPage = () => {
           </p>
         </AnimatedSection>
         
-        <AnimatedSection animation="float-up" delay="400ms" className="mb-16">
+        <AnimatedSection animation="float-up" delay="400ms" className="mb-16 text-muted-foreground">
           <div className="grid md:grid-cols-3 gap-6">
             <div className="glass-card p-6 rounded-xl flex flex-col items-center text-center">
-              <div className="rounded-full w-12 h-12 bg-primary/10 flex items-center justify-center mb-4">
+              <div className="rounded-full w-12 h-12 bg-primary/10 flex items-center justify-center">
                 <CheckCircle className="h-6 w-6 text-primary" />
               </div>
-              <h3 className="text-lg font-bold mb-2">Transparency</h3>
+              <h3 className="text-lg font-bold mb-2 text-white">Transparency</h3>
               <p className="text-muted-foreground text-sm">Full visibility into test cases and expected outputs</p>
             </div>
             
             <div className="glass-card p-6 rounded-xl flex flex-col items-center text-center">
-              <div className="rounded-full w-12 h-12 bg-primary/10 flex items-center justify-center mb-4">
+              <div className="rounded-full w-12 h-12 bg-primary/10 flex items-center justify-center">
                 <BookOpen className="h-6 w-6 text-primary" />
               </div>
-              <h3 className="text-lg font-bold mb-2">Education First</h3>
+              <h3 className="text-lg font-bold mb-2 text-white">Education First</h3>
               <p className="text-muted-foreground text-sm">Explanatory feedback designed to help you learn</p>
             </div>
             
             <div className="glass-card p-6 rounded-xl flex flex-col items-center text-center">
-              <div className="rounded-full w-12 h-12 bg-primary/10 flex items-center justify-center mb-4">
+              <div className="rounded-full w-12 h-12 bg-primary/10 flex items-center justify-center">
                 <Code className="h-6 w-6 text-primary" />
               </div>
-              <h3 className="text-lg font-bold mb-2">Practical Skills</h3>
+              <h3 className="text-lg font-bold mb-2 text-white">Practical Skills</h3>
               <p className="text-muted-foreground text-sm">Industry-relevant problem sets and approaches</p>
             </div>
           </div>
         </AnimatedSection>
         
         {/* Educational Philosophy */}
-        <AnimatedSection animation="float-up" delay="600ms" className="mb-16">
-          <h2 className="text-2xl font-bold mb-6 flex items-center">
+        <AnimatedSection animation="float-up" delay="600ms" className="mb-16 text-muted-foreground">
+          <h2 className="text-2xl font-bold mb-6 flex items-center text-white">
             <div className="rounded-full w-12 h-12 bg-primary/10 flex items-center justify-center mr-4">
               <Users className="h-6 w-6 text-primary" />
             </div>
@@ -106,24 +106,19 @@ const AboutPage = () => {
           <p>
             When you submit your code on OpenJudge, you'll see exactly which test cases it passed and which it failed, along with expected outputs, actual outputs, and explanations. This approach turns debugging into a valuable learning experience rather than a frustrating guessing game.
           </p>
-          <div className="my-8 glass-card p-6 rounded-xl border border-primary/20">
-            <blockquote className="italic border-l-4 border-primary pl-4">
-              "We don't just want you to solve problems—we want you to understand the solutions and grow as a programmer."
-            </blockquote>
-          </div>
         </AnimatedSection>
         
         {/* Team Section */}
         <AnimatedSection animation="float-up" delay="800ms" className="mb-16">
-          <h2 className="text-2xl font-bold mb-6 flex items-center">
+          <h2 className="text-2xl font-bold mb-6 flex items-center text-white">
             <div className="rounded-full w-12 h-12 bg-primary/10 flex items-center justify-center mr-4">
               <Users className="h-6 w-6 text-primary" />
             </div>
             Our Team
           </h2>
-          <div className="glass-card p-6 rounded-xl">
+          <div className="glass-card p-6 rounded-xl text-muted-foreground">
             <p>
-              OpenJudge was created by a team of computer science educators and students who were frustrated with the limitations of existing coding platforms. We combined our experience in education, software development, and UI/UX design to create a platform that truly serves learners.
+              OpenJudge was created by a team of computer science students in CSSE6400 who were frustrated with the limitations of existing coding platforms. We combined our experience in education, software development, and UI/UX design to create a platform that truly serves learners.
             </p>
             <p className="mt-4">
               We're constantly improving OpenJudge based on user feedback and educational research. Our team is committed to creating the most effective learning environment for programmers at all stages of their journey.
@@ -132,19 +127,19 @@ const AboutPage = () => {
         </AnimatedSection>
         
         {/* CTA Section */}
-        <AnimatedSection animation="fade-in" delay="1000ms" className="text-center mt-20">
-          <h2 className="text-2xl font-bold mb-6">Join Our Community</h2>
+        <AnimatedSection animation="fade-in" delay="1000ms" className="text-center mt-32 mb-20 text-muted-foreground">
+          <h2 className="text-2xl font-bold mb-6 text-white">Join Our Community</h2>
           <p className="mb-6 text-lg text-muted-foreground">
             Ready to start learning in a more transparent, educational environment? Join OpenJudge today and experience a new way to practice coding.
           </p>
           <div className="flex flex-col sm:flex-row justify-center gap-4">
-            <Button asChild size="lg" className="neon-border">
-              <Link to="/login">
+            <Button asChild size="lg">
+              <Link to="/login" className="no-underline">
                 Get Started
               </Link>
             </Button>
             <Button variant="outline" size="lg" asChild>
-              <Link to="/problems">
+              <Link to="/problems" className="no-underline text-white">
                 Explore Problems
               </Link>
             </Button>

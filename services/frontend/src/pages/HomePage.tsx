@@ -82,7 +82,7 @@ const HomePage = () => {
 
             <AnimatedSection animation="float-up" delay="400ms">
               <div className="flex flex-col sm:flex-row items-center justify-center gap-4 mb-8">
-                <Button size="lg" className="text-lg px-8 rounded-md neon-border" asChild>
+                <Button size="lg" className="text-lg px-8 rounded-md" asChild>
                   <Link to="/login">
                     Start Learning <ChevronRight className="ml-2 h-5 w-5" />
                   </Link>
@@ -384,7 +384,7 @@ const HomePage = () => {
               understand every failure, and actually learn from your code.
             </p>
             <div className="flex flex-col sm:flex-row gap-4 justify-center">
-              <Button size="lg" className="text-lg px-8 rounded-md neon-border" asChild>
+              <Button size="lg" className="text-lg px-8 rounded-md" asChild>
                 <Link to="/login">Start for Free</Link>
               </Button>
               <Button variant="outline" size="lg" className="text-lg px-8 rounded-md" asChild>

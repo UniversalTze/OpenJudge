@@ -2,9 +2,7 @@ import { TooltipProvider } from "@/components/ui/tooltip";
 import { Toaster } from "sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route } from "react-router-dom";
-
 import { AuthProvider } from "@/contexts/AuthContext";
-import { ThemeProvider } from "@/contexts/ThemeContext";
 import Navbar from "./components/Navbar";
 import Footer from "./components/Footer";
 import HomePage from "./pages/HomePage";
@@ -18,55 +16,66 @@ import NotFound from "./pages/NotFound";
 import AuthProtection from "./components/AuthProtection";
 import SampleProblemResultPage from "./pages/SampleProblemResultPage";
 
-const queryClient = new QueryClient(); // WHY IS THIS HERE?
-
 const App = () => (
-  <QueryClientProvider client={queryClient}>
-      <AuthProvider>
-        <TooltipProvider>
-          <Toaster />
-          <BrowserRouter>
-            <div className="flex flex-col min-h-screen">
-              <Navbar />
-              <main className="flex-grow">
-                <Routes>
-                  <Route path="/" element={<HomePage />} />
-                  <Route path="/login" element={<LoginPage />} />
-                  <Route path="/onboarding" element={
-                    <AuthProtection>
-                      <OnboardingPage />
-                    </AuthProtection>
-                  } />
-                  <Route path="/problems" element={
-                    <AuthProtection>
-                      <ProblemsPage />
-                    </AuthProtection>
-                  } />
-                  <Route path="/problem/:id" element={
-                    <AuthProtection>
-                      <ProblemDetailPage />
-                    </AuthProtection>
-                  } />
-                  <Route path="/submission-success" element={
-                    <AuthProtection>
-                      <SubmissionPage />
-                    </AuthProtection>
-                  } />
-                  <Route path="/sample-problem-result" element={
-                    <AuthProtection>
-                      <SampleProblemResultPage />
-                    </AuthProtection>
-                  } />
-                  <Route path="/about" element={<AboutPage />} />
-                  <Route path="*" element={<NotFound />} />
-                </Routes>
-              </main>
-              <Footer />
-            </div>
-          </BrowserRouter>
-        </TooltipProvider>
-      </AuthProvider>
-  </QueryClientProvider>
+  <AuthProvider>
+    <TooltipProvider>
+      <Toaster />
+      <BrowserRouter>
+        <div className="flex flex-col min-h-screen">
+          <Navbar />
+          <main className="flex-grow">
+            <Routes>
+              <Route path="/" element={<HomePage />} />
+              <Route path="/login" element={<LoginPage />} />
+              <Route
+                path="/onboarding"
+                element={
+                  <AuthProtection>
+                    <OnboardingPage />
+                  </AuthProtection>
+                }
+              />
+              <Route
+                path="/problems"
+                element={
+                  <AuthProtection>
+                    <ProblemsPage />
+                  </AuthProtection>
+                }
+              />
+              <Route
+                path="/problem/:id"
+                element={
+                  <AuthProtection>
+                    <ProblemDetailPage />
+                  </AuthProtection>
+                }
+              />
+              <Route
+                path="/submission-success"
+                element={
+                  <AuthProtection>
+                    <SubmissionPage />
+                  </AuthProtection>
+                }
+              />
+              <Route
+                path="/sample-problem-result"
+                element={
+                  <AuthProtection>
+                    <SampleProblemResultPage />
+                  </AuthProtection>
+                }
+              />
+              <Route path="/about" element={<AboutPage />} />
+              <Route path="*" element={<NotFound />} />
+            </Routes>
+          </main>
+          <Footer />
+        </div>
+      </BrowserRouter>
+    </TooltipProvider>
+  </AuthProvider>
 );
 
 export default App;
