@@ -1,7 +1,7 @@
 ############################################################################
 # Docker Image
 resource "docker_image" "AuthenticationAPIImage" {
-  name = "${aws_ecr_repository.open-judge-ecr.repository_url}:authentication/latest"
+  name = "${aws_ecr_repository.open-judge-ecr.repository_url}:authentication-latest"
   build {
     context    = "../../services/auth"
     dockerfile = "../../infrastructure/docker/Dockerfile.authentication"
