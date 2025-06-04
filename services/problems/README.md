@@ -1,6 +1,15 @@
 # Problems Service
 
-ASSIGNED TO: Tze Kheng Goh
+This service is an API service that manages a structured set of coding problems, including metadata like difficulty, title, difficulty, 
+topics, description, examples, constraints, test cases, hint and the date when the problems were created. It uses a relational database in 
+PostgreSQL to store and retrieve problems. 
+
+**Note**: Problems stored in the databases are language agnostic. (Tailored that all problems can be solved with programming languages user selects). 
+
+## Technologies
+
+**Language:** Python. (FastAPI framwework) </br> 
+**Database:** PostgreSQL (deployed on AWS RDS) </br>
 
 ## Built in Python: FastAPI
 
@@ -20,3 +29,6 @@ Initial API:
 - Get end point for that. 
 - Post end point for addind problems to it. 
 - Auth header and how it validates it for a particular session
+
+
+ASSIGNED TO: Tze Kheng Goh
