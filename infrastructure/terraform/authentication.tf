@@ -52,13 +52,10 @@ resource "aws_security_group" "UserDatabaseSecurityGroup" {
 
 ############################################################################
 # ECS
-resource "aws_ecs_cluster" "AuthenticationServiceCluster" {
-  name = "AuthenticationServiceCluster"
-}
 
 resource "aws_ecs_service" "AuthenticationAPI" {
   name            = "AuthenticationAPI"
-  cluster         = aws_ecs_cluster.AuthenticationServiceCluster.id
+  cluster         = aws_ecs_cluster.open-judge-cluster.id
   task_definition = aws_ecs_task_definition.AuthenticationAPI.arn
   desired_count   = 1
   launch_type     = "FARGATE"
@@ -226,7 +223,7 @@ resource "aws_security_group" "AuthenticationAPILoadBalancerSecurityGroup" {
 resource "aws_appautoscaling_target" "AuthenticationAPIAutoScalingTarget" {
   max_capacity       = 3
   min_capacity       = 1
-  resource_id        = "service/${aws_ecs_cluster.AuthenticationServiceCluster.name}/${aws_ecs_service.AuthenticationAPI.name}"
+  resource_id        = "service/${aws_ecs_cluster.open-judge-cluster.name}/${aws_ecs_service.AuthenticationAPI.name}"
   scalable_dimension = "ecs:service:DesiredCount"
   service_namespace  = "ecs"
 }

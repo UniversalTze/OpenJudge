@@ -56,6 +56,11 @@ resource "aws_ecr_repository" "open-judge-ecr" {
   name = "open-judge-ecr"
 }
 
+##### ECS Cluster for open judge
+resource "aws_ecs_cluster" "open-judge-cluster" {
+  name = "open-judge-cluster"
+}
+
 ############################################################################
 # Input Variables
 variable "AWS_REGION" {

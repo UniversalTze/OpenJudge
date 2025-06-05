@@ -103,11 +103,6 @@ resource "aws_ecr_repository" "submission_worker" {
   name = "submission-worker"
 }
 
-# ECS cluster
-resource "aws_ecs_cluster" "submission_cluster" {
-  name = "submission-cluster"
-}
-
 # IAM role for ECS task execution
 data "aws_iam_policy_document" "ecs_task_exec_assume" {
   statement {
@@ -161,7 +156,7 @@ resource "aws_ecs_task_definition" "web" {
 # ECS service for web
 resource "aws_ecs_service" "web_service" {
   name            = "submission-web-service"
-  cluster         = aws_ecs_cluster.submission_cluster.id
+  cluster         = aws_ecs_cluster.open-judge-cluster.id
   task_definition = aws_ecs_task_definition.web.arn
   launch_type     = "FARGATE"
   desired_count   = 2
@@ -198,7 +193,7 @@ resource "aws_ecs_task_definition" "worker" {
 # ECS service for worker
 resource "aws_ecs_service" "worker_service" {
   name            = "submission-worker-service"
-  cluster         = aws_ecs_cluster.submission_cluster.id
+  cluster         = aws_ecs_cluster.open-judge-cluster.id
   task_definition = aws_ecs_task_definition.worker.arn
   launch_type     = "FARGATE"
   desired_count   = 1
