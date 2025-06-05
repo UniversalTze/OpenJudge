@@ -81,6 +81,8 @@ services:
       DATABASE_URL: "postgres://${SUBMISSION_DATABASE_USER}:${SUBMISSION_DATABASE_PASSWORD}@submission_database:5432/${SUBMISSION_DATABASE_NAME}?sslmode=disable"
       BROKER_URL: "redis://execution-submission-queue:6379"
       PROBLEMS_SERVICE_URL: "http://problems_service:6400"
+      JAVA_QUEUE: "javaq"
+      PYTHON_QUEUE: "pythonq"
     env_file:
       - ../../.env
     ports:
