@@ -60,19 +60,19 @@ resource "aws_db_subnet_group" "default" {
 
 # RDS PostgreSQL instance
 resource "aws_db_instance" "submission_db" {
-  identifier            = "submission-db"
-  engine                = "postgres"
-  engine_version        = "13.4"
-  instance_class        = "db.t3.micro"
-  allocated_storage     = 20
-  name                  = "submissions"
-  username              = var.db_username
-  password              = var.db_password
-  parameter_group_name  = "default.postgres13"
-  skip_final_snapshot   = true
-  publicly_accessible   = false
+  identifier             = "submission-db"
+  engine                 = "postgres"
+  engine_version         = "13.4"
+  instance_class         = "db.t3.micro"
+  allocated_storage      = 20
+  db_name                = "submissions"
+  username               = var.db_username
+  password               = var.db_password
+  parameter_group_name   = "default.postgres13"
+  skip_final_snapshot    = true
+  publicly_accessible    = false
   vpc_security_group_ids = [aws_security_group.ecs_sg.id]
-  db_subnet_group_name  = aws_db_subnet_group.default.name
+  db_subnet_group_name   = aws_db_subnet_group.default.name
 }
 
 # ElastiCache Subnet group
@@ -166,8 +166,8 @@ resource "aws_ecs_service" "web_service" {
   launch_type     = "FARGATE"
   desired_count   = 2
   network_configuration {
-    subnets         = data.aws_subnets.default.ids
-    security_groups = [aws_security_group.ecs_sg.id]
+    subnets          = data.aws_subnets.default.ids
+    security_groups  = [aws_security_group.ecs_sg.id]
     assign_public_ip = true
   }
 }
@@ -203,8 +203,8 @@ resource "aws_ecs_service" "worker_service" {
   launch_type     = "FARGATE"
   desired_count   = 1
   network_configuration {
-    subnets         = data.aws_subnets.default.ids
-    security_groups = [aws_security_group.ecs_sg.id]
+    subnets          = data.aws_subnets.default.ids
+    security_groups  = [aws_security_group.ecs_sg.id]
     assign_public_ip = true
   }
 }
