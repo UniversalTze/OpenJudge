@@ -15,7 +15,7 @@ export default function AuthProtection({ children }: {children: React.ReactNode}
       } else {
         const response = await refresh();
         await new Promise((resolve) => setTimeout(resolve, 1000));
-        if (response.success && accessToken) {
+        if (response.success) {
           setLoading(false);
         } else {
           toast.error("Please sign in to access this page");

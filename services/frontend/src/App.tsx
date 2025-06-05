@@ -14,6 +14,8 @@ import AboutPage from "./pages/AboutPage";
 import NotFound from "./pages/NotFound";
 import AuthProtection from "./components/AuthProtection";
 import SampleProblemResultPage from "./pages/SampleProblemResultPage";
+import VerifyPage from "./pages/VerifyPage";
+import DashboardPage from "./pages/DashboardPage";
 
 const App = () => (
   <AuthProvider>
@@ -22,7 +24,7 @@ const App = () => (
       <BrowserRouter>
         <div className="flex flex-col min-h-screen">
           <Navbar />
-          <main className="sm:flex-grow">
+          <main className="ssm:flex-grow">
             <Routes>
               <Route path="/" element={<HomePage />} />
               <Route path="/login" element={<LoginPage />} />
@@ -58,6 +60,15 @@ const App = () => (
                   </AuthProtection>
                 }
               />
+              <Route
+                path="/dashboard"
+                element={
+                  <AuthProtection>
+                    <DashboardPage />
+                  </AuthProtection>
+                }
+              />
+              <Route path="/verify" element={<VerifyPage />} />
               <Route path="/about" element={<AboutPage />} />
               <Route path="*" element={<NotFound />} />
             </Routes>

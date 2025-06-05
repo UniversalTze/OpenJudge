@@ -1,4 +1,4 @@
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Link, useNavigate } from "react-router-dom";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -12,7 +12,7 @@ import SkillSlider from "@/components/Slider";
 
 const LoginPage = () => {
   const navigate = useNavigate();
-  const { login, register } = useAuth();
+  const { login, register, accessToken } = useAuth();
   const [skillLevel, setSkillLevel] = useState<"Beginner" | "Intermediate" | "Advanced">("Beginner");
   const [loginEmail, setLoginEmail] = useState("");
   const [loginPassword, setLoginPassword] = useState("");
@@ -21,6 +21,10 @@ const LoginPage = () => {
   const [signupEmail, setSignupEmail] = useState("");
   const [signupPassword, setSignupPassword] = useState("");
   const [isLoading, setIsLoading] = useState(false);
+
+  if (accessToken) {
+    navigate("/problems");
+  }
 
   const handleLogin = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -31,12 +35,16 @@ const LoginPage = () => {
         email: loginEmail,
         password: loginPassword
       });
+
+      if (!response || !response.success) {
+        throw new Error(response.message || "Login failed");
+      }
       
       toast.success("Logged in successfully!");
       
       navigate("/problems");
     } catch (error) {
-      toast.error("Login failed - please check your credentials and try again.")
+      toast.error(error.message || "Login failed");
     } finally {
       setIsLoading(false);
     }
@@ -88,10 +96,10 @@ const LoginPage = () => {
             <Tabs defaultValue="login" className="w-full">
               <TabsList className="grid w-full grid-cols-2 mb-6">
                 <TabsTrigger value="login" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                  <LogIn className="h-4 w-4 mr-2" /> Login
+                  Login
                 </TabsTrigger>
                 <TabsTrigger value="signup" className="data-[state=active]:bg-primary data-[state=active]:text-primary-foreground">
-                  <UserPlus className="h-4 w-4 mr-2" /> Sign Up
+                  Sign Up
                 </TabsTrigger>
               </TabsList>
               
@@ -169,7 +177,7 @@ const LoginPage = () => {
                       />
                     </div>
                   </div>
-                  <SkillSlider setSkillLevel={setSkillLevel} />
+                  <SkillSlider setSkillLevel={setSkillLevel} skillLevel={skillLevel} />
                   <div className="space-y-2">
                     <Label htmlFor="signup-email">Email</Label>
                     <Input

@@ -73,7 +73,27 @@ export const AuthContext = createContext<AuthContextType | null>(null);
 export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children }) => {
   const [user, setUser] = React.useState<User | null>(null);
   const [accessToken, setAccessToken] = React.useState<string | null>(null);
-  
+
+  useEffect(() => {
+    const fetchUser = async () => {
+      if (accessToken) {
+        await getUser();
+      }
+    };
+
+    fetchUser();
+  }, [accessToken]);
+
+  const handleRefresh = async () => {
+    const response = await refresh();
+  }
+
+  useEffect(() => {
+    if (!accessToken) {
+      handleRefresh();
+    }
+  }, [accessToken]);
+
   async function login(body: LoginRequest) {
       const response = await apiClient.post<LoginResponse>(
         API_ENDPOINTS.AUTH.LOGIN,
@@ -199,7 +219,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
 
     async function verify(body: VerifyRequest) {
       const response = await apiClient.post<null>(
-        API_ENDPOINTS.AUTH.PROFILE,
+        API_ENDPOINTS.AUTH.VERIFY_EMAIL,
         {
           headers: {
             'Content-Type': 'application/json'

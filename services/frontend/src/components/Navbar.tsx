@@ -33,7 +33,6 @@ const Navbar = () => {
           ) : (
             <Link to="/login">
               <Button className="flex items-center space-x-1">
-                <LogIn className="h-4 w-4 mr-1" />
                 <span>Sign In</span>
               </Button>
             </Link>
@@ -86,7 +85,6 @@ const Navbar = () => {
               ) : (
                 <Link to="/login" onClick={() => setIsOpen(false)}>
                   <Button className="w-full flex items-center justify-center">
-                    <LogIn className="h-4 w-4 mr-1" />
                     <span>Sign In</span>
                   </Button>
                 </Link>

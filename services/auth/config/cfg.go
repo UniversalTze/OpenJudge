@@ -7,8 +7,6 @@ import (
 	"net/url"
 	"os"
 	"strconv"
-
-	"github.com/joho/godotenv"
 )
 
 type Config struct {
@@ -29,13 +27,6 @@ type Config struct {
  * Loads and validates the environment variables and sets a config struct
  */
 func Load() Config {
-	err := godotenv.Load()
-	if err != nil {
-		log.Print(
-			"Warning: Failed to load .env file. If this is in a production environment or within a " +
-			"docker container, and environment variables have been declared elsewhere, you can " +
-			"disregard this warning.")
-	}
 	env := os.Getenv("ENV")
 	if env == "" {
 		log.Fatalf("Error: Environment variable 'ENV' is not set.")

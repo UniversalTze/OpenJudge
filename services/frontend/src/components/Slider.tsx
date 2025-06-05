@@ -13,8 +13,8 @@ const skillLevels: {
   { id: 2, value: "Advanced" },
 ]
 
-export default function SkillSlider({ setSkillLevel }: { setSkillLevel: (level: "Beginner" | "Intermediate" | "Advanced") => void }) {
-  const [selectedLevel, setSelectedLevel] = useState(0)
+export default function SkillSlider({ skillLevel, setSkillLevel }: { skillLevel: "Beginner" | "Intermediate" | "Advanced"; setSkillLevel: (level: "Beginner" | "Intermediate" | "Advanced") => void }) {
+  const [selectedLevel, setSelectedLevel] = useState(skillLevels.findIndex(level => level.value === skillLevel) || 0)
   const [isDragging, setIsDragging] = useState(false)
   const sliderRef = useRef<HTMLDivElement>(null)
 

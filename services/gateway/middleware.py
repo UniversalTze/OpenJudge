@@ -81,7 +81,7 @@ async def authorise_request(request: Request, call_next):
             if not jti:
                 return PlainTextResponse(
                     status_code=401,
-                    content="Token validation failed"
+                    content="Access token missing claims"
                 )
             
             redis = request.app.state.redis_client
@@ -89,36 +89,37 @@ async def authorise_request(request: Request, call_next):
             if is_revoked:
                 return PlainTextResponse(
                     status_code=401,
-                    content="Token has been revoked"
+                    content="Access token has been revoked"
                 )
             
             expiry = payload.get("exp")
             if not expiry:
                 return PlainTextResponse(
                     status_code=401,
-                    content="Token validation failed"
+                    content="Access token missing claims"
                 )
-            
+
             if expiry < time.time():
                 return PlainTextResponse(
                     status_code=401,
-                    content="Token has expired"
+                    content="Access token has expired"
                 )
 
         except InvalidTokenError:
             return PlainTextResponse(
                 status_code=401,
-                content="Invalid token" 
+                content="Invalid access token"
             )
         except Exception:
-                return PlainTextResponse(
-                    status_code=401,
-                    content="Token validation failed"
-                )
-    
+            return PlainTextResponse(
+                status_code=401,
+                content="Access token validation failed"
+            )
+
     # Check refresh token routes
     elif request.url.path.startswith("/refresh"):
         token = request.cookies.get("refreshToken")
+        print(f"Refresh token: {token}")
         if not token:
             return PlainTextResponse(
                 status_code=401,
@@ -131,7 +132,7 @@ async def authorise_request(request: Request, call_next):
             if not jti:
                 return PlainTextResponse(
                     status_code=401,
-                    content="Token validation failed"
+                    content="Refresh token missing claims"
                 )
             
             redis = request.app.state.redis_client
@@ -139,31 +140,31 @@ async def authorise_request(request: Request, call_next):
             if is_revoked:
                 return PlainTextResponse(
                     status_code=401,
-                    content="Token has been revoked"
+                    content="Refresh token has been revoked"
                 )
 
             expiry = payload.get("exp")
             if not expiry:
                 return PlainTextResponse(
                     status_code=401,
-                    content="Token validation failed"
+                    content="Refresh token missing claims"
                 )
 
             if expiry < time.time():
                 return PlainTextResponse(
                     status_code=401,
-                    content="Token has expired"
+                    content="Refresh token has expired"
                 )
                 
         except InvalidTokenError:
             return PlainTextResponse(
                 status_code=401,
-                content="Invalid token"
+                content="Invalid refresh token"
             )
         except Exception:
             return PlainTextResponse(
                 status_code=401,
-                content="Token validation failed"
+                content="Refresh token validation failed"
             )
 
     # Continue to next middleware/route handler
