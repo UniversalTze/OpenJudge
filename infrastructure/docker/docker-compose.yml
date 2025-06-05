@@ -124,7 +124,7 @@ services:
     container_name: submission_database
     restart: unless-stopped
     ports:
-      - "${PROBLEMS_DATABASE_PORT}:5432"
+      - "${SUBMISSION_DATABASE_PORT}:5432"
     environment:
       POSTGRES_USER: ${SUBMISSION_DATABASE_USER}
       POSTGRES_PASSWORD: ${SUBMISSION_DATABASE_PASSWORD}
