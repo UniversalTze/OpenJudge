@@ -1,6 +1,6 @@
 from flask import Flask
 from app.config import config
-from app.models.models import db, Submission
+from app.models.models import db
 
 def create_app():
     app = Flask(__name__)
