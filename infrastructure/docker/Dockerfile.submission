@@ -1,34 +1,55 @@
-FROM python:3.12-slim
+# FROM python:3.12-slim
 
-RUN apt-get update && apt-get install -y --no-install-recommends \
-    libpq-dev \
-    gcc \
-    g++ \
-    python3-dev \
-    curl \
-    ca-certificates \
-    pkg-config \
-    libssl-dev \
-    dos2unix \
-    && rm -rf /var/lib/apt/lists/*
+# RUN apt-get update && apt-get install -y --no-install-recommends \
+#     libpq-dev \
+#     gcc \
+#     g++ \
+#     python3-dev \
+#     curl \
+#     ca-certificates \
+#     pkg-config \
+#     libssl-dev \
+#     dos2unix \
+#     && rm -rf /var/lib/apt/lists/*
 
-RUN pip install --no-cache-dir uv
+# RUN pip install --no-cache-dir uv
 
-WORKDIR /app
+# WORKDIR /app
 
-# Copy dependency definition files first for effective Docker caching
-COPY uv.lock pyproject.toml ./
+# # Copy dependency definition files first for effective Docker caching
+# COPY uv.lock pyproject.toml ./
 
-RUN dos2unix uv.lock
+# RUN dos2unix uv.lock
+
+# # Install project dependencies
+# RUN --mount=type=cache,target=/root/.cache/uv \
+#     uv sync --frozen --no-install-project
+
+# # Copy project files
+# COPY ./app ./app/
+# COPY run.py .
+
+# EXPOSE 5000
+
+# CMD ["uv", "run", "uvicorn", "run:app", "--host", "0.0.0.0", "--port", "5000"]
+
+# Install Base Layer
+FROM ubuntu:24.04
+
+# # Install engine and poetry dependencies.
+RUN apt-get update && apt-get install -y wget steghide pipx python3.12 python3-pip && rm -rf /var/lib/apt/lists/*
+RUN pipx ensurepath 
+RUN pipx install poetry 
+
+WORKDIR /app 
+# # Copy project files
+COPY run.py uv.lock pyproject.toml ./
+
+COPY ./app ./app/
 
 # Install project dependencies
-RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --frozen --no-install-project
-
-# Copy project files
-COPY ./app ./app/
-COPY run.py .
-
-EXPOSE 5000
-
-CMD ["uv", "run", "uvicorn", "run:app", "--host", "0.0.0.0", "--port", "5000"]
+RUN pipx run poetry install --no-root 
+  
+# Start api
+EXPOSE 8080
+CMD ["pipx", "run", "poetry", "run", "gunicorn", "--bind", "0.0.0.0:8080", "--workers", "9", "run:app"]
