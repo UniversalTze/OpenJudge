@@ -20,6 +20,8 @@ async def get_problem(id: str, db: AsyncSession = Depends(get_db)):
         description=prob.description,
         examples=prob.examples,
         constraints= prob.constraints,
+        function_name=prob.function_name,
+        return_type=prob.return_type,
         test_cases=prob.test_cases,
         hint=prob.hint,
         created_at=prob.created_at.isoformat(timespec='seconds'))
@@ -38,6 +40,8 @@ async def get_problems(db: AsyncSession = Depends(get_db)):
         description=prob.description,
         examples=prob.examples,
         constraints= prob.constraints,
+        function_name=prob.function_name,
+        return_type=prob.return_type,
         test_cases=prob.test_cases,
         hint=prob.hint,
         created_at=prob.created_at.isoformat(timespec='seconds')) for prob in problems]

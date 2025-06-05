@@ -15,6 +15,8 @@ export interface Problem {
     output: string;
     hidden: boolean;
   }>;
+  return_type: "string" | "integer" | "boolean";
+  function_name: string;
   hint: string;
   createdAt: string;
   updatedAt: string;
@@ -30,6 +32,8 @@ export interface DatabaseRecord {
   constraints: string[];
   test_cases: string;
   hint: string;
+  return_type: "string" | "integer" | "boolean";
+  function_name: string;
   createdAt: string;
   updatedAt: string;
 }

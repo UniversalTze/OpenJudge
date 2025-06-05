@@ -28,6 +28,19 @@ const ProblemDetailPage = () => {
   const [problem, setProblem] = useState<Problem | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
+  function determineType(type: "boolean" | "integer" | "string", language: "Java" | "Python"): string {
+    switch (type) {
+      case "boolean":
+        return language === "Java" ? "boolean" : "bool";
+      case "integer":
+        return language === "Java" ? "int" : "int";
+      case "string":
+        return language === "Java" ? "String" : "str";
+      default:
+        return "";
+    }
+  }
+
   async function getProblem() {
     const response = await apiClient.get<DatabaseRecord>(API_ENDPOINTS.PROBLEMS.ID(id), {
       headers: {
@@ -41,11 +54,6 @@ const ProblemDetailPage = () => {
         examples: JSON.parse(response.data.examples || "[]"),
         test_cases: JSON.parse(response.data.test_cases || "[]"),
       });
-      setCode(
-        `def ${response.data.function_name ?? "function_name"}():\n    """${
-          response.data.description
-        }"""\n    #...\n`
-      );
     } else {
       console.error("Failed to fetch problem:", response.message);
       toast.error("Problem not found or access denied.");
@@ -65,16 +73,16 @@ const ProblemDetailPage = () => {
   }
 
   useEffect(() => {
-    if (language === "Java") {
+    if (problem && language === "Java") {
       setCode(
-        `/** \n * ${problem?.description}\n * \n */ \npublic class Solution {\n    public static void ${problem?.function_name ?? "FunctionName"}(String[] args) {\n        // Your code here\n    }\n}`
+        `/** \n * ${problem?.description}\n * \n */ \npublic class Solution {\n    public static ${determineType(problem.return_type, language)} ${problem?.function_name ?? "FunctionName"}(/*Insert*/) {\n        // Your code here\n    }\n}`
       );
-    } else if (language === "Python") {
-      setCode(`def ${problem.function_name ?? "function_name"}():\n    """${problem.description}"""\n    #...`
+    } else if (problem && language === "Python") {
+      setCode(`def ${problem.function_name ?? "function_name"}("""Insert""") -> ${determineType(problem.return_type, language)}:\n    """${problem.description}"""\n    #...`
       );
     }
   }
-  , [language]);
+  , [language, problem]);
 
   useEffect(() => {
     loadCodeFromLocalStorage(setCode);
@@ -291,13 +299,13 @@ const ProblemDetailPage = () => {
                     <div>
                       <span className="text-xs text-muted-foreground">Input:</span>
                       <pre className="mt-1 bg-secondary/70 p-2 rounded overflow-x-auto font-code text-xs">
-                        {testCase.input}
+                        {testCase.input.toString()}
                       </pre>
                     </div>
                     <div>
                       <span className="text-xs text-muted-foreground">Expected:</span>
                       <pre className="mt-1 bg-secondary/70 p-2 rounded overflow-x-auto font-code text-xs">
-                        {testCase.output}
+                        {testCase.output.toString()}
                       </pre>
                     </div>
                   </div>
@@ -362,13 +370,13 @@ const ProblemDetailPage = () => {
                           <div>
                             <span className="text-xs text-muted-foreground">Input:</span>
                             <pre className="mt-1 bg-primary/10 p-2 rounded overflow-x-auto font-code text-xs">
-                              {testCase.input}
+                              {testCase.input.toString()}
                             </pre>
                           </div>
                           <div>
                             <span className="text-xs text-muted-foreground">Expected:</span>
                             <pre className="mt-1 bg-primary/10 p-2 rounded overflow-x-auto font-code text-xs">
-                              {testCase.output}
+                              {testCase.output.toString()}
                             </pre>
                           </div>
                         </div>
@@ -402,10 +410,6 @@ const ProblemDetailPage = () => {
             </Select>
 
             <div className="flex gap-2">
-              <Button variant="outline" onClick={handleRunCode} disabled={isSubmitting}>
-                <Play className="h-4 w-4 mr-1" />
-                Run
-              </Button>
               <Button onClick={handleSubmit} disabled={isSubmitting}>
                 {isSubmitting ? "Submitting..." : "Submit"}
               </Button>
