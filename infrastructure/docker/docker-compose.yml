@@ -119,7 +119,7 @@ services:
 
   submission_database:
     image: postgres:15
-    container_name: problems_database
+    container_name: submission_database
     restart: unless-stopped
     ports:
       - "${PROBLEMS_DATABASE_PORT}:5432"
