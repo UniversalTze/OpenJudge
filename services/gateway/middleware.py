@@ -13,7 +13,7 @@ async def rate_limit_middleware(request: Request, call_next):
     try:
         client_ip = get_remote_address(request)
         path = request.url.path
-        if path.startswith("/submissions") and request.method == "POST":
+        if path.startswith("/submission") and request.method == "POST":
             limit_key = f"submissions:{client_ip}"
             if not await _check_rate_limit(request, limit_key, 5, 60):
                 return PlainTextResponse(
@@ -65,7 +65,7 @@ async def authorise_request(request: Request, call_next):
     """
     Middleware to authorize requests
     """
-    if request.url.path.startswith(("/user", "/submissions", "/problems")):
+    if request.url.path.startswith(("/user", "/submission", "/problems")):
         auth_header = request.headers.get("Authorization")
         if not auth_header or not auth_header.startswith("Bearer "):
             return PlainTextResponse(
@@ -104,7 +104,14 @@ async def authorise_request(request: Request, call_next):
                     status_code=401,
                     content="Access token has expired"
                 )
-
+            
+            user = payload.get("sub")
+            if not user:
+                return PlainTextResponse(
+                    status_code=401,
+                    content="Access token missing claims"
+                )
+            request.state.user = user 
         except InvalidTokenError:
             return PlainTextResponse(
                 status_code=401,

@@ -216,22 +216,22 @@ async def list_problems(request: Request):
 
 
 # Submission endpoints
-@app.post("/submissions")
+@app.post("/submission")
 async def submit_code_for_problem(request: Request):
     client = request.app.state.http_client
-    target_url = f"{config.SUBMISSION_SERVICE_URL}/submissions"
+    target_url = f"{config.SUBMISSION_SERVICE_URL}/submission"
     return await forward_request(request, target_url, client)
 
 
-@app.get("/submissions/{id}")
+@app.get("/submission/{id}")
 async def get_submission_details(request: Request, id: str):
     client = request.app.state.http_client
-    target_url = f"{config.SUBMISSION_SERVICE_URL}/submissions/{id}"
+    target_url = f"{config.SUBMISSION_SERVICE_URL}/submission/{id}"
     return await forward_request(request, target_url, client)
 
 
-@app.get("/submissions")
+@app.get("/submission")
 async def list_user_submissions(request: Request):
     client = request.app.state.http_client
-    target_url = f"{config.SUBMISSION_SERVICE_URL}/submissions"
+    target_url = f"{config.SUBMISSION_SERVICE_URL}/submission/history/{request.state.user}"
     return await forward_request(request, target_url, client)

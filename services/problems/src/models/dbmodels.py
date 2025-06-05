@@ -5,7 +5,7 @@ from sqlalchemy.dialects.postgresql import ARRAY
 from datetime import datetime
 
 class Problems(Base): 
-    __tablename__ = 'problembank'
+    __tablename__ = 'problems'
     problem_id = Column(String, primary_key=True)
     problem_title = Column(String, nullable=False)
     difficulty = Column(String, nullable=False)

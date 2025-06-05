@@ -15,8 +15,12 @@ networks:
     name: api
     driver: bridge
 
-  main:
-    name: main
+  problems:
+    name: problems
+    driver: bridge
+
+  submission:
+    name: submission
     driver: bridge
 
   queue:
@@ -38,7 +42,9 @@ services:
     ports:
       - "${AUTH_SERVICE_PORT}:8080"
     depends_on:
-      - user_database
+      user_database:
+        condition: service_healthy
+        restart: true
     networks:
       - auth
       - gateway
@@ -51,17 +57,17 @@ services:
     container_name: problems_service
     restart: unless-stopped
     environment:
-      SQLALCHEMY_DATABASE_URI: "postgresql+asyncpg://${MAIN_DATABASE_USER}:${MAIN_DATABASE_PASSWORD}@main_database:5432/${MAIN_DATABASE_NAME}"
+      SQLALCHEMY_DATABASE_URI: "postgresql+asyncpg://${PROBLEMS_DATABASE_USER}:${PROBLEMS_DATABASE_PASSWORD}@problems_database:5432/${PROBLEMS_DATABASE_NAME}"
     env_file:
       - ../../.env
     ports:
       - "${PROBLEMS_SERVICE_PORT}:6400"
     depends_on:
-      main_database:
+      problems_database:
         condition: service_healthy
         restart: true
     networks:
-      - main
+      - problems
       - gateway
 
   submission_service:
@@ -72,39 +78,61 @@ services:
     container_name: submission_service
     restart: unless-stopped
     environment:
-      DATABASE_URL: "postgres://${MAIN_DATABASE_USER}:${MAIN_DATABASE_PASSWORD}@main_database:5432/${MAIN_DATABASE_NAME}?sslmode=disable"
+      DATABASE_URL: "postgres://${SUBMISSION_DATABASE_USER}:${SUBMISSION_DATABASE_PASSWORD}@submission_database:5432/${SUBMISSION_DATABASE_NAME}?sslmode=disable"
       REDIS_URL: "redis://queue:6379"
+      PROBLEMS_SERVICE_URL: "http://problems_service:6400"
     env_file:
       - ../../.env
     ports:
       - "${SUBMISSION_SERVICE_PORT}:5000"
     depends_on:
-      main_database:
+      problems_database:
         condition: service_healthy
         restart: true
       queue:
         condition: service_healthy
     networks:
-      - main
+      - submission
       - gateway
       - queue
 
-  main_database:
+  problems_database:
     image: postgres:15
-    container_name: main_database
+    container_name: problems_database
     restart: unless-stopped
     ports:
-      - "${MAIN_DATABASE_PORT}:5432"
+      - "${PROBLEMS_DATABASE_PORT}:5432"
     environment:
-      POSTGRES_USER: ${MAIN_DATABASE_USER}
-      POSTGRES_PASSWORD: ${MAIN_DATABASE_PASSWORD}
-      POSTGRES_DB: ${MAIN_DATABASE_NAME}
+      POSTGRES_USER: ${PROBLEMS_DATABASE_USER}
+      POSTGRES_PASSWORD: ${PROBLEMS_DATABASE_PASSWORD}
+      POSTGRES_DB: ${PROBLEMS_DATABASE_NAME}
     volumes:
       - main_data:/var/lib/postgresql/data
     networks:
-      - main
+      - problems
     healthcheck:
-      test: ["CMD-SHELL", "pg_isready -U ${MAIN_DATABASE_USER} -d ${MAIN_DATABASE_NAME}"]
+      test: ["CMD-SHELL", "pg_isready -U ${PROBLEMS_DATABASE_USER} -d ${PROBLEMS_DATABASE_NAME}"]
+      interval: 5s
+      retries: 10
+      start_period: 60s
+      timeout: 20s
+
+  submission_database:
+    image: postgres:15
+    container_name: problems_database
+    restart: unless-stopped
+    ports:
+      - "${PROBLEMS_DATABASE_PORT}:5432"
+    environment:
+      POSTGRES_USER: ${SUBMISSION_DATABASE_USER}
+      POSTGRES_PASSWORD: ${SUBMISSION_DATABASE_PASSWORD}
+      POSTGRES_DB: ${SUBMISSION_DATABASE_NAME}
+    volumes:
+      - main_data:/var/lib/postgresql/data
+    networks:
+      - submission
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${SUBMISSION_DATABASE_USER} -d ${SUBMISSION_DATABASE_NAME}"]
       interval: 5s
       retries: 10
       start_period: 60s
@@ -124,6 +152,12 @@ services:
       - user_data:/var/lib/postgresql/data
     networks:
       - auth
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${USER_DATABASE_USER} -d ${USER_DATABASE_NAME}"]
+      interval: 5s
+      retries: 10
+      start_period: 60s
+      timeout: 20s
 
   redis:
     image: redis:7
