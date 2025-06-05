@@ -51,14 +51,11 @@ resource "aws_security_group" "ExecutionSecurityGroup" {
 
 ############################################################################
 # ECS Cluster
-resource "aws_ecs_cluster" "ExecutionServiceCluster" {
-  name = "ExecutionServiceCluster"
-}
 
 # Python
 resource "aws_ecs_service" "ExecutionPythonService" {
   name            = "ExecutionPythonService"
-  cluster         = aws_ecs_cluster.ExecutionServiceCluster.id
+  cluster         = aws_ecs_cluster.open-judge-cluster.id
   task_definition = aws_ecs_task_definition.ExecutionPythonTask.arn
   desired_count   = 1
   launch_type     = "FARGATE"
@@ -135,7 +132,7 @@ resource "aws_ecs_task_definition" "ExecutionPythonTask" {
 # Java
 resource "aws_ecs_service" "ExecutionJavaService" {
   name            = "ExecutionJavaService"
-  cluster         = aws_ecs_cluster.ExecutionServiceCluster.id
+  cluster         = aws_ecs_cluster.open-judge-cluster.id
   task_definition = aws_ecs_task_definition.ExecutionJavaTask.arn
   desired_count   = 1
   launch_type     = "FARGATE"
@@ -216,7 +213,7 @@ resource "aws_ecs_task_definition" "ExecutionJavaTask" {
 resource "aws_appautoscaling_target" "ExecutionPythonAutoScalingTarget" {
   max_capacity       = 3
   min_capacity       = 1
-  resource_id        = "service/${aws_ecs_cluster.ExecutionServiceCluster.name}/${aws_ecs_service.ExecutionPythonService.name}"
+  resource_id        = "service/${aws_ecs_cluster.open-judge-cluster.name}/${aws_ecs_service.ExecutionPythonService.name}"
   scalable_dimension = "ecs:service:DesiredCount"
   service_namespace  = "ecs"
 }
@@ -241,7 +238,7 @@ resource "aws_appautoscaling_policy" "ExecutionPythonAutoScalingPolicy" {
 resource "aws_appautoscaling_target" "ExecutionJavaAutoScalingTarget" {
   max_capacity       = 3
   min_capacity       = 1
-  resource_id        = "service/${aws_ecs_cluster.ExecutionServiceCluster.name}/${aws_ecs_service.ExecutionJavaService.name}"
+  resource_id        = "service/${aws_ecs_cluster.open-judge-cluster.name}/${aws_ecs_service.ExecutionJavaService.name}"
   scalable_dimension = "ecs:service:DesiredCount"
   service_namespace  = "ecs"
 }
