@@ -1,3 +1,7 @@
+from app import create_app
+
+app = create_app()
+
 # from flask import Flask, request, jsonify
 # import json
 # import re
