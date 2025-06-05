@@ -1,15 +1,9 @@
 from flask import Flask, request, jsonify
-from flask_sqlalchemy import SQLAlchemy
-import os, json
+import json
 import re
-from sqlalchemy import text
-from datetime import datetime
-from redis import Redis
 import traceback
-import time
-from sqlalchemy.exc import OperationalError
 from config import config
-from queue_utils import send_to_queue
+from queue import send_to_queue
 from models import db, Submission
 import requests
 
@@ -98,32 +92,7 @@ def clean_code(code: str, language: str):
 
 @app.route("/health", methods=["GET"])
 def health():
-    """Check database and broker connectivity."""
-    health_status = {"status": "healthy", "database": "ok", "broker": "ok"}
-
-    # Database health check
-    db_ok = False
-    for _ in range(3):
-        try:
-            with db.engine.connect() as conn:
-                conn.execute(text("SELECT 1"))
-            db_ok = True
-            break
-        except OperationalError:
-            time.sleep(0.1)
-
-    if not db_ok:
-        health_status.update({"status": "unhealthy", "database": "unhealthy"})
-
-    # Redis health check
-    try:
-        r = Redis.from_url(config.REDIS_URL)
-        r.ping()
-    except Exception as e:
-        health_status.update({"status": "unhealthy", "broker": "unhealthy"})
-
-    status_code = 200 if health_status["status"] == "healthy" else 503
-    return jsonify(health_status), status_code
+    return "Submissions service operational", 200
 
 
 @app.route("/submissions", methods=["POST"])

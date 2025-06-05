@@ -13,10 +13,8 @@ def get_env(key: str) -> str:
 
 class Config:
     def __init__(self):
-        self.DATABASE_URL = get_env("DATABASE_URL")
         self.BROKER_URL = get_env("BROKER_URL")
-        self.PROBLEMS_SERVICE_URL = get_env("PROBLEMS_SERVICE_URL")
-        self.JAVA_QUEUE = get_env("JAVA_QUEUE")
-        self.PYTHON_QUEUE = get_env("PYTHON_QUEUE")
+        self.OUTPUT_QUEUE = get_env("OUTPUT_QUEUE")
+        self.DATABASE_URL = get_env("DATABASE_URL")
 
 config = Config()

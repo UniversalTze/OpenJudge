@@ -79,7 +79,7 @@ services:
     restart: unless-stopped
     environment:
       DATABASE_URL: "postgres://${SUBMISSION_DATABASE_USER}:${SUBMISSION_DATABASE_PASSWORD}@submission_database:5432/${SUBMISSION_DATABASE_NAME}?sslmode=disable"
-      REDIS_URL: "redis://queue:6379"
+      BROKER_URL: "redis://queue:6379"
       PROBLEMS_SERVICE_URL: "http://problems_service:6400"
     env_file:
       - ../../.env
