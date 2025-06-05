@@ -16,20 +16,20 @@ tasks:
   run:execution:
     desc: Run the execution service in development mode.
     cmds:
-      - docker compose -f infrastructure/docker/docker-compose.yml -p openjudge up queue python-executor java-executor --build -d
+      - docker compose -f infrastructure/docker/docker-compose.yml -p openjudge up execution-submission-queue python-executor java-executor --build -d
     silent: true
 
   test:execution:
     desc: Run the execution service in development mode, and then runs unit tests against this service.
     cmds:
-      - docker compose -f infrastructure/docker/docker-compose.yml -p openjudge up queue python-executor java-executor execution-test-client --build -d
+      - docker compose -f infrastructure/docker/docker-compose.yml -p openjudge up execution-submission-queue python-executor java-executor execution-test-client --build -d
       - docker compose -f infrastructure/docker/docker-compose.yml -p openjudge exec execution-test-client python test_client.py
     silent: true
 
   down:execution:
     desc: Tear down local docker containers for execution service
     cmds:
-      - docker compose -f infrastructure/docker/docker-compose.yml -p openjudge down queue python-executor java-executor execution-test-client
+      - docker compose -f infrastructure/docker/docker-compose.yml -p openjudge down execution-submission-queue python-executor java-executor execution-test-client
     silent: true
 
   # FRONTEND COMMANDS

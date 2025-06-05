@@ -175,9 +175,9 @@ services:
       timeout: 3s
       retries: 5
 
-  queue:
+  execution-submission-queue:
     image: redis:7
-    container_name: queue
+    container_name: execution-submission-queue
     restart: unless-stopped
     ports:
       - "${QUEUE_PORT}:6379"
@@ -197,7 +197,7 @@ services:
       dockerfile: ../../infrastructure/docker/Dockerfile.python
     restart: always
     environment:
-      CELERY_BROKER_URL: redis://queue:6379
+      CELERY_BROKER_URL: redis://execution-submission-queue:6379
       TARGET_QUEUE: pythonq
       OUTPUT_QUEUE: outputq
       LANGUAGE: python
@@ -214,7 +214,7 @@ services:
       dockerfile: ../../infrastructure/docker/Dockerfile.java
     restart: always
     environment:
-      CELERY_BROKER_URL: redis://queue:6379
+      CELERY_BROKER_URL: redis://execution-submission-queue:6379
       TARGET_QUEUE: javaq
       OUTPUT_QUEUE: outputq
       LANGUAGE: java
@@ -231,14 +231,13 @@ services:
       dockerfile: ../../infrastructure/docker/execution/Dockerfile.test
     restart: always
     environment:
-      CELERY_BROKER_URL: redis://redis:6379
+      CELERY_BROKER_URL: redis://execution-submission-queue:6379
     command: bash -c "echo 'Test client container is running. Connect with `docker compose exec test-client bash`'; while true; do sleep 360; done" # Loop indefinitely in main thread
     depends_on:
       queue:
         condition: service_healthy
     networks:
       - queue
-
 
   gateway:
     build: { 
