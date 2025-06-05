@@ -13,6 +13,8 @@ class Problems(Base):
     description = Column(Text, nullable=False)
     examples = Column(Text, nullable=False)
     constraints = Column(ARRAY(Text), nullable=False)
+    function_name = Column(String, nullable=False)
+    return_type = Column(String, nullable=False)
     test_cases = Column(Text, nullable=False)
     hint = Column(String, nullable=False)
     created_at = Column(DateTime(timezone=True), nullable=False, default=datetime.now())

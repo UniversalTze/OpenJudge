@@ -56,11 +56,14 @@ async def seed_from_json(json_path: str, db:AsyncSession):
                 problem_title = problem["title"],
                 difficulty = problem["difficulty"],
                 topics = problem["tags"],
-                description=problem["description"],
+                description=problem["description"],                
                 examples = json.dumps(problem["examples"]),
                 constraints = problem["constraints"],
                 test_cases = json.dumps(problem["testCases"]),
-                hint = problem["solutionHint"])
+                hint = problem["solutionHint"],
+                function_name = problem["functionName"],
+                return_type = problem["returnType"]
+            )
             logger.info(f"Adding {problem["title"]} to DB")
             db.add(question)
             await db.commit()

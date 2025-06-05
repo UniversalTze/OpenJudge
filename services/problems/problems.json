@@ -1,59 +1,6 @@
 [
   {
     "id": "1",
-    "title": "Two Sum",
-    "difficulty": "Easy",
-    "tags": ["Array", "Hash Table"],
-    "description": "Given an array of integers nums and an integer target, return indices of the two numbers such that they add up to target.\n\nYou may assume that each input would have exactly one solution, and you may not use the same element twice.\n\nYou can return the answer in any order.",
-    "examples": [
-      {
-        "input": "nums = [2,7,11,15], target = 9",
-        "output": "[0,1]",
-        "explanation": "Because nums[0] + nums[1] == 9, we return [0, 1]."
-      },
-      {
-        "input": "nums = [3,2,4], target = 6",
-        "output": "[1,2]",
-        "explanation": "Because nums[1] + nums[2] == 6, we return [1, 2]."
-      }
-    ],
-    "constraints": [
-      "2 <= nums.length <= 10^4",
-      "-10^9 <= nums[i] <= 10^9",
-      "-10^9 <= target <= 10^9",
-      "Only one valid answer exists."
-    ],
-    "testCases": [
-      {
-        "input": [[2,7,11,15],9],
-        "output": [0,1],
-        "hidden": false
-      },
-      {
-        "input": [[3,2,4],6],
-        "output": [1,2],
-        "hidden": false
-      },
-      {
-        "input": [[3,3],6],
-        "output": [0,1],
-        "hidden": true
-      },
-      {
-        "input": [[1,5,8,3,9,2],7],
-        "output": "[0,5]",
-        "hidden": true
-      },
-      {
-        "input": [[1,2,3,4,5],10],
-        "output": [],
-        "hidden": true
-      }
-    ],
-    "solutionHint": "Try using a hash map to store numbers and their indices as you iterate through the array."
-  },
-  {
-    "id": "2",
     "title": "Palindrome Number",
     "difficulty": "Easy",
     "tags": ["Math", "String", "Two Pointers"],
@@ -100,10 +47,12 @@
         "hidden": true
       }
     ],
+    "returnType": "boolean",
+    "functionName" : "IsPalindrome",
     "solutionHint": "Convert to string and use two pointer approach. Is there a way of doing this without converting to a string? (math ->  (modulus and division))"
   },
   {
-    "id": "3",
+    "id": "2",
     "title": "Maximum Subarray",
     "difficulty": "Medium",
     "tags": ["Array", "Divide and Conquer", "Dynamic Programming"],
@@ -149,59 +98,12 @@
         "hidden": true
       }
     ],
+    "returnType": "integer",
+    "functionName": "MaxSubArray",
     "solutionHint": "Look into Kadane's algorithm for an optimal approach. Consider the maximum subarray that ends at each position."
   },
   {
-    "id": "4",
-    "title": "Merge Two Sorted Lists",
-    "difficulty": "Easy",
-    "tags": ["Linked List", "Recursion"],
-    "description": "You are given the heads of two sorted linked lists list1 and list2.\n\nMerge the two lists in a one sorted list. The list should be made by splicing together the nodes of the first two lists.\n\nReturn the head of the merged linked list.",
-    "examples": [
-      {
-        "input": "list1 = [1,2,4], list2 = [1,3,4]",
-        "output": "[1,1,2,3,4,4]"
-      },
-      {
-        "input": "list1 = [], list2 = []",
-        "output": "[]"
-      },
-      {
-        "input": "list1 = [], list2 = [0]",
-        "output": "[0]"
-      }
-    ],
-    "constraints": [
-      "The number of nodes in both lists is in the range [0, 50].",
-      "-100 <= Node.val <= 100",
-      "Both list1 and list2 are sorted in non-decreasing order."
-    ],
-    "testCases": [
-      {
-        "input": [[1,2,4],[1,3,4]],
-        "output": [1,1,2,3,4,4],
-        "hidden": false
-      },
-      {
-        "input": [[],[]],
-        "output": [],
-        "hidden": false
-      },
-      {
-        "input": [[], [0]],
-        "output": [0],
-        "hidden": true
-      },
-      {
-        "input": [[1,5,7],[2,4,6]],
-        "output": [1,2,4,5,6,7],
-        "hidden": true
-      }
-    ],
-    "solutionHint": "Use a dummy node and a pointer to build the new list. Compare list1 and list2 nodes one by one, attaching the smaller to the merged list. When one list ends, attach the rest of the other list."
-  },
-  {
-    "id": "5",
+    "id": "3",
     "title": "Valid Parentheses",
     "difficulty": "Easy",
     "tags": ["Stack", "String"],
@@ -251,58 +153,12 @@
         "hidden": "true"
       }
     ],
+    "returnType": "boolean",
+    "functionName": "IsValidParentheses",
     "solutionHint": "Consider using a stack data structure to keep track of opening brackets and match them with closing brackets. Can this be done without a stack? (Recursion and think of handy rules)"
   },
   {
-    "id": "6",
-    "title": "Binary Tree Level Order Traversal",
-    "difficulty": "Medium",
-    "tags": ["Tree", "Breadth-First Search", "Binary Tree"],
-    "description": "Given the root of a binary tree, return the level order traversal of its nodes' values. (i.e., from left to right, level by level).",
-    "examples": [
-      {
-        "input": "root = [3,9,20,null,null,15,7]",
-        "output": "[[3],[9,20],[15,7]]"
-      },
-      {
-        "input": "root = [1]",
-        "output": "[[1]]"
-      },
-      {
-        "input": "root = []",
-        "output": "[]"
-      }
-    ],
-    "constraints": [
-      "The number of nodes in the tree is in the range [0, 2000].",
-      "-1000 <= Node.val <= 1000"
-    ],
-    "testCases": [
-      {
-        "input": [3,9,20,null,null,15,7],
-        "output": [[3],[9,20],[15,7]],
-        "hidden": false
-      },
-      {
-        "input": [1],
-        "output": [[1]],
-        "hidden": false
-      },
-      {
-        "input": [],
-        "output": [],
-        "hidden": false
-      },
-      {
-        "input": [1,2,3,4,5],
-        "output": [[1],[2,3],[4,5]],
-        "hidden": false
-      }
-    ],
-    "solutionHint": "Use a queue to implement a breadth-first search traversal, keeping track of the level."
-  },
-  {
-    "id": "7",
+    "id": "4",
     "title": "Climbing Stairs",
     "difficulty": "Easy",
     "tags": ["Math", "Dynamic Programming", "Memoization"],
@@ -345,10 +201,12 @@
         "hidden": true
       }
     ],
+    "returnType": "integer",
+    "functionName": "ClimbStairs",
     "solutionHint": "Notice the pattern of results. Try to find a recurrence relation. Draw it out"
   },
   {
-    "id": "8",
+    "id": "5",
     "title": "Longest Palindromic Substring",
     "difficulty": "Medium",
     "tags": ["String", "Dynamic Programming"],
@@ -390,59 +248,14 @@
         "hidden": true
       }
     ],
+    "returnType": "string",
+    "functionName": "LongestPalindromicSubstring",
     "solutionHint": "Consider expanding around centers approach. For each position, expand outward to find palindromes."
   },
   {
-    "id": "9",
-    "title": "Merge Intervals",
-    "difficulty": "Medium",
-    "tags": ["Array", "Sorting"],
-    "description": "Given an array of intervals where intervals[i] = [starti, endi], merge all overlapping intervals, and return an array of the non-overlapping intervals that cover all the intervals in the input.",
-    "examples": [
-      {
-        "input": "intervals = [[1,3],[2,6],[8,10],[15,18]]",
-        "output": "[[1,6],[8,10],[15,18]]",
-        "explanation": "Since intervals [1,3] and [2,6] overlap, merge them into [1,6]."
-      },
-      {
-        "input": "intervals = [[1,4],[4,5]]",
-        "output": "[[1,5]]",
-        "explanation": "Intervals [1,4] and [4,5] are considered overlapping."
-      }
-    ],
-    "constraints": [
-      "1 <= intervals.length <= 10^4",
-      "intervals[i].length == 2",
-      "0 <= starti <= endi <= 10^4"
-    ],
-    "testCases": [
-      {
-        "input": [[1,3],[2,6],[8,10],[15,18]],
-        "output": [[1,6],[8,10],[15,18]],
-        "hidden": false
-      },
-      {
-        "input": [[1,4],[4,5]],
-        "output": [[1,5]],
-        "hidden": false
-      },
-      {
-        "input": [[1,4],[0,4]],
-        "output": [[0,4]],
-        "hidden": true
-      },
-      {
-        "input": [[1,4],[2,3]],
-        "output": [[1,4]],
-        "hidden": true
-      }
-   ],
-    "solutionHint": "First sort the intervals by start time, then merge overlapping intervals by comparing the current interval with the last merged interval."
-  },
-  {
-    "id": "10",
+    "id": "6",
     "title": "Longest Common Prefix",
-    "difficulty": "Easy",
+    "difficulty": "Hard",
     "tags": ["String", "trie - Prefix tree"],
     "description": "Write a function to find the longest common prefix string amongst an array of strings.\nIf there is no common prefix, return an empty string.",
     "examples": [
@@ -483,10 +296,12 @@
         "output": "c"
       }
    ],
+    "returnType": "string",
+    "functionName": "LongestCommonPrefix",
     "solutionHint": "Try mapping out a prefix tree before implementing."
   },
   {
-    "id": "11",
+    "id": "7",
     "title": "Find the Index of First Occurrence in a String",
     "difficulty": "Easy",
     "tags": ["String", "Two Pointers"],
@@ -529,10 +344,12 @@
         "hidden": true
       }
    ],
+    "returnType": "integer",
+    "functionName": "StrStr",
     "solutionHint": "Try a sliding window technique with two pointers"
   },
   {
-    "id": "12",
+    "id": "8",
     "title": "Search Insert Position",
     "difficulty": "Easy",
     "tags": ["Array", "Binary Search"],
@@ -582,10 +399,12 @@
         "hidden": true
       }
    ],
+    "returnType": "integer",
+    "functionName": "SearchInsert",
     "solutionHint": "For an optimised solution O(log n) instead of O(n), use Binary Search"
   },
   {
-    "id": "13",
+    "id": "9",
     "title": "First Unique Character in a string",
     "difficulty": "Easy",
     "tags": ["Hash Table", "Hash Table", "Queue", "Counting"],
@@ -634,10 +453,12 @@
         "hidden": true
       }
    ],
+    "returnType": "integer",
+    "functionName": "FirstUniqueCharacter",
     "solutionHint": "Use a hash map to count character frequencies of the chracter. Then scan the string to find index of first character with count of 1."
   },
   {
-    "id": "14",
+    "id": "10",
     "title": "Minimum Depth of Binary Tree",
     "difficulty": "Easy",
     "tags": ["Tree", "Depth-First Search", "Binary Tree", "Breadth-First Search"],
@@ -680,10 +501,12 @@
         "hidden": true
       }
    ],
+    "returnType": "integer",
+    "functionName": "MinDepth",
     "solutionHint": "Using BFS, traverse the tree level by level (using a queue), and return the depth as soon as you reach the first leaf node (a node with no left or right child)."
   },
   {
-    "id": "15",
+    "id": "11",
     "title": "Kth Largest Element in an Array",
     "difficulty": "Medium",
     "tags": ["Array", "Divide and Conquer", "Sorting", "Heap (Priority Queue)", "Quick Select"],
@@ -726,6 +549,8 @@
         "hidden": true
       }
    ],
+   "returnType": "integer",
+    "functionName": "FindKthLargest",
     "solutionHint": "Using a max heap, heapify the input array and then pop k times of that max heap to get kth largest integer (O(n + k log nm). Another solution: Sort it ourselves, and grab index we want (O(n log n). Another solution is: Could also use 'Quick Select Algorithm' Average time O(n), worst case O(n^2)) "
   }
 ]

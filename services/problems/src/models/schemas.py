@@ -11,6 +11,8 @@ class Problem_Response(BaseModel):
     topics: List[str]
     description: str
     examples: str
+    function_name: str
+    return_type: str
     constraints: List[str]
     test_cases: str
     hint: str
