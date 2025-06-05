@@ -1,11 +1,11 @@
 from queue_utils import celery_app
 from models import db, Submission
 from flask import Flask
-import os, io
+import os
+import io
 from contextlib import redirect_stdout
 from datetime import datetime
 
-# Flask context for DB inside Celery
 app = Flask(__name__)
 app.config['SQLALCHEMY_DATABASE_URI'] = os.getenv(
     'DATABASE_URL', 
@@ -16,10 +16,11 @@ db.init_app(app)
 
 @celery_app.task(name='process_submission')
 def process_submission(task_data):
+    """Execute submitted code and store results."""
     submission_id = task_data['submission_id']
     code = task_data['submission_code']
-    inputs = task_data['inputs']
-    outputs = task_data['outputs']
+    inputs = task_data['inputs']        
+    outputs = task_data['outputs']    
     func_name = task_data['function_name']
 
     results = []
