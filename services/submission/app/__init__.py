@@ -1,6 +1,5 @@
 from flask import Flask
 from app.config import config
-from app.models.models import db
 
 def create_app():
     app = Flask(__name__)
@@ -8,6 +7,8 @@ def create_app():
     # Database configuration
     app.config["SQLALCHEMY_DATABASE_URI"] = config.DATABASE_URL
     app.config["SQLALCHEMY_TRACK_MODIFICATIONS"] = False
+    
+    from app.models.models import db, Submission
     db.init_app(app)
     
     # Ensure tables exist
