@@ -1,21 +1,21 @@
 # Problems Service
 
-This service is an API service that manages a structured set of coding problems, including metadata like difficulty, title, difficulty, 
-topics, description, examples, constraints, test cases, hint and the date when the problems were created. It uses a relational database in 
-PostgreSQL to store and retrieve problems. 
+This service is an API service that manages a structured set of coding problems, including metadata
+like difficulty, title, difficulty, topics, description, examples, constraints, test cases, hint and
+the date when the problems were created. It uses a relational database in PostgreSQL to store and
+retrieve problems.
 
-**Note**: Problems stored in the databases are language agnostic. (Tailored that all problems can be solved with programming languages user selects). 
+**Note**: Problems stored in the databases are language agnostic. (Tailored that all problems can be
+solved with programming languages user selects).
 
 ## Technologies
 
-**Language:** Python. (FastAPI web framwework) </br> 
-**Database:** PostgreSQL (deployed on AWS RDS) </br>
-**ORM:** SQLAlchemy
-**Response Schemas:** Pydantic</br>
-**Package Manager:** uv </br>
+**Language:** Python. (FastAPI web framwework) </br> **Database:** PostgreSQL (deployed on AWS RDS)
+</br> **ORM:** SQLAlchemy **Response Schemas:** Pydantic</br> **Package Manager:** uv </br>
 **Containerisation:** Docker </br>
 
 ### Getting Started
+
 Run the service from root using the following command.
 
 ```
@@ -28,9 +28,10 @@ Test the service from root using the following command.
 task test:problem
 ```
 
-Alternatively, a `docker-compose.yaml` have been included for local testing purposes. 
+Alternatively, a `docker-compose.yaml` have been included for local testing purposes.
 
-**Note:** before starting you can use the following command to build faster (only works if the docker build kit is available):
+**Note:** before starting you can use the following command to build faster (only works if the
+docker build kit is available):
 
 ```bash
 export COMPOSE_BAKE=true
@@ -40,28 +41,34 @@ To run locally, from the `services/problems` directory, run the following comman
 
 ```bash
 docker compose up --build -d
-```  
+```
 
 To stop the containers, run:
+
 ```bash
 docker compose down
 ```
 
 ### Documentation
-Each time this service starts up, it atttempt to do a data migration from a `problems.json` that can be found in `services/problems` direcotory. 
+
+Each time this service starts up, it atttempt to do a data migration from a `problems.json` that can
+be found in `services/problems` direcotory.
 
 ### Input format in JSON FILE
-This is an example of the format of the input file. 
 
-For examples and test cases, they will be stored in the database as JSON formatted strings. Services that use these fields will have to use `json.loads()` to convert it back to a python object so that the fields inside it can be used. 
+This is an example of the format of the input file.
+
+For examples and test cases, they will be stored in the database as JSON formatted strings. Services
+that use these fields will have to use `json.loads()` to convert it back to a python object so that
+the fields inside it can be used.
 
 ```json
 [
   {
-    "id": "string,
+    "id": "string",
     "title": "string",
     "difficulty": "string",
-    "tags": "List of strings", 
+    "tags": "List of strings",
     "description": "Text",
     "examples": [ // List of JSON Objects with fields down below.
       {
@@ -70,7 +77,7 @@ For examples and test cases, they will be stored in the database as JSON formatt
         "explanation": "string"
       }
     ],
-    "constraints": "List of Strings"
+    "constraints": "List of Strings",
     "testCases": [ // List of JSON objects down below
       {
         "input": "List of inputs to question",
@@ -82,7 +89,8 @@ For examples and test cases, they will be stored in the database as JSON formatt
   }
 ]
 ```
-This is an example: 
+
+This is an example:
 
 ```json
 [
@@ -107,8 +115,8 @@ This is an example:
     ],
     "testCases": [
       {
-        "input": [[2,7,11,15],9],
-        "output": [0,1],
+        "input": [[2, 7, 11, 15], 9],
+        "output": [0, 1],
         "hidden": false
       }
     ],
@@ -118,12 +126,14 @@ This is an example:
 ```
 
 ### Package Structure
+
 The package structure for the code execution service is as follows:
-  
+
 Top Level:
+
 ```plaintext
 services/problem/
-├── src/ # Source Files for Problem Service such as models and routes. 
+├── src/ # Source Files for Problem Service such as models and routes.
 ├── scripts/ # Helper scripts for local testing
 ├── docker-compose.yaml # Docker compose file for local testing
 ├── pyproject.toml # Project requirements file
@@ -134,8 +144,6 @@ services/problem/
 
 ### Testing
 
-
 ###
-
 
 ASSIGNED TO: Tze Kheng Goh

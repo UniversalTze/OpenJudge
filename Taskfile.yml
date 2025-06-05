@@ -31,6 +31,24 @@ tasks:
 
   #test:app:
 
+  # PROBLEMS SERVICE COMMANDS
+  run:problems:
+    desc: Run the problems service in development mode.
+    cmds:
+      - docker-compose -f infrastructure/docker/docker-compose.yml -p openjudge up problems_service main_database --build -d
+    silent: true
+
+  # test:problems:
+
+  # SUBMISSION SERVICE COMMANDS
+  run:submission:
+    desc: Run the submission service in development mode.
+    cmds:
+      - docker-compose -f infrastructure/docker/docker-compose.yml -p openjudge up submission_service main_database queue --build -d
+    silent: true
+
+  # test:submission:
+
   # API GATEWAY COMMANDS
   run:gateway:
     desc: Run the API Gateway in development mode.
@@ -50,7 +68,7 @@ tasks:
   run: 
     desc: Run the project in development mode.
     cmds:
-      - docker-compose -f infrastructure/docker/docker-compose.yml -p openjudge up -d
+      - docker-compose -f infrastructure/docker/docker-compose.yml -p openjudge up --build -d
     silent: true
   
   #test:
