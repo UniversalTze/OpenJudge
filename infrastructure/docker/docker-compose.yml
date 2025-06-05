@@ -51,7 +51,7 @@ services:
     container_name: problems_service
     restart: unless-stopped
     environment:
-      MAIN_DATABASE_URL: "postgresql+asyncpg://${MAIN_DATABASE_USER}:${MAIN_DATABASE_PASSWORD}@main_database:5432/${MAIN_DATABASE_NAME}?sslmode=disable"
+      SQLALCHEMY_DATABASE_URI: "postgresql+asyncpg://${MAIN_DATABASE_USER}:${MAIN_DATABASE_PASSWORD}@main_database:5432/${MAIN_DATABASE_NAME}"
     env_file:
       - ../../.env
     ports:
@@ -72,7 +72,8 @@ services:
     container_name: submission_service
     restart: unless-stopped
     environment:
-      MAIN_DATABASE_URL: "postgres://${MAIN_DATABASE_USER}:${MAIN_DATABASE_PASSWORD}@main_database:5432/${MAIN_DATABASE_NAME}?sslmode=disable"
+      DATABASE_URL: "postgres://${MAIN_DATABASE_USER}:${MAIN_DATABASE_PASSWORD}@main_database:5432/${MAIN_DATABASE_NAME}?sslmode=disable"
+      REDIS_URL: "redis://queue:6379"
     env_file:
       - ../../.env
     ports:
@@ -198,8 +199,10 @@ services:
     container_name: gateway
     restart: unless-stopped
     environment:
-      - AUTH_SERVICE_URL=http://authentication_service:8080
-      - REDIS_URL=redis://redis:6379
+      AUTH_SERVICE_URL: http://authentication_service:8080
+      PROBLEMS_SERVICE_URL: http://problems_service:6400
+      SUBMISSION_SERVICE_URL: http://submission_service:5000
+      REDIS_URL: redis://redis:6379
     env_file:
       - ../../.env
     ports:

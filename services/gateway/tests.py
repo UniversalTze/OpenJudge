@@ -6,7 +6,7 @@ os.environ.update({
     "JWT_PUBLIC_KEY": "test_public_key",
     "ENV": "local",
     "AUTH_SERVICE_URL": "http://localhost:8001",
-    "PROBLEM_SERVICE_URL": "http://localhost:8002", 
+    "PROBLEMS_SERVICE_URL": "http://localhost:8002", 
     "SUBMISSION_SERVICE_URL": "http://localhost:8003",
     "REDIS_URL": "redis://localhost:6379",
     "FRONTEND_URL": "http://localhost:3000"

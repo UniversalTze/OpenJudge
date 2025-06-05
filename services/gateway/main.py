@@ -37,7 +37,7 @@ app.middleware("http")(authorise_request)
 # Security middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=[config.FRONTEND_URL, "http://localhost:8080"],
+    allow_origins=["*"] if config.ENV == "local" else [config.FRONTEND_URL],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -58,7 +58,7 @@ async def status_check(request: Request):
     
     response = {
         "auth_service": "unknown",
-        "problem_service": "unknown",
+        "problems_service": "unknown",
         "submission_service": "unknown",
     }
     
@@ -72,14 +72,14 @@ async def status_check(request: Request):
         response["auth_service"] = "unavailable"
     try:
         r = await client.get(
-            f"{config.PROBLEM_SERVICE_URL}/health"
+            f"{config.PROBLEMS_SERVICE_URL}/health"
         )
         if r.status_code != 200:
-            response["problem_service"] = "unavailable"
+            response["problems_service"] = "unavailable"
         else:
-            response["problem_service"] = "operational"
+            response["problems_service"] = "operational"
     except:
-        response["problem_service"] = "unavailable"
+        response["problems_service"] = "unavailable"
     try:
         r = await client.get(
             f"{config.SUBMISSION_SERVICE_URL}/health"
@@ -93,7 +93,7 @@ async def status_check(request: Request):
 
     if (
         response["auth_service"] == "operational"
-        and response["problem_service"] == "operational"
+        and response["problems_service"] == "operational"
         and response["submission_service"] == "operational"
     ):
         return JSONResponse(content=response, status_code=200)
@@ -204,14 +204,14 @@ async def logout_user(request: Request):
 @app.get("/problems?id={id}")
 async def get_problem_details(request: Request, id: int):
     client = request.app.state.http_client
-    target_url = f"{config.PROBLEM_SERVICE_URL}/problems?id={id}"
+    target_url = f"{config.PROBLEMS_SERVICE_URL}/problems?id={id}"
     return await forward_request(request, target_url, client)
 
 
 @app.get("/problems")
 async def list_problems(request: Request):
     client = request.app.state.http_client
-    target_url = f"{config.PROBLEM_SERVICE_URL}/problems"
+    target_url = f"{config.PROBLEMS_SERVICE_URL}/problems"
     return await forward_request(request, target_url, client)
 
 

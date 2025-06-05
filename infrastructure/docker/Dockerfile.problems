@@ -8,6 +8,7 @@ ENV PYTHONPATH=/app
 RUN python -m venv /venv && \
     /venv/bin/pip install --no-cache-dir -e .
 COPY launch.sh /app/launchapp.sh
+EXPOSE 6400
 RUN chmod +x /app/launchapp.sh
 ENTRYPOINT [ "/app/launchapp.sh" ]
 

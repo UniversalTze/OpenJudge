@@ -119,7 +119,6 @@ async def authorise_request(request: Request, call_next):
     # Check refresh token routes
     elif request.url.path.startswith("/refresh"):
         token = request.cookies.get("refreshToken")
-        print(f"Refresh token: {token}")
         if not token:
             return PlainTextResponse(
                 status_code=401,
