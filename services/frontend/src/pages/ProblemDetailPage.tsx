@@ -41,10 +41,14 @@ const ProblemDetailPage = () => {
         examples: JSON.parse(response.data.examples || "[]"),
         test_cases: JSON.parse(response.data.test_cases || "[]"),
       });
+      setCode(
+        `def ${response.data.function_name ?? "function_name"}():\n    """${
+          response.data.description
+        }"""\n    #...\n`
+      );
     } else {
       console.error("Failed to fetch problem:", response.message);
       toast.error("Problem not found or access denied.");
-      navigate("/problems");
     }
     setIsLoading(false);
   }
@@ -59,6 +63,18 @@ const ProblemDetailPage = () => {
       setCode(code);
     }
   }
+
+  useEffect(() => {
+    if (language === "Java") {
+      setCode(
+        `/** \n * ${problem?.description}\n * \n */ \npublic class Solution {\n    public static void ${problem?.function_name ?? "FunctionName"}(String[] args) {\n        // Your code here\n    }\n}`
+      );
+    } else if (language === "Python") {
+      setCode(`def ${problem.function_name ?? "function_name"}():\n    """${problem.description}"""\n    #...`
+      );
+    }
+  }
+  , [language]);
 
   useEffect(() => {
     loadCodeFromLocalStorage(setCode);
@@ -95,10 +111,7 @@ const ProblemDetailPage = () => {
 
     // Simulate submission for now
     setTimeout(() => {
-      toast({
-        title: "Code submitted successfully",
-        description: "Your solution has been sent for evaluation.",
-      });
+      toast.success("Code submitted successfully");
       setIsSubmitting(false);
       navigate("/submission-success");
     }, 1500);
@@ -138,9 +151,9 @@ const ProblemDetailPage = () => {
   };
 
   const visibleTestCases = problem.test_cases.filter((test) => !test.hidden);
-  const hiddenTestCases = problem.test_cases.filter((test) => (test.hidden));
+  const hiddenTestCases = problem.test_cases.filter((test) => test.hidden);
 
-    if (isLoading) {
+  if (isLoading) {
     return (
       <div className="container flex items-center justify-center min-h-[50vh]">
         <div className="animate-spin rounded-full size-20 border-b-2 border-primary"></div>
@@ -385,8 +398,6 @@ const ProblemDetailPage = () => {
               <SelectContent>
                 <SelectItem value="Python">Python</SelectItem>
                 <SelectItem value="Java">Java</SelectItem>
-                <SelectItem value="JavaScript">JavaScript</SelectItem>
-                <SelectItem value="C++">C++</SelectItem>
               </SelectContent>
             </Select>
 

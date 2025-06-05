@@ -204,7 +204,7 @@ async def logout_user(request: Request):
 @app.get("/problems/{id}")
 async def get_problem_details(request: Request, id: str):
     client = request.app.state.http_client
-    target_url = f"{config.PROBLEMS_SERVICE_URL}/problems?id={id}"
+    target_url = f"{config.PROBLEMS_SERVICE_URL}/problems/{id}"
     return await forward_request(request, target_url, client)
 
 

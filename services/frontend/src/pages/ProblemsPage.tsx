@@ -18,9 +18,13 @@ import { apiClient } from "@/lib/api";
 import { API_ENDPOINTS } from "@/lib/env";
 
 const ProblemsPage = () => {
-  const { user, updateUser, accessToken } = useAuth();
+  const { accessToken } = useAuth();
   const [isLoading, setIsLoading] = useState(true);
   const [problems, setProblems] = useState<Problem[]>([]);
+  const [searchQuery, setSearchQuery] = useState("");
+  const [difficultyFilter, setDifficultyFilter] = useState<string>("");
+  const [filteredProblems, setFilteredProblems] = useState<Problem[]>([]);
+
 
   async function getProblems() {
     const response = await apiClient.get<DatabaseRecord[]>(API_ENDPOINTS.PROBLEMS.ALL, {
@@ -37,6 +41,13 @@ const ProblemsPage = () => {
           test_cases: JSON.parse(problem.test_cases || "[]"),
         }))
       );
+      setFilteredProblems(
+        response.data.map((problem) => ({
+          ...problem,
+          examples: JSON.parse(problem.examples || "[]"),
+          test_cases: JSON.parse(problem.test_cases || "[]"),
+        }))
+      );
     } else {
       console.error("Failed to fetch problems:", response.message);
     }
@@ -47,40 +58,12 @@ const ProblemsPage = () => {
     getProblems();
   }, [accessToken]);
 
-
-  const [searchQuery, setSearchQuery] = useState("");
-  const [difficultyFilter, setDifficultyFilter] = useState<string>("");
-  const [filteredProblems, setFilteredProblems] = useState<Problem[]>([]);
-
-  // Sort problems based on user experience level
-  const sortedProblems = useMemo(() => {
-    const experienceLevel = user.skill || "Beginner";
-
-    const sorted = [...problems];
-
-    if (experienceLevel === "Beginner") {
-      // Easy first, then Medium, then Hard
-      sorted.sort((a, b) => {
-        const difficultyOrder = { Easy: 0, Medium: 1, Hard: 2 };
-        return difficultyOrder[a.difficulty] - difficultyOrder[b.difficulty];
-      });
-    } else if (experienceLevel === "Advanced") {
-      // Hard first, then Medium, then Easy
-      sorted.sort((a, b) => {
-        const difficultyOrder = { Hard: 0, Medium: 1, Easy: 2 };
-        return difficultyOrder[a.difficulty] - difficultyOrder[b.difficulty];
-      });
-    }
-
-    return sorted;
-  }, [user]);
-
   useEffect(() => {
-    let result = sortedProblems;
-
+    let result = problems;
     // Filter by search query
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
+
       result = result.filter(
         (problem) =>
           problem.problem_title.toLowerCase().includes(query) ||
@@ -89,12 +72,12 @@ const ProblemsPage = () => {
     }
 
     // Filter by difficulty
-    if (difficultyFilter && difficultyFilter !== "all") {
+    if (difficultyFilter && difficultyFilter !== "All") {
       result = result.filter((problem) => problem.difficulty === difficultyFilter);
     }
 
     setFilteredProblems(result);
-  }, [searchQuery, difficultyFilter, sortedProblems]);
+  }, [searchQuery, difficultyFilter]);
 
   const clearFilters = () => {
     setSearchQuery("");
@@ -129,18 +112,6 @@ const ProblemsPage = () => {
     }
   };
 
-  const getExperienceMessage = () => {
-    const experienceLevel = user?.skill || "Beginner";
-    switch (experienceLevel) {
-      case "Beginner":
-        return "Problems are sorted with easier ones first to help you learn progressively.";
-      case "Advanced":
-        return "Problems are sorted with challenging ones first to match your expertise.";
-      default:
-        return "Problems are sorted in a balanced order to match your intermediate level.";
-    }
-  };
-
   if (isLoading) {
     return (
       <div className="container flex items-center justify-center min-h-[50vh]">
@@ -156,7 +127,6 @@ const ProblemsPage = () => {
         <p className="text-muted-foreground mb-2">
           Explore coding challenges with complete transparency - see all test cases!
         </p>
-        <p className="text-sm text-primary">{getExperienceMessage()}</p>
       </div>
 
       {/* Background Elements */}
@@ -184,7 +154,7 @@ const ProblemsPage = () => {
                 <SelectValue placeholder="Difficulty" />
               </SelectTrigger>
               <SelectContent>
-                <SelectItem value="all">All Difficulties</SelectItem>
+                <SelectItem value="All">All Difficulties</SelectItem>
                 <SelectItem value="Easy">Easy</SelectItem>
                 <SelectItem value="Medium">Medium</SelectItem>
                 <SelectItem value="Hard">Hard</SelectItem>
@@ -220,7 +190,7 @@ const ProblemsPage = () => {
         {filteredProblems.length > 0 ? (
           filteredProblems.map((problem) => (
             <Card
-              key={problem.problem_id}
+              key={problem.problem_id + Math.random().toString(36).substring(2, 15)}
               className="glass-card overflow-hidden hover:border-primary/50 transition-all"
             >
               <Link to={`/problem/${problem.problem_id}`} className="block">
