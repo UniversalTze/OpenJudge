@@ -41,8 +41,15 @@ tasks:
   run:problems:
     desc: Run the problems service in development mode.
     cmds:
-      - docker-compose -f infrastructure/docker/docker-compose.yml -p openjudge up problems_service main_database --build -d
+      - docker-compose -f infrastructure/docker/docker-compose.yml -p openjudge up problems_service problems_database --build -d
     silent: true
+
+  down:problems:
+    desc: Run the problems service in development mode.
+    cmds:
+      - docker-compose -f infrastructure/docker/docker-compose.yml -p openjudge down problems_service problems_database
+    silent: true
+
 
   # test:problems:
 
