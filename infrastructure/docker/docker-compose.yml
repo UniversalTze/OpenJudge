@@ -7,8 +7,8 @@ networks:
     name: gateway
     driver: bridge
 
-  redis:
-    name: redis
+  auth-cache:
+    name: auth-cache
     driver: bridge
   
   api:
@@ -159,16 +159,16 @@ services:
       start_period: 60s
       timeout: 20s
 
-  redis:
+  auth-cache:
     image: redis:7
-    container_name: redis
+    container_name: auth-cache
     restart: unless-stopped
     ports:
       - "${REDIS_PORT}:6379"
     volumes:
-      - redis_data:/data
+      - auth-cache:/data
     networks:
-      - redis
+      - auth-cache
     healthcheck:
       test: ["CMD", "redis-cli", "ping"]
       interval: 5s
@@ -250,17 +250,17 @@ services:
       AUTH_SERVICE_URL: http://authentication_service:8080
       PROBLEMS_SERVICE_URL: http://problems_service:6400
       SUBMISSION_SERVICE_URL: http://submission_service:5000
-      REDIS_URL: redis://redis:6379
+      REDIS_URL: redis://auth-cache:6379
     env_file:
       - ../../.env
     ports:
       - "${API_GATEWAY_PORT}:8080"
     depends_on:
-      redis:
+      auth-cache:
         condition: service_healthy
     networks:
       - gateway
-      - redis
+      - auth-cache
       - api
 
   frontend:
@@ -279,6 +279,6 @@ services:
 
 volumes:
   user_data:
-  redis_data:
+  auth-cache:
   queue_data:
   main_data:
