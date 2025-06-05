@@ -79,7 +79,7 @@ services:
     restart: unless-stopped
     environment:
       DATABASE_URL: "postgres://${SUBMISSION_DATABASE_USER}:${SUBMISSION_DATABASE_PASSWORD}@submission_database:5432/${SUBMISSION_DATABASE_NAME}?sslmode=disable"
-      BROKER_URL: "redis://queue:6379"
+      BROKER_URL: "redis://execution-submission-queue:6379"
       PROBLEMS_SERVICE_URL: "http://problems_service:6400"
     env_file:
       - ../../.env
@@ -89,12 +89,12 @@ services:
       problems_database:
         condition: service_healthy
         restart: true
-      queue:
+      execution-submission-queue:
         condition: service_healthy
     networks:
       - submission
       - gateway
-      - queue
+      - execution-submission-queue
 
   problems_database:
     image: postgres:15
