@@ -1,12 +1,34 @@
+# FROM python:3.12-slim
+# COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+# WORKDIR /app
+# COPY uv.lock pyproject.toml ./
+# RUN --mount=type=cache,target=/root/.cache/uv \
+#     --mount=type=bind,source=uv.lock,target=uv.lock \
+#     --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
+#     uv sync --frozen --no-install-project
+# RUN --mount=type=cache,target=/root/.cache/uv \
+#     uv sync --frozen
+# COPY ./app .
+# EXPOSE 5000
+# CMD ["uv", "run", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "5000"]
+
 FROM python:3.12-slim
+
+# Install uv (from ghcr.io/astral-sh/uv:latest is fine)
 COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+
 WORKDIR /app
+
+# Copy dependency definition files first for effective Docker caching
+COPY uv.lock pyproject.toml ./
+
+# Install project dependencies
 RUN --mount=type=cache,target=/root/.cache/uv \
-    --mount=type=bind,source=uv.lock,target=uv.lock \
-    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
     uv sync --frozen --no-install-project
-ADD . /app
-RUN --mount=type=cache,target=/root/.cache/uv \
-    uv sync --frozen
+
+# Copy project files
+COPY ./app .
+
 EXPOSE 5000
+
 CMD ["uv", "run", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "5000"]
