@@ -91,6 +91,18 @@ variable "USER_DATABASE_PASSWORD" {
   type = string
 }
 
+variable "PROBLEMS_DATABASE_NAME" {
+  type = string
+}
+
+variable "PROBLEMS_DATABASE_USER" {
+  type = string
+}
+
+variable "PROBLEMS_DATABASE_PASSWORD" {
+  type = string
+}
+
 variable "JWT_SECRET" {
   type = string
 }
