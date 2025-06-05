@@ -7,16 +7,6 @@ export interface ApiResponse<T> {
   success: boolean;
 }
 
-// TODO: check this implementation?
-export interface PaginatedResponse<T> extends ApiResponse<T[]> {
-  pagination: {
-    page: number;
-    limit: number;
-    total: number;
-    totalPages: number;
-  };
-}
-
 class ApiClient {
   private baseURL: string = env.API_BASE_URL;
 

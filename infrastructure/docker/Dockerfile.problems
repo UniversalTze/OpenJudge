@@ -11,4 +11,3 @@ COPY launch.sh /app/launchapp.sh
 EXPOSE 6400
 RUN chmod +x /app/launchapp.sh
 ENTRYPOINT [ "/app/launchapp.sh" ]
-

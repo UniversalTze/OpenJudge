@@ -201,8 +201,8 @@ async def logout_user(request: Request):
 
 
 # Problem endpoints
-@app.get("/problems?id={id}")
-async def get_problem_details(request: Request, id: int):
+@app.get("/problems/{id}")
+async def get_problem_details(request: Request, id: str):
     client = request.app.state.http_client
     target_url = f"{config.PROBLEMS_SERVICE_URL}/problems?id={id}"
     return await forward_request(request, target_url, client)
@@ -223,10 +223,10 @@ async def submit_code_for_problem(request: Request):
     return await forward_request(request, target_url, client)
 
 
-@app.get("/submissions?id={id}")
-async def get_submission_details(request: Request, id: int):
+@app.get("/submissions/{id}")
+async def get_submission_details(request: Request, id: str):
     client = request.app.state.http_client
-    target_url = f"{config.SUBMISSION_SERVICE_URL}/submissions?id={id}"
+    target_url = f"{config.SUBMISSION_SERVICE_URL}/submissions/{id}"
     return await forward_request(request, target_url, client)
 
 

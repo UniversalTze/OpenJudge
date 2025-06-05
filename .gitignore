@@ -1,13 +1,5 @@
-.env
-
-# Services:
-
-### Frontend
-frontend/node_modules/
-frontend/dist/
+services/frontend/dist
 services/frontend/node_modules
-
-### Execution
 services/execution/.*
 services/execution/__pycache__/*
 **/**/.DS_Store

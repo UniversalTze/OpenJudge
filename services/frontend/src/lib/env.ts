@@ -17,11 +17,11 @@ export const API_ENDPOINTS = {
 
   PROBLEMS: {
     ALL: "/problems",
-    ID: (id: string) => `/problems?id=${id}`,
+    ID: (id: string) => `/problems/${id}`,
   },
 
   SUBMISSIONS: {
     ALL: "/submissions",
-    ID: (id: string) => `/submissions?id=${id}`,
+    ID: (id: string) => `/submissions/${id}`,
   },
 } as const;

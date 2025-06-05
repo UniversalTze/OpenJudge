@@ -183,7 +183,7 @@ export const AuthProvider: React.FC<{ children: React.ReactNode }> = ({ children
     }
 
     async function updateUser(body: UserUpdateRequest) {
-      const response = await apiClient.post<UserUpdateRequest>(
+      const response = await apiClient.put<UserUpdateRequest>(
         API_ENDPOINTS.AUTH.PROFILE,
         {
           headers: {

@@ -5,46 +5,75 @@ import { Card, CardContent, CardFooter } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Badge } from "@/components/ui/badge";
-import { 
+import {
   Select,
   SelectContent,
   SelectItem,
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-import { problems, Problem } from "@/data/problems";
 import { useAuth } from "@/components/AuthContext";
+import { DatabaseRecord, Problem } from "@/lib/problems";
+import { apiClient } from "@/lib/api";
+import { API_ENDPOINTS } from "@/lib/env";
 
 const ProblemsPage = () => {
-  const { state } = useAuth();
+  const { user, updateUser, accessToken } = useAuth();
+  const [isLoading, setIsLoading] = useState(true);
+  const [problems, setProblems] = useState<Problem[]>([]);
+
+  async function getProblems() {
+    const response = await apiClient.get<DatabaseRecord[]>(API_ENDPOINTS.PROBLEMS.ALL, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        Accept: "application/json",
+      },
+    });
+    if (response.success) {
+      setProblems(
+        response.data.map((problem) => ({
+          ...problem,
+          examples: JSON.parse(problem.examples || "[]"),
+          test_cases: JSON.parse(problem.test_cases || "[]"),
+        }))
+      );
+    } else {
+      console.error("Failed to fetch problems:", response.message);
+    }
+    setIsLoading(false);
+  }
+
+  useEffect(() => {
+    getProblems();
+  }, [accessToken]);
+
+
   const [searchQuery, setSearchQuery] = useState("");
   const [difficultyFilter, setDifficultyFilter] = useState<string>("");
   const [filteredProblems, setFilteredProblems] = useState<Problem[]>([]);
 
   // Sort problems based on user experience level
   const sortedProblems = useMemo(() => {
-    const experienceLevel = state.user?.experienceLevel || 'beginner';
-    
-    let sorted = [...problems];
-    
-    if (experienceLevel === 'beginner') {
+    const experienceLevel = user.skill || "Beginner";
+
+    const sorted = [...problems];
+
+    if (experienceLevel === "Beginner") {
       // Easy first, then Medium, then Hard
       sorted.sort((a, b) => {
-        const difficultyOrder = { 'Easy': 0, 'Medium': 1, 'Hard': 2 };
+        const difficultyOrder = { Easy: 0, Medium: 1, Hard: 2 };
         return difficultyOrder[a.difficulty] - difficultyOrder[b.difficulty];
       });
-    } else if (experienceLevel === 'advanced') {
+    } else if (experienceLevel === "Advanced") {
       // Hard first, then Medium, then Easy
       sorted.sort((a, b) => {
-        const difficultyOrder = { 'Hard': 0, 'Medium': 1, 'Easy': 2 };
+        const difficultyOrder = { Hard: 0, Medium: 1, Easy: 2 };
         return difficultyOrder[a.difficulty] - difficultyOrder[b.difficulty];
       });
     }
-    // Intermediate keeps default order (mixed)
-    
+
     return sorted;
-  }, [state.user?.experienceLevel]);
+  }, [user]);
 
   useEffect(() => {
     let result = sortedProblems;
@@ -52,17 +81,16 @@ const ProblemsPage = () => {
     // Filter by search query
     if (searchQuery) {
       const query = searchQuery.toLowerCase();
-      result = result.filter(problem =>
-        problem.title.toLowerCase().includes(query) ||
-        problem.tags.some(tag => tag.toLowerCase().includes(query))
+      result = result.filter(
+        (problem) =>
+          problem.problem_title.toLowerCase().includes(query) ||
+          problem.topics.some((tag) => tag.toLowerCase().includes(query))
       );
     }
 
     // Filter by difficulty
     if (difficultyFilter && difficultyFilter !== "all") {
-      result = result.filter(problem => 
-        problem.difficulty === difficultyFilter
-      );
+      result = result.filter((problem) => problem.difficulty === difficultyFilter);
     }
 
     setFilteredProblems(result);
@@ -75,28 +103,51 @@ const ProblemsPage = () => {
 
   const getDifficultyBadge = (difficulty: string) => {
     switch (difficulty) {
-      case 'Easy':
-        return <Badge variant="outline" className="bg-green-500/10 text-green-500 border-green-500/20">Easy</Badge>;
-      case 'Medium':
-        return <Badge variant="outline" className="bg-yellow-500/10 text-yellow-500 border-yellow-500/20">Medium</Badge>;
-      case 'Hard':
-        return <Badge variant="outline" className="bg-red-500/10 text-red-500 border-red-500/20">Hard</Badge>;
+      case "Easy":
+        return (
+          <Badge variant="outline" className="bg-green-500/10 text-green-500 border-green-500/20">
+            Easy
+          </Badge>
+        );
+      case "Medium":
+        return (
+          <Badge
+            variant="outline"
+            className="bg-yellow-500/10 text-yellow-500 border-yellow-500/20"
+          >
+            Medium
+          </Badge>
+        );
+      case "Hard":
+        return (
+          <Badge variant="outline" className="bg-red-500/10 text-red-500 border-red-500/20">
+            Hard
+          </Badge>
+        );
       default:
         return null;
     }
   };
 
   const getExperienceMessage = () => {
-    const experienceLevel = state.user?.experienceLevel || 'beginner';
+    const experienceLevel = user?.skill || "Beginner";
     switch (experienceLevel) {
-      case 'beginner':
+      case "Beginner":
         return "Problems are sorted with easier ones first to help you learn progressively.";
-      case 'advanced':
+      case "Advanced":
         return "Problems are sorted with challenging ones first to match your expertise.";
       default:
         return "Problems are sorted in a balanced order to match your intermediate level.";
     }
   };
+
+  if (isLoading) {
+    return (
+      <div className="container flex items-center justify-center min-h-[50vh]">
+        <div className="animate-spin rounded-full size-20 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="container py-8">
@@ -105,9 +156,7 @@ const ProblemsPage = () => {
         <p className="text-muted-foreground mb-2">
           Explore coding challenges with complete transparency - see all test cases!
         </p>
-        <p className="text-sm text-primary">
-          {getExperienceMessage()}
-        </p>
+        <p className="text-sm text-primary">{getExperienceMessage()}</p>
       </div>
 
       {/* Background Elements */}
@@ -149,14 +198,17 @@ const ProblemsPage = () => {
             )}
           </div>
         </div>
-        
+
         <div className="flex justify-between items-center text-sm">
           <span className="text-muted-foreground">
             Showing {filteredProblems.length} of {problems.length} problems
           </span>
-          
+
           {/* Sample Result Link */}
-          <Link to="/sample-problem-result" className="text-primary hover:underline flex items-center">
+          <Link
+            to="/sample-problem-result"
+            className="text-primary hover:underline flex items-center"
+          >
             <Eye className="h-4 w-4 mr-1" />
             View Sample Results
           </Link>
@@ -167,25 +219,26 @@ const ProblemsPage = () => {
       <div className="space-y-4">
         {filteredProblems.length > 0 ? (
           filteredProblems.map((problem) => (
-            <Card key={problem.id} className="glass-card overflow-hidden hover:border-primary/50 transition-all">
-              <Link to={`/problem/${problem.id}`} className="block">
+            <Card
+              key={problem.problem_id}
+              className="glass-card overflow-hidden hover:border-primary/50 transition-all"
+            >
+              <Link to={`/problem/${problem.problem_id}`} className="block">
                 <CardContent className="p-6">
                   <div className="flex justify-between items-start">
                     <div>
                       <h3 className="font-semibold text-lg mb-1">
-                        {problem.id}. {problem.title}
+                        {problem.problem_id}. {problem.problem_title}
                       </h3>
                       <div className="flex flex-wrap gap-2 mb-3">
-                        {problem.tags.map((tag) => (
+                        {problem.topics.map((tag) => (
                           <Badge key={tag} variant="secondary" className="font-normal">
                             {tag}
                           </Badge>
                         ))}
                       </div>
                     </div>
-                    <div>
-                      {getDifficultyBadge(problem.difficulty)}
-                    </div>
+                    <div>{getDifficultyBadge(problem.difficulty)}</div>
                   </div>
                   <p className="text-muted-foreground text-sm line-clamp-2">
                     {problem.description.trim().slice(0, 150)}...
@@ -195,25 +248,13 @@ const ProblemsPage = () => {
                   <div className="text-sm text-muted-foreground">
                     All test cases visible • Language agnostic
                   </div>
-                  {problem.lastAttempt && (
-                    <div className="flex items-center">
-                      {problem.lastAttempt.status === "Accepted" ? (
-                        <CheckCircle className="h-4 w-4 text-green-500 mr-1" />
-                      ) : null}
-                      <span className={`text-sm ${
-                        problem.lastAttempt.status === "Accepted" ? "text-green-500" : "text-muted-foreground"
-                      }`}>
-                        {problem.lastAttempt.status}
-                      </span>
-                    </div>
-                  )}
                 </CardFooter>
               </Link>
             </Card>
           ))
         ) : (
           <div className="text-center py-16 glass-card rounded-xl">
-            <h3 className="text-xl font-medium mb-2">No problems match your filters</h3>
+            <h3 className="text-xl font-medium mb-2">No problems found</h3>
             <p className="text-muted-foreground mt-2 mb-6">Try adjusting your search criteria</p>
             <Button variant="outline" onClick={clearFilters}>
               Clear Filters

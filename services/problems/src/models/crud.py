@@ -8,3 +8,8 @@ async def get_problem(db:AsyncSession, request: str): #should only be one entry 
     stmt = select(dbmodels.Problems).filter(dbmodels.Problems.problem_id == request)
     result = await db.execute(stmt)
     return result.scalars().one_or_none()
+
+async def get_problems(db: AsyncSession):
+    stmt = select(dbmodels.Problems)
+    result = await db.execute(stmt)
+    return result.scalars().all()

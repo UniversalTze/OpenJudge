@@ -4,8 +4,6 @@ import os
 from sqlalchemy.ext.asyncio import create_async_engine, AsyncSession
 from sqlalchemy.orm import sessionmaker, declarative_base
 
-# URL = "postgresql://user:password@localhost/dbname" # for locally hosted db
-# URL = "postgresql://user:password@database/dbname" # for cotainer db
 SQLALCHEMY_DATABASE_URI = os.getenv("SQLALCHEMY_DATABASE_URI")
 if not SQLALCHEMY_DATABASE_URI:
     raise RuntimeError("SQLALCHEMY_DATABASE_URI is not set in environment...")

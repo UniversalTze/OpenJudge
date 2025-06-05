@@ -28,25 +28,11 @@ Test the service from root using the following command.
 task test:problem
 ```
 
-Alternatively, a `docker-compose.yaml` have been included for local testing purposes.
-
 **Note:** before starting you can use the following command to build faster (only works if the
 docker build kit is available):
 
 ```bash
 export COMPOSE_BAKE=true
-```
-
-To run locally, from the `services/problems` directory, run the following commands:
-
-```bash
-docker compose up --build -d
-```
-
-To stop the containers, run:
-
-```bash
-docker compose down
 ```
 
 ### Documentation

@@ -10,19 +10,48 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { CheckCircle, Play, ChevronLeft, Lock, Unlock, Eye, EyeOff } from "lucide-react";
+import { Play, ChevronLeft, Lock, Unlock, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
-
-import { problems, Problem } from "@/data/problems";
+import { apiClient } from "@/lib/api";
+import { DatabaseRecord, Problem } from "@/lib/problems";
+import { API_ENDPOINTS } from "@/lib/env";
+import { useAuth } from "@/components/AuthContext";
 
 const ProblemDetailPage = () => {
   const { id } = useParams<{ id: string }>();
+  const { user, accessToken } = useAuth();
   const navigate = useNavigate();
-  const problem = problems.find((p) => p.id === id);
   const [language, setLanguage] = useState<"Java" | "Python">("Python");
   const [code, setCode] = useState<string>("");
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showHiddenTestCases, setShowHiddenTestCases] = useState(false);
+  const [problem, setProblem] = useState<Problem | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
+
+  async function getProblem() {
+    const response = await apiClient.get<DatabaseRecord>(API_ENDPOINTS.PROBLEMS.ID(id), {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        Accept: "application/json",
+      },
+    });
+    if (response.success) {
+      setProblem({
+        ...response.data,
+        examples: JSON.parse(response.data.examples || "[]"),
+        test_cases: JSON.parse(response.data.test_cases || "[]"),
+      });
+    } else {
+      console.error("Failed to fetch problem:", response.message);
+      toast.error("Problem not found or access denied.");
+      navigate("/problems");
+    }
+    setIsLoading(false);
+  }
+
+  useEffect(() => {
+    getProblem();
+  }, [accessToken]);
 
   function loadCodeFromLocalStorage(setCode: (value: string) => void): void {
     const code = localStorage.getItem(id);
@@ -108,10 +137,16 @@ const ProblemDetailPage = () => {
     }
   };
 
-  // For now, we'll simulate which test cases are "hidden"
-  // In the real backend, test cases will have a "hidden" property
-  const visibleTestCases = problem.testCases.slice(0, 2); // First 2 are visible
-  const hiddenTestCases = problem.testCases.slice(2); // Rest are "hidden"
+  const visibleTestCases = problem.test_cases.filter((test) => !test.hidden);
+  const hiddenTestCases = problem.test_cases.filter((test) => (test.hidden));
+
+    if (isLoading) {
+    return (
+      <div className="container flex items-center justify-center min-h-[50vh]">
+        <div className="animate-spin rounded-full size-20 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="container py-4">
@@ -126,13 +161,13 @@ const ProblemDetailPage = () => {
           <div>
             <div className="flex justify-between items-start mb-2">
               <h1 className="text-2xl font-bold">
-                {problem.id}. {problem.title}
+                {problem.problem_id}. {problem.problem_title}
               </h1>
               {getDifficultyBadge(problem.difficulty)}
             </div>
 
             <div className="flex flex-wrap gap-2 mb-4">
-              {problem.tags.map((tag) => (
+              {problem.topics.map((tag) => (
                 <Badge key={tag} variant="secondary" className="font-normal">
                   {tag}
                 </Badge>
@@ -191,7 +226,7 @@ const ProblemDetailPage = () => {
             </TabsContent>
 
             <TabsContent value="hints" className="py-4">
-              {problem.solutionHint ? (
+              {problem.hint ? (
                 <div className="bg-accent/20 border border-accent/30 rounded-md p-4">
                   <h3 className="font-medium mb-2 flex items-center">
                     <svg
@@ -208,7 +243,7 @@ const ProblemDetailPage = () => {
                     </svg>
                     Hint
                   </h3>
-                  <p className="text-sm">{problem.solutionHint}</p>
+                  <p className="text-sm">{problem.hint}</p>
                 </div>
               ) : (
                 <p className="text-muted-foreground text-sm">

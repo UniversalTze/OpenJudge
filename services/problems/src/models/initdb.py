@@ -1,4 +1,4 @@
-# Run migrations into the DB. Curl request to leet code for their question bank and add it to DB. 
+# Run migrations into the DB
 
 import json, logging, asyncio, asyncpg, os
 from .database import engine, AsyncSessionLocal, Base
