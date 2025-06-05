@@ -225,6 +225,21 @@ services:
     networks:
       - queue
 
+  execution-test-client:
+    build:
+      context: ../../services/execution
+      dockerfile: ../../infrastructure/docker/execution/Dockerfile.test
+    restart: always
+    environment:
+      CELERY_BROKER_URL: redis://redis:6379
+    command: bash -c "echo 'Test client container is running. Connect with `docker compose exec test-client bash`'; while true; do sleep 360; done" # Loop indefinitely in main thread
+    depends_on:
+      queue:
+        condition: service_healthy
+    networks:
+      - queue
+
+
   gateway:
     build: { 
       context: ../../services/gateway, 

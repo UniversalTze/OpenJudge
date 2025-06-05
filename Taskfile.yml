@@ -22,14 +22,14 @@ tasks:
   test:execution:
     desc: Run the execution service in development mode, and then runs unit tests against this service.
     cmds:
-      - task run:execution
-      - docker compose -f infrastructure/docker/docker-compose.yml -p openjudge exec test-client python test_client.py
+      - docker compose -f infrastructure/docker/docker-compose.yml -p openjudge up queue python-executor java-executor execution-test-client --build -d
+      - docker compose -f infrastructure/docker/docker-compose.yml -p openjudge exec execution-test-client python test_client.py
     silent: true
 
   down:execution:
     desc: Tear down local docker containers for execution service
     cmds:
-      - docker compose -f infrastructure/docker/docker-compose.yml -p openjudge down queue python-executor java-executor
+      - docker compose -f infrastructure/docker/docker-compose.yml -p openjudge down queue python-executor java-executor execution-test-client
     silent: true
 
   # FRONTEND COMMANDS
