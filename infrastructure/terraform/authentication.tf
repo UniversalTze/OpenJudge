@@ -56,7 +56,7 @@ resource "aws_security_group" "UserDatabaseSecurityGroup" {
 resource "aws_ecs_service" "AuthenticationAPI" {
   name            = "AuthenticationAPI"
   cluster         = aws_ecs_cluster.open-judge-cluster.id
-  task_definition = aws_ecs_task_definition.AuthenticationAPI.arn
+  task_definition = aws_ecs_task_definition.AuthenticationAPITask.arn
   desired_count   = 1
   launch_type     = "FARGATE"
 

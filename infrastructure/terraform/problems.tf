@@ -74,7 +74,7 @@ resource "aws_ecs_service" "ProblemsAPI" {
 
   load_balancer {
     target_group_arn = aws_lb_target_group.ProblemAPILoadBalancerTargetGroup.arn
-    container_name   = "ProblemAPI"
+    container_name   = "ProblemsAPI"
     container_port   = 6400
   }
 }
