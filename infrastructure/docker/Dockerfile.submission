@@ -42,10 +42,7 @@ RUN pipx ensurepath
 RUN pipx install poetry 
 
 WORKDIR /app 
-# # Copy project files
-COPY run.py poetry.lock pyproject.toml ./
-
-COPY ./app ./app/
+COPY . .
 
 # Install project dependencies
 RUN pipx run poetry install --no-root 

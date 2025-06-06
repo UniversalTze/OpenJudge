@@ -1,12 +1,15 @@
 from celery import Celery
-from config import config
+from subscriber.config import config
 from sqlalchemy import create_engine
 from sqlalchemy.orm import sessionmaker, scoped_session
-from app.models import Submission
+from app.models.models import Submission
 from datetime import datetime
 
+# Set up Celery Application
 celery = Celery('subscriber', broker=config.BROKER_URL)
 celery.conf.task_default_queue = config.OUTPUT_QUEUE
+
+# Initialise DB connection
 engine = create_engine(config.DATABASE_URL)
 Session = scoped_session(sessionmaker(bind=engine))
 

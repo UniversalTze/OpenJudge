@@ -1,1 +1,27 @@
-# command = ["celery", "-A", "queue_utils.celery_app", "worker", "--loglevel=info", "-Q", "pythonq"]
+FROM python:3.12-slim
+
+# TODO - SWITCH TO NON-ROOT USER FOR CELERY
+# RUN adduser --system --no-create-home --group celeryuser
+# USER celeryuser
+
+# Set working directory
+WORKDIR /app
+
+# Install uv
+RUN pip install --no-cache-dir uv
+
+# Copy Files
+COPY . .
+
+# Create a virtual environment and install dependencies
+RUN python -m venv /venv && \
+    /venv/bin/pip install --no-cache-dir -e .
+
+# Add virtual environment to PATH
+ENV PATH="/venv/bin:$PATH"
+
+# Verify installation
+RUN python --version && celery --version
+
+# Start the Celery worker
+CMD ["celery", "-A", "subscriber.subscriber.celery", "worker", "--loglevel=info"]
