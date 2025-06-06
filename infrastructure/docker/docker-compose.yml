@@ -110,7 +110,7 @@ services:
       POSTGRES_PASSWORD: ${PROBLEMS_DATABASE_PASSWORD}
       POSTGRES_DB: ${PROBLEMS_DATABASE_NAME}
     volumes:
-      - main_data:/var/lib/postgresql/data
+      - problems_data:/var/lib/postgresql/data
     networks:
       - problems
     healthcheck:
@@ -131,7 +131,7 @@ services:
       POSTGRES_PASSWORD: ${SUBMISSION_DATABASE_PASSWORD}
       POSTGRES_DB: ${SUBMISSION_DATABASE_NAME}
     volumes:
-      - main_data:/var/lib/postgresql/data
+      - submission_data:/var/lib/postgresql/data
     networks:
       - submission
     healthcheck:
@@ -284,4 +284,5 @@ volumes:
   user_data:
   auth-cache:
   queue_data:
-  main_data:
+  problems_data:
+  submission_data:
