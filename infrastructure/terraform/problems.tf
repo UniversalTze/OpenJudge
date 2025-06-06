@@ -172,7 +172,7 @@ resource "aws_lb_listener" "ProblemsAPILoadBalancerListener" {
 }
 
 resource "aws_lb_target_group" "ProblemAPILoadBalancerTargetGroup" {
-  name        = "ProblemAPILoadBalancerTargetGroup"
+  name        = "ProblemAPILBTargetGroup"
   port        = 6400
   protocol    = "HTTP"
   vpc_id      = data.aws_vpc.default.id
