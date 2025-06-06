@@ -4,7 +4,7 @@ resource "docker_image" "SubmissionAPIImage" {
   name = "${aws_ecr_repository.open-judge-ecr.repository_url}:submission-api-latest"
   build {
     context    = "../../services/submission"
-    dockerfile = "../infrastructure/docker/Dockerfile.submission"
+    dockerfile = "../../infrastructure/docker/Dockerfile.submission"
   }
 }
 
@@ -12,7 +12,7 @@ resource "docker_image" "SubmissionResultReceiverImage" {
   name = "${aws_ecr_repository.open-judge-ecr.repository_url}:submission-result-receiver-latest"
   build {
     context    = "../../services/submission"
-    dockerfile = "../infrastructure/docker/Dockerfile.subscriber"
+    dockerfile = "../../infrastructure/docker/Dockerfile.subscriber"
   }
 }
 
@@ -120,8 +120,6 @@ resource "aws_security_group" "SubmissionResultReceiverSecurityGroup" {
 
 ############################################################################
 # Submission Database
-
-# RDS PostgreSQL instance
 resource "aws_db_instance" "SubmissionDatabase" {
   # Engine Definitions
   identifier            = "submission-db"
@@ -143,7 +141,7 @@ resource "aws_db_instance" "SubmissionDatabase" {
   # db_subnet_group_name         = aws_db_subnet_group.default.name
 
   # Other Paramaters
-  parameter_group_name         = "default.postgres13"
+  parameter_group_name         = "default.postgres15"
   skip_final_snapshot          = true
   performance_insights_enabled = true
 }
