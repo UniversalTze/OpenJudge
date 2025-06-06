@@ -19,7 +19,7 @@ async def lifespan(app: FastAPI):
     await create_tables()
     app.state.http_client = httpx.AsyncClient()
     app.state.celery = celery_client
-    app.state.groq = AsyncGroq(config.GROQ_API_KEY)
+    app.state.groq = AsyncGroq(api_key=config.GROQ_API_KEY)
     yield
     await app.state.http_client.aclose()
 

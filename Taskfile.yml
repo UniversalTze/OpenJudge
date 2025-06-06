@@ -86,7 +86,7 @@ tasks:
   run:gateway:
     desc: Run the API Gateway in development mode.
     cmds:
-      - docker-compose -f infrastructure/docker/docker-compose.yml -p openjudge up redis gateway --build -d
+      - docker-compose -f infrastructure/docker/docker-compose.yml -p openjudge up gateway auth-cache --build -d
     silent: true
 
   test:gateway:
