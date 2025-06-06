@@ -124,7 +124,7 @@ resource "aws_security_group" "SubmissionResultReceiverSecurityGroup" {
 # RDS PostgreSQL instance
 resource "aws_db_instance" "SubmissionDatabase" {
   # Engine Definitions
-  identifier            = "SubmissionDB"
+  identifier            = "submission-db"
   engine                = "postgres"
   engine_version        = "15"
   instance_class        = "db.t3.medium"
@@ -174,7 +174,7 @@ resource "aws_ecs_service" "SubmissionAPI" {
   }
 
   load_balancer {
-    target_group_arn = aws_lb_target_group.SubmissionAPILoadBalancerTargetGroup.arn
+    target_group_arn = aws_lb_target_group.SubmissionAPILBTargetGroup.arn
     container_name   = "SubmissionAPI"
     container_port   = 5000
   }
@@ -318,12 +318,12 @@ resource "aws_lb_listener" "SubmissionAPILoadBalancerListener" {
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.SubmissionAPILoadBalancerTargetGroup.arn
+    target_group_arn = aws_lb_target_group.SubmissionAPILBTargetGroup.arn
   }
 }
 
-resource "aws_lb_target_group" "SubmissionAPILoadBalancerTargetGroup" {
-  name        = "SubmissionAPILoadBalancerTargetGroup"
+resource "aws_lb_target_group" "SubmissionAPILBTargetGroup" {
+  name        = "SubmissionAPILBTargetGroup"
   port        = 5000
   protocol    = "HTTP"
   vpc_id      = data.aws_vpc.default.id
