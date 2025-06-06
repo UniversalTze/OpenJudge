@@ -37,7 +37,7 @@
 FROM ubuntu:24.04
 
 # # Install engine and poetry dependencies.
-RUN apt-get update && apt-get install -y wget steghide pipx python3.12 python3-pip && rm -rf /var/lib/apt/lists/*
+RUN apt-get update && apt-get install -y wget steghide pipx python3.12 python3-pip libpq-dev gcc g++ && rm -rf /var/lib/apt/lists/*
 RUN pipx ensurepath 
 RUN pipx install poetry 
 
