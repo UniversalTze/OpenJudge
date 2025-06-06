@@ -209,7 +209,7 @@ resource "aws_ecs_task_definition" "SubmissionAPITask" {
       ]
       environment = [
         {
-          name  = "DATABASE_URL",
+          name  = "SUBMISSION_DATABASE_URL",
           value = "postgresql://${var.SUBMISSION_DATABASE_USER}:${var.SUBMISSION_DATABASE_PASSWORD}@${aws_db_instance.SubmissionDatabase.endpoint}/${var.SUBMISSION_DATABASE_NAME}"
         },
         {
@@ -283,7 +283,7 @@ resource "aws_ecs_task_definition" "SubmissionResultReceiverTask" {
           value = "production"
         },
         {
-          name  = "DATABASE_URL",
+          name  = "SUBMISSION_DATABASE_URL",
           value = "postgresql://${var.SUBMISSION_DATABASE_USER}:${var.SUBMISSION_DATABASE_PASSWORD}@${aws_db_instance.SubmissionDatabase.endpoint}/${var.SUBMISSION_DATABASE_NAME}"
         },
         {
@@ -341,7 +341,7 @@ resource "aws_lb_target_group" "SubmissionAPILBTargetGroup" {
 }
 
 ############################################################################
-# Autoscaling TODO
+# Autoscaling
 
 # Main API
 resource "aws_appautoscaling_target" "SubmissionAPIAutoScalingTarget" {
