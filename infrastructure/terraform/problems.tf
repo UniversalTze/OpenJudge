@@ -15,7 +15,7 @@ resource "docker_registry_image" "ProblemAPIImageName" {
 ############################################################################
 # Problem Database
 resource "aws_db_instance" "ProblemDatabase" {
-  identifier                   = "ProblemDatabase"
+  identifier                   = "problems-db"
   allocated_storage            = 20
   max_allocated_storage        = 1000
   engine                       = "postgres"
