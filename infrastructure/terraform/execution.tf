@@ -30,6 +30,7 @@ resource "aws_security_group" "ExecutionSecurityGroup" {
   name        = "ExecutionSecurityGroup"
   description = "Execution Security Group Blocking External Input/Output"
 
+  # TODO - We can probably just remove this useless ingress block
   ingress {
     from_port   = 0
     to_port     = 0
@@ -258,6 +259,10 @@ resource "aws_appautoscaling_policy" "ExecutionJavaAutoScalingPolicy" {
     scale_out_cooldown = 60
   }
 }
+
+############################################################################
+# Alarms
+# TODO - ADD IN SQS QUEUE BASED ALARM FOR EACH LANGUAGE!
 
 ############################################################################
 # Output

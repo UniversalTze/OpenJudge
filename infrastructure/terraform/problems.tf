@@ -1,10 +1,12 @@
-resource "docker_image" "problemsAPIImage" { 
- name = "${aws_ecr_repository.open-judge-ecr.repository_url}:Problems-latest"
- build { 
-   context = "../../services/problems" 
-   dockerfile = "../infrastructure/docker/Dockerfile.problems"
- } 
-} 
+############################################################################
+# Docker Images
+resource "docker_image" "problemsAPIImage" {
+  name = "${aws_ecr_repository.open-judge-ecr.repository_url}:Problems-latest"
+  build {
+    context    = "../../services/problems"
+    dockerfile = "../infrastructure/docker/Dockerfile.problems"
+  }
+}
 
 resource "docker_registry_image" "ProblemAPIImageName" {
   name = docker_image.problemsAPIImage.name
@@ -73,7 +75,7 @@ resource "aws_ecs_service" "ProblemAPI" {
   load_balancer {
     target_group_arn = aws_lb_target_group.ProblemAPILoadBalancerTargetGroup.arn
     container_name   = "ProblemAPI"
-    container_port   = 6400 
+    container_port   = 6400
   }
 }
 
@@ -128,24 +130,24 @@ resource "aws_ecs_task_definition" "ProblemsAPITask" {
   ])
 }
 
-resource "aws_security_group" "problems_security_group" { 
-   name = "problem security group" 
-   description = "Problem's security Group for inbound and outbound communication" 
- 
-   ingress { 
-    from_port = 6400 
-    to_port = 6400 
-    protocol = "tcp" 
-    cidr_blocks = ["0.0.0.0/0"] 
+resource "aws_security_group" "problems_security_group" {
+  name        = "problem security group"
+  description = "Problem's security Group for inbound and outbound communication"
+
+  ingress {
+    from_port       = 6400
+    to_port         = 6400
+    protocol        = "tcp"
+    cidr_blocks     = ["0.0.0.0/0"]
     security_groups = [aws_security_group.ProblemAPILoadBalancerSecurityGroup.id]
-   }
-   
-   egress { 
-    from_port = 0 
-    to_port = 0 
-    protocol = "-1" 
-    cidr_blocks = ["0.0.0.0/0"] 
-   } 
+  }
+
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
 }
 
 ########################################################################################

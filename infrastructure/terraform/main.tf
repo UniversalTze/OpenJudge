@@ -14,7 +14,7 @@ terraform {
 }
 
 provider "aws" {
-  region = "us-east-1"
+  region = "us-east-1" # TODO - CHECK IF WE CAN USE VARIABLE
   default_tags {
     tags = {
       Course     = "CSSE6400"
@@ -56,6 +56,7 @@ resource "aws_ecr_repository" "open-judge-ecr" {
   name = "open-judge-ecr"
 }
 
+############################################################################
 ##### ECS Cluster for open judge
 resource "aws_ecs_cluster" "open-judge-cluster" {
   name = "open-judge-cluster"
@@ -100,6 +101,18 @@ variable "PROBLEMS_DATABASE_USER" {
 }
 
 variable "PROBLEMS_DATABASE_PASSWORD" {
+  type = string
+}
+
+variable "SUBMISSION_DATABASE_NAME" {
+  type = string
+}
+
+variable "SUBMISSION_DATABASE_USER" {
+  type = string
+}
+
+variable "SUBMISSION_DATABASE_PASSWORD" {
   type = string
 }
 

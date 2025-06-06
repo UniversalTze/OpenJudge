@@ -1,48 +1,66 @@
-terraform {
-  required_providers {
-    aws = {
-      source  = "hashicorp/aws"
-      version = "~> 4.0"
-    }
+############################################################################
+# Docker Images
+resource "docker_image" "SubmissionAPIImage" {
+  name = "${aws_ecr_repository.open-judge-ecr.repository_url}:submission-api-latest"
+  build {
+    context    = "../../services/submission"
+    dockerfile = "../infrastructure/docker/Dockerfile.submission"
   }
 }
 
-provider "aws" {
-  region = var.aws_region
-}
-
-variable "aws_region" {
-  description = "AWS region"
-  default     = "us-east-1"
-}
-
-variable "db_username" {
-  description = "Postgres username"
-  default     = "postgres"
-}
-
-variable "db_password" {
-  description = "Postgres password"
-  default     = "postgres"
-}
-
-# Use default VPC and subnets
-data "aws_vpc" "default" {
-  default = true
-}
-
-data "aws_subnets" "default" {
-  filter {
-    name   = "vpc-id"
-    values = [data.aws_vpc.default.id]
+resource "docker_image" "SubmissionResultReceiverImage" {
+  name = "${aws_ecr_repository.open-judge-ecr.repository_url}:submission-result-receiver-latest"
+  build {
+    context    = "../../services/submission"
+    dockerfile = "../infrastructure/docker/Dockerfile.subscriber"
   }
 }
 
-# Security group allowing outbound access
-resource "aws_security_group" "ecs_sg" {
-  name        = "ecs-sg"
-  description = "Allow ECS tasks outbound to RDS/ElastiCache"
+resource "docker_registry_image" "SubmissionAPIImageName" {
+  name = docker_image.SubmissionAPIImage.name
+}
+
+resource "docker_registry_image" "SubmissionResultReceiverImageName" {
+  name = docker_image.SubmissionResultReceiverImage.name
+}
+
+############################################################################
+# Security Groups
+resource "aws_security_group" "SubmissionAPISecurityGroup" {
+  name        = "Submission API Security Group"
+  description = "Submission Service security group for inbound and outbound communication"
   vpc_id      = data.aws_vpc.default.id
+
+  # Incoming requests to API are allowed
+  ingress {
+    from_port       = 5000
+    to_port         = 5000
+    protocol        = "tcp"
+    cidr_blocks     = ["0.0.0.0/0"]
+    security_groups = [aws_security_group.SubmissionAPILoadBalancerSecurityGroup.id]
+  }
+
+  # Outgoing requests to DB, SQS and other services are allowed
+  egress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
+  }
+}
+
+resource "aws_security_group" "SubmissionAPILoadBalancerSecurityGroup" {
+  name        = "Submission API LB Security Group"
+  description = "Inbound and outbound communication to load balancer"
+  vpc_id      = data.aws_vpc.default.id
+
+  # Incoming requests via gateway
+  ingress {
+    from_port       = 80
+    to_port         = 80
+    protocol        = "tcp"
+    security_groups = [aws_security_group.APIGatewaySecurityGroup.id]
+  }
 
   egress {
     from_port   = 0
@@ -52,93 +70,139 @@ resource "aws_security_group" "ecs_sg" {
   }
 }
 
-# RDS Subnet group
-resource "aws_db_subnet_group" "default" {
-  name       = "submission-db-subnet-group"
-  subnet_ids = data.aws_subnets.default.ids
-}
+resource "aws_security_group" "SubmissionDatabaseSecurityGroup" {
+  name        = "Submission Database Security Group"
+  description = "Inbound and outbound communication to database"
+  vpc_id      = data.aws_vpc.default.id
 
-# RDS PostgreSQL instance
-resource "aws_db_instance" "submission_db" {
-  identifier             = "submission-db"
-  engine                 = "postgres"
-  engine_version         = "13.4"
-  instance_class         = "db.t3.micro"
-  allocated_storage      = 20
-  db_name                = "submissions"
-  username               = var.db_username
-  password               = var.db_password
-  parameter_group_name   = "default.postgres13"
-  skip_final_snapshot    = true
-  publicly_accessible    = false
-  vpc_security_group_ids = [aws_security_group.ecs_sg.id]
-  db_subnet_group_name   = aws_db_subnet_group.default.name
-}
+  # Incoming requests from API are allowed
+  ingress {
+    from_port       = 5000
+    to_port         = 5000
+    protocol        = "tcp"
+    security_groups = [aws_security_group.SubmissionAPISecurityGroup.id]
+  }
 
-# ElastiCache Subnet group
-resource "aws_elasticache_subnet_group" "default" {
-  name       = "submission-redis-subnet-group"
-  subnet_ids = data.aws_subnets.default.ids
-}
-
-# ElastiCache Redis cluster
-resource "aws_elasticache_cluster" "redis_cluster" {
-  cluster_id           = "submission-redis"
-  engine               = "redis"
-  engine_version       = "6.x"
-  node_type            = "cache.t3.micro"
-  num_cache_nodes      = 1
-  port                 = 6379
-  parameter_group_name = "default.redis6.x"
-  subnet_group_name    = aws_elasticache_subnet_group.default.name
-  security_group_ids   = [aws_security_group.ecs_sg.id]
-}
-
-# ECR repositories for Docker images
-resource "aws_ecr_repository" "submission_app" {
-  name = "submission-app"
-}
-
-resource "aws_ecr_repository" "submission_worker" {
-  name = "submission-worker"
-}
-
-# IAM role for ECS task execution
-data "aws_iam_policy_document" "ecs_task_exec_assume" {
-  statement {
-    effect = "Allow"
-    principals {
-      type        = "Service"
-      identifiers = ["ecs-tasks.amazonaws.com"]
-    }
-    actions = ["sts:AssumeRole"]
+  egress {
+    from_port        = 0
+    to_port          = 0
+    protocol         = "-1"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
   }
 }
 
-resource "aws_iam_role" "ecs_task_execution_role" {
-  name               = "ecsTaskExecutionRole"
-  assume_role_policy = data.aws_iam_policy_document.ecs_task_exec_assume.json
+resource "aws_security_group" "SubmissionResultReceiverSecurityGroup" {
+  name        = "SubmissionResultReceiverSecurityGroup"
+  description = "Submission Receiver Security Group Blocking External Input/Output"
+  vpc_id      = data.aws_vpc.default.id
+
+  # Disallow inbound traffic (no ingress blocks needed)
+
+  # Allow outbound traffic to RDS
+  egress {
+    from_port       = 5432
+    to_port         = 5432
+    protocol        = "tcp"
+    security_groups = [aws_security_group.SubmissionDatabaseSecurityGroup]
+    description     = "Allow outbound to RDS PostgreSQL"
+  }
+
+  # Allow outbound traffic to SQS
+  egress {
+    from_port   = 443
+    to_port     = 443
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "Allow outbound HTTPS to AWS services"
+  }
 }
 
-resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_policy" {
-  role       = aws_iam_role.ecs_task_execution_role.name
-  policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+############################################################################
+# Submission Database
+
+# RDS PostgreSQL instance
+resource "aws_db_instance" "SubmissionDatabase" {
+  # Engine Definitions
+  identifier            = "SubmissionDB"
+  engine                = "postgres"
+  engine_version        = "15"
+  instance_class        = "db.t3.medium"
+  allocated_storage     = 20
+  max_allocated_storage = 1000
+
+  # Database Credentials
+  db_name  = var.SUBMISSION_DATABASE_NAME
+  username = var.SUBMISSION_DATABASE_USER
+  password = var.SUBMISSION_DATABASE_PASSWORD
+
+  # Accessibility
+  vpc_security_group_ids = [aws_security_group.SubmissionDatabaseSecurityGroup.id]
+  publicly_accessible    = false
+  # TODO - ADD IN SUBNET IF TIME!
+  # db_subnet_group_name         = aws_db_subnet_group.default.name
+
+  # Other Paramaters
+  parameter_group_name         = "default.postgres13"
+  skip_final_snapshot          = true
+  performance_insights_enabled = true
 }
 
-# ECS task definition for web service
-resource "aws_ecs_task_definition" "web" {
-  family                   = "submission-web"
+############################################################################
+# ECS
+
+# Main API
+resource "aws_ecs_service" "SubmissionAPI" {
+  name            = "SubmissionAPI"
+  cluster         = aws_ecs_cluster.open-judge-cluster.id
+  task_definition = aws_ecs_task_definition.SubmissionAPITask.arn
+  launch_type     = "FARGATE"
+  desired_count   = 1
+
+  depends_on = [
+    aws_db_instance.SubmissionDatabase,
+    docker_registry_image.SubmissionAPIImageName,
+    aws_sqs_queue.ExecutionPythonQueue,
+    aws_sqs_queue.ExecutionJavaQueue,
+    aws_lb_listener.SubmissionAPILoadBalancerListener,
+  ]
+
+  network_configuration {
+    subnets          = data.aws_subnets.private.ids
+    security_groups  = [aws_security_group.SubmissionAPISecurityGroup.id]
+    assign_public_ip = true
+  }
+
+  load_balancer {
+    target_group_arn = aws_lb_target_group.SubmissionAPILoadBalancerTargetGroup.arn
+    container_name   = "SubmissionAPI"
+    container_port   = 5000
+  }
+}
+
+resource "aws_ecs_task_definition" "SubmissionAPITask" {
+  family                   = "SubmissionAPI"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
-  cpu                      = "256"
-  memory                   = "512"
-  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
+  cpu                      = 1024
+  memory                   = 2048
+  execution_role_arn       = data.aws_iam_role.lab.arn
+  task_role_arn            = data.aws_iam_role.lab.arn
 
   container_definitions = jsonencode([
     {
-      name      = "web"
-      image     = "${aws_ecr_repository.submission_app.repository_url}:latest"
+      name      = "SubmissionAPI"
+      image     = "${docker_image.SubmissionAPIImage.name}"
       essential = true
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          "awslogs-group"         = "/AuthenticationAPI"
+          "awslogs-region"        = var.AWS_REGION
+          "awslogs-stream-prefix" = "ecs"
+          "awslogs-create-group"  = "true"
+        }
+      }
       portMappings = [
         {
           containerPort = 5000
@@ -146,65 +210,179 @@ resource "aws_ecs_task_definition" "web" {
         }
       ]
       environment = [
-        { name = "DATABASE_URL", value = "postgresql://${var.db_username}:${var.db_password}@${aws_db_instance.submission_db.address}:5432/submissions" },
-        { name = "REDIS_URL", value = "redis://${aws_elasticache_cluster.redis_cluster.cache_nodes[0].address}:6379/0" }
+        {
+          name  = "DATABASE_URL",
+          value = "postgresql://${var.SUBMISSION_DATABASE_USER}:${var.SUBMISSION_DATABASE_PASSWORD}@${aws_db_instance.SubmissionDatabase.endpoint}/${var.SUBMISSION_DATABASE_NAME}"
+        },
+        {
+          name  = "BROKER_URL",
+          value = "sqs://"
+        },
+        {
+          name  = "PROBLEMS_SERVICE_URL",
+          value = "${aws_lb.ProblemsAPILoadBalancer.dns_name}",
+        },
+        {
+          name  = "JAVA_QUEUE",
+          value = "${aws_sqs_queue.ExecutionJavaQueue.name}",
+        },
+        {
+          name  = "PYTHON_QUEUE",
+          value = "${aws_sqs_queue.ExecutionPythonQueue.name}",
+        }
       ]
     }
   ])
 }
 
-# ECS service for web
-resource "aws_ecs_service" "web_service" {
-  name            = "submission-web-service"
+# Celery Worker
+resource "aws_ecs_service" "SubmissionResultReceiver" {
+  name            = "SubmissionResultReceiver"
   cluster         = aws_ecs_cluster.open-judge-cluster.id
-  task_definition = aws_ecs_task_definition.web.arn
+  task_definition = aws_ecs_task_definition.SubmissionResultReceiverTask.arn
   launch_type     = "FARGATE"
-  desired_count   = 2
+  desired_count   = 1
+
+  depends_on = [
+    docker_registry_image.SubmissionWorkerImageName,
+    aws_sqs_queue.ExecutionResultsQueue,
+    aws_db_instance.SubmissionDatabase,
+  ]
+
   network_configuration {
     subnets          = data.aws_subnets.default.ids
-    security_groups  = [aws_security_group.ecs_sg.id]
+    security_groups  = [aws_security_group.SubmissionResultReceiverSecurityGroup.id]
     assign_public_ip = true
   }
 }
 
-# ECS task definition for Celery worker
-resource "aws_ecs_task_definition" "worker" {
-  family                   = "submission-worker"
+resource "aws_ecs_task_definition" "SubmissionResultReceiverTask" {
+  family                   = "SubmissionResultReceiver"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
-  cpu                      = "256"
-  memory                   = "512"
-  execution_role_arn       = aws_iam_role.ecs_task_execution_role.arn
+  cpu                      = 512
+  memory                   = 1024
+  execution_role_arn       = data.aws_iam_role.lab.arn
+  task_role_arn            = data.aws_iam_role.lab.arn
 
   container_definitions = jsonencode([
     {
-      name      = "worker"
-      image     = "${aws_ecr_repository.submission_worker.repository_url}:latest"
+      name      = "SubmissionResultReceiverTask"
+      image     = "${docker_image.SubmissionResultReceiverImage.name}"
       essential = true
-      command   = ["celery", "-A", "queue_utils.celery_app", "worker", "--loglevel=info", "-Q", "pythonq"]
+      logConfiguration = {
+        logDriver = "awslogs"
+        options = {
+          "awslogs-group"         = "/ExecutionPython"
+          "awslogs-region"        = var.AWS_REGION
+          "awslogs-stream-prefix" = "ecs"
+          "awslogs-create-group"  = "true"
+        }
+      }
       environment = [
-        { name = "DATABASE_URL", value = "postgresql://${var.db_username}:${var.db_password}@${aws_db_instance.submission_db.address}:5432/submissions" },
-        { name = "REDIS_URL", value = "redis://${aws_elasticache_cluster.redis_cluster.cache_nodes[0].address}:6379/0" }
+        {
+          name  = "ENV"
+          value = "production"
+        },
+        {
+          name  = "DATABASE_URL",
+          value = "postgresql://${var.SUBMISSION_DATABASE_USER}:${var.SUBMISSION_DATABASE_PASSWORD}@${aws_db_instance.SubmissionDatabase.endpoint}/${var.SUBMISSION_DATABASE_NAME}"
+        },
+        {
+          name  = "CELERY_BROKER_URL"
+          value = "sqs://"
+        },
+        {
+          name  = "OUTPUT_QUEUE"
+          value = "${aws_sqs_queue.ExecutionResultsQueue.name}"
+        },
       ]
     }
   ])
 }
 
-# ECS service for worker
-resource "aws_ecs_service" "worker_service" {
-  name            = "submission-worker-service"
-  cluster         = aws_ecs_cluster.open-judge-cluster.id
-  task_definition = aws_ecs_task_definition.worker.arn
-  launch_type     = "FARGATE"
-  desired_count   = 1
-  network_configuration {
-    subnets          = data.aws_subnets.default.ids
-    security_groups  = [aws_security_group.ecs_sg.id]
-    assign_public_ip = true
+########################################################################################
+# Load Balancer
+resource "aws_lb" "SubmissionAPILoadBalancer" {
+  name               = "SubmissionAPILoadBalancer"
+  internal           = false
+  load_balancer_type = "application"
+  security_groups    = [aws_security_group.SubmissionAPILoadBalancerSecurityGroup.id]
+  subnets            = data.aws_subnets.private.ids
+}
+
+resource "aws_lb_listener" "SubmissionAPILoadBalancerListener" {
+  load_balancer_arn = aws_lb.SubmissionAPILoadBalancer.arn
+  port              = 80
+  protocol          = "HTTP"
+
+  default_action {
+    type             = "forward"
+    target_group_arn = aws_lb_target_group.SubmissionAPILoadBalancerTargetGroup.arn
   }
 }
 
-# SQS queue (for callback/results if needed)
-resource "aws_sqs_queue" "results_queue" {
-  name = "submission-results-queue"
+resource "aws_lb_target_group" "SubmissionAPILoadBalancerTargetGroup" {
+  name        = "SubmissionAPILoadBalancerTargetGroup"
+  port        = 5000
+  protocol    = "HTTP"
+  vpc_id      = data.aws_vpc.default.id
+  target_type = "ip"
+
+  health_check {
+    enabled             = true
+    healthy_threshold   = 2
+    interval            = 30
+    matcher             = "200"
+    path                = "/health"
+    port                = "traffic-port"
+    protocol            = "HTTP"
+    timeout             = 5
+    unhealthy_threshold = 2
+  }
 }
+
+############################################################################
+# Output
+resource "null_resource" "summary_problem" {
+  provisioner "local-exec" {
+    command = <<EOT
+      echo "==== OpenJudge Problem Deployment Complete! ===="
+      echo "Submission API Image Repository URL: ${aws_ecr_repository.open-judge-ecr.repository_url}"
+      echo ""
+    EOT
+  }
+}
+
+############################################################################
+# Extraneous TF code - add back in if it works/is needed
+
+
+# RDS Subnet group TODO - ADD BACK IN IF TIME ALLOWS!
+# resource "aws_db_subnet_group" "default" {
+#   name       = "submission-db-subnet-group"
+#   subnet_ids = data.aws_subnets.default.ids
+# }
+
+# IAM ROLES SHOULD BE DEFINED IN MAIN - TODO - DELETE LATER IF UNECESSARY!
+# # IAM role for ECS task execution
+# data "aws_iam_policy_document" "ecs_task_exec_assume" {
+#   statement {
+#     effect = "Allow"
+#     principals {
+#       type        = "Service"
+#       identifiers = ["ecs-tasks.amazonaws.com"]
+#     }
+#     actions = ["sts:AssumeRole"]
+#   }
+# }
+
+# resource "aws_iam_role" "ecs_task_execution_role" {
+#   name               = "ecsTaskExecutionRole"
+#   assume_role_policy = data.aws_iam_policy_document.ecs_task_exec_assume.json
+# }
+
+# resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_policy" {
+#   role       = aws_iam_role.ecs_task_execution_role.name
+#   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
+# }
