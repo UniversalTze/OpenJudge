@@ -39,12 +39,8 @@ ASSIGNED TO:
 TODO: Describe and justify the trade-offs made in designing the architecture.
 ASSIGNED TO:
 
-## Critique
-TODO: Describe how well the architecture supports delivering the complete system.
-ASSIGNED TO:
-
-## Evaluation
-TODO: Summarise testing results and justify how well the software achieves its quality attributes.
+## Critique + Evaluation
+TODO: Describe how well the architecture supports delivering the complete system + Summarise testing results and justify how well the software achieves its quality attributes.
 ASSIGNED TO:
 
 ## Reflection
