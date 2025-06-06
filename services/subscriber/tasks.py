@@ -4,8 +4,9 @@ from datetime import datetime
 from models import Submission
 from sqlalchemy import select
 import asyncio
+from config import config
 
-@celery.task(name="result", queue="output")
+@celery.task(name="result", queue=config.OUTPUT_QUEUE_NAME)
 def process_result(result: dict):
     try:
         loop = asyncio.get_event_loop()
