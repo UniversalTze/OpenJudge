@@ -132,7 +132,7 @@ resource "aws_ecs_task_definition" "ProblemsAPITask" {
 
 resource "aws_security_group" "problems_security_group" {
   name        = "problem security group"
-  description = "Problem's security Group for inbound and outbound communication"
+  description = "Problems security Group for inbound and outbound communication"
 
   ingress {
     from_port       = 6400
