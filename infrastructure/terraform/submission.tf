@@ -244,7 +244,7 @@ resource "aws_ecs_service" "SubmissionResultReceiver" {
   desired_count   = 1
 
   depends_on = [
-    docker_registry_image.SubmissionWorkerImageName,
+    docker_registry_image.SubmissionResultReceiverImageName,
     aws_sqs_queue.ExecutionResultsQueue,
     aws_db_instance.SubmissionDatabase,
   ]
