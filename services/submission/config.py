@@ -15,12 +15,9 @@ class Config:
     def __init__(self):
         self.SUBMISSION_DATABASE_URL = get_env("SUBMISSION_DATABASE_URL")
         self.PROBLEMS_SERVICE_URL = get_env("PROBLEMS_SERVICE_URL")
-        self.JAVA_QUEUE_URL = get_env("JAVA_QUEUE_URL")
-        self.PYTHON_QUEUE_URL = get_env("PYTHON_QUEUE_URL")
         self.JAVA_QUEUE_NAME = get_env("JAVA_QUEUE_NAME")
         self.PYTHON_QUEUE_NAME = get_env("PYTHON_QUEUE_NAME")
-        self.AWS_REGION = get_env("AWS_REGION")
-        self.ENV = get_env("ENV")
         self.GROQ_API_KEY = get_env("GROQ_API_KEY")
+        self.CELERY_BROKER_URL = get_env("CELERY_BROKER_URL")
 
 config = Config()

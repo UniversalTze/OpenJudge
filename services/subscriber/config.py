@@ -14,9 +14,7 @@ def get_env(key: str) -> str:
 class Config:
     def __init__(self):
         self.SUBMISSION_DATABASE_URL = get_env("SUBMISSION_DATABASE_URL")
-        self.OUTPUT_QUEUE_URL = get_env("OUTPUT_QUEUE_URL")
+        self.CELERY_BROKER_URL = get_env("CELERY_BROKER_URL")
         self.OUTPUT_QUEUE_NAME = get_env("OUTPUT_QUEUE_NAME")
-        self.AWS_REGION = get_env("AWS_REGION")
-        self.ENV = get_env("ENV")
 
 config = Config()

@@ -144,4 +144,8 @@ variable "SMTP_FROM" {
   type = string
 }
 
+variable "GROQ_API_KEY" {
+  type = string
+}
+
 ############################################################################

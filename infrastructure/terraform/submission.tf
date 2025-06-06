@@ -210,10 +210,10 @@ resource "aws_ecs_task_definition" "SubmissionAPITask" {
       environment = [
         {
           name  = "SUBMISSION_DATABASE_URL",
-          value = "postgresql://${var.SUBMISSION_DATABASE_USER}:${var.SUBMISSION_DATABASE_PASSWORD}@${aws_db_instance.SubmissionDatabase.endpoint}/${var.SUBMISSION_DATABASE_NAME}"
+          value = "postgresql+asyncpg://${var.SUBMISSION_DATABASE_USER}:${var.SUBMISSION_DATABASE_PASSWORD}@${aws_db_instance.SubmissionDatabase.endpoint}/${var.SUBMISSION_DATABASE_NAME}"
         },
         {
-          name  = "BROKER_URL",
+          name  = "CELERY_BROKER_URL",
           value = "sqs://"
         },
         {
@@ -221,13 +221,18 @@ resource "aws_ecs_task_definition" "SubmissionAPITask" {
           value = "${aws_lb.ProblemsAPILoadBalancer.dns_name}",
         },
         {
-          name  = "JAVA_QUEUE",
+          name  = "JAVA_QUEUE_NAME",
           value = "${aws_sqs_queue.ExecutionJavaQueue.name}",
         },
         {
-          name  = "PYTHON_QUEUE",
+          name  = "PYTHON_QUEUE_NAME",
           value = "${aws_sqs_queue.ExecutionPythonQueue.name}",
-        }
+        },
+        {
+          name  = "GROQ_API_KEY"
+          value = var.GROQ_API_KEY
+        },
+
       ]
     }
   ])
@@ -279,10 +284,6 @@ resource "aws_ecs_task_definition" "SubmissionResultReceiverTask" {
       }
       environment = [
         {
-          name  = "ENV"
-          value = "production"
-        },
-        {
           name  = "SUBMISSION_DATABASE_URL",
           value = "postgresql://${var.SUBMISSION_DATABASE_USER}:${var.SUBMISSION_DATABASE_PASSWORD}@${aws_db_instance.SubmissionDatabase.endpoint}/${var.SUBMISSION_DATABASE_NAME}"
         },
@@ -291,7 +292,7 @@ resource "aws_ecs_task_definition" "SubmissionResultReceiverTask" {
           value = "sqs://"
         },
         {
-          name  = "OUTPUT_QUEUE"
+          name  = "OUTPUT_QUEUE_NAME"
           value = "${aws_sqs_queue.ExecutionResultsQueue.name}"
         },
       ]

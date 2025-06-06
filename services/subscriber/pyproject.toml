@@ -10,4 +10,5 @@ dependencies = [
     "asyncpg",
     "uvloop",
     "kombu[amazon]>=5.5.4",
+    "boto3>=1.38.31",
 ]

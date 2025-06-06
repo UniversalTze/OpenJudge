@@ -76,7 +76,7 @@ async def submit_code(request: Request, session: AsyncSession = Depends(get_sess
         await session.commit()
         
         payload = {
-            "submission_id": submission.submission_id,
+            submission_id: submission.submission_id,
             "submission_code": code,
             "inputs": inputs,
             "outputs": outputs,

@@ -16,8 +16,8 @@ import { apiClient } from "@/lib/api";
 import { DatabaseRecord, Problem } from "@/lib/types";
 import { API_ENDPOINTS } from "@/lib/env";
 import { useAuth } from "@/components/AuthContext";
-import Editor, { OnMount, BeforeMount } from '@monaco-editor/react'
-import * as monacoEditor from 'monaco-editor'
+import Editor, { OnMount, BeforeMount } from "@monaco-editor/react";
+import * as monacoEditor from "monaco-editor";
 
 const ProblemDetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -31,27 +31,30 @@ const ProblemDetailPage = () => {
   const [isLoading, setIsLoading] = useState(true);
 
   const handleBeforeMount: BeforeMount = (monaco) => {
-    monaco.editor.defineTheme('custom-dark', {
-      base: 'vs-dark',
+    monaco.editor.defineTheme("custom-dark", {
+      base: "vs-dark",
       inherit: true,
       rules: [
-        { token: '', foreground: 'c3dafe' },            // default text (lavender)
-        { token: 'keyword', foreground: '7aa2f7' },      // keywords (blue)
-        { token: 'string', foreground: '9d7cd8' },       // strings (purple)
-        { token: 'number', foreground: '7dcfff' },       // numbers (light blue)
-        { token: 'comment', foreground: '5c6370' },      // comments (gray)
-        { token: 'type', foreground: 'bb9af7' },         // types (purple)
-        { token: 'function', foreground: '7aa2f7' },     // functions (blue)
-        { token: 'variable', foreground: 'c3dafe' },     // variables (lavender)
-        { token: 'multiline-comment', foreground: '5c6370' }, // multiline comments (gray)
+        { token: "", foreground: "c3dafe" },
+        { token: "keyword", foreground: "7aa2f7" },
+        { token: "string", foreground: "9d7cd8" },
+        { token: "number", foreground: "7dcfff" },
+        { token: "comment", foreground: "5c6370" },
+        { token: "type", foreground: "bb9af7" },
+        { token: "function", foreground: "7aa2f7" },
+        { token: "variable", foreground: "c3dafe" },
+        { token: "multiline-comment", foreground: "5c6370" }, // multiline comments (gray)
       ],
       colors: {
-        'editor.background': '#030711',
+        "editor.background": "#030711",
       },
-    })
-  }
+    });
+  };
 
-  function determineType(type: "boolean" | "integer" | "string", language: "Java" | "Python"): string {
+  function determineType(
+    type: "boolean" | "integer" | "string",
+    language: "Java" | "Python"
+  ): string {
     switch (type) {
       case "boolean":
         return language === "Java" ? "boolean" : "bool";
@@ -98,20 +101,31 @@ const ProblemDetailPage = () => {
   useEffect(() => {
     if (problem && language === "Java") {
       setCode(
-        `/** \n * ${problem?.description}\n * \n */ \npublic class Solution {\n    public static ${determineType(problem.return_type, language)} ${problem?.function_name ?? "FunctionName"}(/*Insert*/) {\n        // Your code here\n    }\n}`
+        `/** \n * ${
+          problem?.description
+        }\n * \n */ \npublic class Solution {\n    public static ${determineType(
+          problem.return_type,
+          language
+        )} ${
+          problem?.function_name ?? "FunctionName"
+        }(/*Insert*/) {\n        // Your code here\n    }\n}`
       );
     } else if (problem && language === "Python") {
-      setCode(`def ${problem.function_name ?? "function_name"}("""Insert""") -> ${determineType(problem.return_type, language)}:\n    """${problem.description}"""\n    #...`
+      setCode(
+        `def ${problem.function_name ?? "function_name"}("""Insert""") -> ${determineType(
+          problem.return_type,
+          language
+        )}:\n    """${problem.description}"""\n    #...`
       );
     }
-  }
-  , [language, problem]);
+  }, [language, problem]);
 
   useEffect(() => {
     loadCodeFromLocalStorage(setCode);
   }, []);
 
-  {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */ }
+  
+    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
   function debounce<T extends (...args: any[]) => void>(fn: T, delay: number): T {
     let timeoutId: ReturnType<typeof setTimeout>;
     return function (...args: Parameters<T>) {
@@ -163,7 +177,6 @@ const ProblemDetailPage = () => {
     }
     setIsLoading(false);
   }
-
 
   const handleSubmit = () => {
     postSubmit();
@@ -461,15 +474,30 @@ const ProblemDetailPage = () => {
               height="100%"
               key={language.toLowerCase()}
               defaultLanguage={language.toLowerCase()}
-              defaultValue={code}
+              defaultValue={
+                language === "Java"
+                  ? `/** \n * ${
+                      problem?.description
+                    }\n * \n */ \npublic class Solution {\n    public static ${determineType(
+                      problem.return_type,
+                      language
+                    )} ${
+                      problem?.function_name ?? "FunctionName"
+                    }(/*Insert*/) {\n        // Your code here\n    }\n}`
+                  : `def ${
+                      problem.function_name ?? "function_name"
+                    }("""Insert""") -> ${determineType(problem.return_type, language)}:\n    """${
+                      problem.description
+                    }"""\n    #...`
+              }
               theme="custom-dark"
               beforeMount={handleBeforeMount}
               onChange={(value) => {
-                handleCodeChange(value)
+                handleCodeChange(value);
               }}
               options={{
                 minimap: { enabled: false },
-                fontFamily: 'JetBrains Mono, monospace',
+                fontFamily: "JetBrains Mono, monospace",
                 fontSize: 14,
                 scrollBeyondLastLine: false,
               }}

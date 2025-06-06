@@ -28,15 +28,15 @@ class ApiClient {
       const response: Response = await fetch(`${this.baseURL}${endpoint}`, requestConfig);
       clearTimeout(timeoutId);
       let data = null;
-      let message = "Request successful";
+      let message = null;
       if (response.headers.get("content-type")?.includes("application/json")) {
         data = await response.json();
       } else {
         message = await response.text();
       }
 
-      if (!response.ok) {
-        message = data?.message  || "Request failed";
+      if (response.ok) {
+        message = "Request successful";
       }
 
       result = {
