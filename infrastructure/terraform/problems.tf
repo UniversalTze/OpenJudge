@@ -1,15 +1,15 @@
 ############################################################################
 # Docker Images
-resource "docker_image" "problemsAPIImage" {
-  name = "${aws_ecr_repository.open-judge-ecr.repository_url}:Problems-latest"
+resource "docker_image" "ProblemsAPIImage" {
+  name = "${aws_ecr_repository.open-judge-ecr.repository_url}:problems-latest"
   build {
     context    = "../../services/problems"
     dockerfile = "../../infrastructure/docker/Dockerfile.problems"
   }
 }
 
-resource "docker_registry_image" "ProblemAPIImageName" {
-  name = docker_image.problemsAPIImage.name
+resource "docker_registry_image" "ProblemsAPIImageName" {
+  name = docker_image.ProblemsAPIImage.name
 }
 
 ############################################################################
@@ -53,8 +53,8 @@ resource "aws_security_group" "ProblemDatabaseSecurityGroup" {
 ############################################################################
 # ECS
 
-resource "aws_ecs_service" "ProblemAPI" {
-  name            = "ProblemAPI"
+resource "aws_ecs_service" "ProblemsAPI" {
+  name            = "ProblemsAPI"
   cluster         = aws_ecs_cluster.open-judge-cluster.id
   task_definition = aws_ecs_task_definition.ProblemsAPITask.arn
   desired_count   = 1
@@ -74,13 +74,13 @@ resource "aws_ecs_service" "ProblemAPI" {
 
   load_balancer {
     target_group_arn = aws_lb_target_group.ProblemAPILoadBalancerTargetGroup.arn
-    container_name   = "ProblemAPI"
+    container_name   = "ProblemsAPI"
     container_port   = 6400
   }
 }
 
 resource "aws_ecs_task_definition" "ProblemsAPITask" {
-  family                   = "ProblemAPI"
+  family                   = "ProblemsAPI"
   network_mode             = "awsvpc"
   requires_compatibilities = ["FARGATE"]
   cpu                      = 1024
@@ -90,13 +90,13 @@ resource "aws_ecs_task_definition" "ProblemsAPITask" {
 
   container_definitions = jsonencode([
     {
-      name      = "ProblemsAPI"
+      name      = "ProblemAPI"
       image     = "${docker_image.problemsAPIImage.name}"
       essential = true
       logConfiguration = {
         logDriver = "awslogs"
         options = {
-          "awslogs-group"         = "/ProblemsAPI"
+          "awslogs-group"         = "/ProblemAPI"
           "awslogs-region"        = var.AWS_REGION
           "awslogs-stream-prefix" = "ecs"
           "awslogs-create-group"  = "true"
@@ -220,7 +220,7 @@ resource "null_resource" "summary_problem" {
       echo "==== OpenJudge Problem Deployment Complete! ===="
       echo "Problem API Image Repository URL: ${aws_ecr_repository.open-judge-ecr.repository_url}"
       echo "Problem API URL: http://${aws_lb.ProblemsAPILoadBalancer.dns_name}"
-      echo "Database URI: "postgresql+asyncpg://${var.PROBLEMS_DATABASE_USER}:${var.PROBLEMS_DATABASE_PASSWORD}@${aws_db_instance.ProblemDatabase.endpoint}/${var.PROBLEMS_DATABASE_NAME}"
+      echo "Database URI: postgresql+asyncpg://${var.PROBLEMS_DATABASE_USER}:${var.PROBLEMS_DATABASE_PASSWORD}@${aws_db_instance.ProblemDatabase.endpoint}/${var.PROBLEMS_DATABASE_NAME}"
       echo ""
     EOT
   }
