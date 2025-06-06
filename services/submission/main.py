@@ -11,12 +11,15 @@ from database import create_tables, get_session
 from q import celery_client, send
 from validation import clean_code
 from models import Submission
+from groq import AsyncGroq
+from feedback import get_ai_feedback
 
 @asynccontextmanager
 async def lifespan(app: FastAPI):
     await create_tables()
     app.state.http_client = httpx.AsyncClient()
     app.state.celery = celery_client
+    app.state.groq = AsyncGroq(config.GROQ_API_KEY)
     yield
     await app.state.http_client.aclose()
 
@@ -124,6 +127,14 @@ async def get_submission_ai(submission_id: str, session: AsyncSession = Depends(
     if submission.status == "success":
         return "Submission correct", 400
 
-    # call ai model here
-
-    return "Not implemented yet", 501
+    try:
+        response = await get_ai_feedback(
+            submission.code,
+            submission.inputs,
+            submission.outputs,
+            app.state.groq
+        )
+        return response
+    except Exception as e:
+        print(f"[Error] AI feedback failed: {e}")
+        return JSONResponse(status_code=502, content={"error": "AI feedback service error"})

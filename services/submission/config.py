@@ -21,5 +21,6 @@ class Config:
         self.PYTHON_QUEUE_NAME = get_env("PYTHON_QUEUE_NAME")
         self.AWS_REGION = get_env("AWS_REGION")
         self.ENV = get_env("ENV")
+        self.GROQ_API_KEY = get_env("GROQ_API_KEY")
 
 config = Config()
