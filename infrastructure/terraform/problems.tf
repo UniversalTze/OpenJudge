@@ -210,6 +210,9 @@ resource "aws_security_group" "ProblemAPILoadBalancerSecurityGroup" {
 }
 
 ############################################################################
+# Autoscaling TODO
+
+############################################################################
 # Output
 resource "null_resource" "summary_problem" {
   provisioner "local-exec" {
