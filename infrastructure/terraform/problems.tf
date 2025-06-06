@@ -4,7 +4,7 @@ resource "docker_image" "problemsAPIImage" {
   name = "${aws_ecr_repository.open-judge-ecr.repository_url}:Problems-latest"
   build {
     context    = "../../services/problems"
-    dockerfile = "../infrastructure/docker/Dockerfile.problems"
+    dockerfile = "../../infrastructure/docker/Dockerfile.problems"
   }
 }
 
