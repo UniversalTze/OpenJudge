@@ -104,7 +104,7 @@ resource "aws_security_group" "SubmissionResultReceiverSecurityGroup" {
     from_port       = 5432
     to_port         = 5432
     protocol        = "tcp"
-    security_groups = [aws_security_group.SubmissionDatabaseSecurityGroup]
+    security_groups = [aws_security_group.SubmissionDatabaseSecurityGroup.id]
     description     = "Allow outbound to RDS PostgreSQL"
   }
 
