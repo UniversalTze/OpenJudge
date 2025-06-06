@@ -72,7 +72,7 @@ services:
 
   submission_service:
     build: { 
-      context: ../../services/submission-3.0, 
+      context: ../../services/submission, 
       dockerfile:  ../../infrastructure/docker/Dockerfile.submission
     }
     container_name: submission_service
