@@ -62,7 +62,7 @@ resource "aws_ecs_service" "APIGatewayService" {
   load_balancer {
     target_group_arn = aws_lb_target_group.APIGatewayLoadBalancerTargetGroup.arn
     container_name   = "APIGatewayService"
-    container_port   = 6400 # TODO - CHECK THIS PORT VALUE
+    container_port   = 8080
   }
 }
 
@@ -89,6 +89,12 @@ resource "aws_ecs_task_definition" "APIGatewayTask" {
           "awslogs-create-group"  = "true"
         }
       }
+      portMappings = [
+        {
+          containerPort = 8080
+          hostPort      = 8080
+        }
+      ]
       environment = [
         {
           name  = "ENV"
@@ -124,7 +130,7 @@ resource "aws_lb_listener" "APIGatewayLoadBalancerListener" {
 
 resource "aws_lb_target_group" "APIGatewayLoadBalancerTargetGroup" {
   name        = "APIGatewayLoadBalancerTargetGroup"
-  port        = 6400 # TODO - CHECK WHAT THE CORRECT PORT IS
+  port        = 8080
   protocol    = "HTTP"
   vpc_id      = data.aws_vpc.default.id
   target_type = "ip"
