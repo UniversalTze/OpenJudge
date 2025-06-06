@@ -347,7 +347,7 @@ resource "aws_lb_target_group" "SubmissionAPILoadBalancerTargetGroup" {
 
 ############################################################################
 # Output
-resource "null_resource" "summary_problem" {
+resource "null_resource" "summary_submission" {
   provisioner "local-exec" {
     command = <<EOT
       echo "==== OpenJudge Problem Deployment Complete! ===="
