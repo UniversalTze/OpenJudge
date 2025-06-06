@@ -62,7 +62,7 @@ resource "aws_ecs_service" "ProblemsAPI" {
 
   depends_on = [
     aws_db_instance.ProblemDatabase,
-    docker_registry_image.ProblemAPIImageName,
+    docker_registry_image.ProblemsAPIImageName,
     aws_lb_listener.ProblemsAPILoadBalancerListener
   ]
 
@@ -91,7 +91,7 @@ resource "aws_ecs_task_definition" "ProblemsAPITask" {
   container_definitions = jsonencode([
     {
       name      = "ProblemAPI"
-      image     = "${docker_image.problemsAPIImage.name}"
+      image     = "${docker_image.ProblemsAPIImage.name}"
       essential = true
       logConfiguration = {
         logDriver = "awslogs"
