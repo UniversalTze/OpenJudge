@@ -49,30 +49,23 @@ async def submit_code(request: Request, session: AsyncSession = Depends(get_sess
         except ValueError as e:
             return f"Code validation failed: {str(e)}", 400
         
-        async with app.state.http_client as client:
-            response = await client.get(f"{config.PROBLEMS_SERVICE_URL}/problems/{problem_id}")
-            if response.status_code != 200:
-                return response.text, 502
-            problem = response.json()
+        client = request.app.state.http_client
+        response = await client.get(f"{config.PROBLEMS_SERVICE_URL}/problems/{problem_id}")
+        if response.status_code != 200:
+            return response.text, 502
+        problem = response.json()
         
         if not problem:
             return "Problem not found", 404
         
-        tests = json.load(problem.test_cases)
+        tests = json.loads(problem["test_cases"]) 
         inputs = [test["input"] for test in tests]
         outputs = [test["output"] for test in tests]
-        payload = {
-            "submission_id": submission.submission_id,
-            "submission_code": code,
-            "inputs": inputs,
-            "outputs": outputs,
-            "function_name": problem.function_name,
-        }
 
         submission = Submission(
             user_id=user_id,
             problem_id=problem_id,
-            function_name=problem.function_name,
+            function_name=problem["function_name"],
             language=language,
             num_tests=len(tests),
             code=code,
@@ -82,7 +75,15 @@ async def submit_code(request: Request, session: AsyncSession = Depends(get_sess
         session.add(submission)
         await session.commit()
         
-        send(payload, language)
+        payload = {
+            "submission_id": submission.submission_id,
+            "submission_code": code,
+            "inputs": inputs,
+            "outputs": outputs,
+            "function_name": problem["function_name"],
+        }
+        
+        send(payload, language, request.app.state.celery)
         
         return JSONResponse(status_code=201, content={"submission_id": submission.submission_id, "status": "pending"})
     

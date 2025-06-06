@@ -35,6 +35,10 @@ class ApiClient {
         message = await response.text();
       }
 
+      if (!response.ok) {
+        message = data?.message  || "Request failed";
+      }
+
       result = {
         data,
         message,

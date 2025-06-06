@@ -22,7 +22,7 @@ celery_client.conf.update(
     } if config.ENV == "production" else {},
 )
 
-def send(payload, queue):
+def send(payload, queue, client):
     """Send a task to the specified queue."""
     queue = config.PYTHON_QUEUE_NAME if queue == "python" else config.JAVA_QUEUE_NAME
-    celery_client.send_task("process_submission", args=[payload], queue=queue)
+    client.send_task("process_submission", args=[payload], queue=queue)

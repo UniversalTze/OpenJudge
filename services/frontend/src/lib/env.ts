@@ -23,5 +23,6 @@ export const API_ENDPOINTS = {
   SUBMISSIONS: {
     ALL: "/submission",
     ID: (id: string) => `/submission/${id}`,
+    AI: (id: string) => `/submission/ai/${id}`,
   },
 } as const;

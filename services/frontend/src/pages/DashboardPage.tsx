@@ -13,77 +13,48 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { toast } from "sonner";
 import { useAuth } from "@/components/AuthContext";
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import SkillSlider from "@/components/Slider";
-import { ArrowRight } from "lucide-react";
+import { apiClient } from "@/lib/api";
+import { API_ENDPOINTS } from "@/lib/env";
+import { DatabaseSubmission, Submission } from "@/lib/types";
 
 export default function DashboardPage() {
-  // Sample data for code problem submissions
-  const submissions = [
-    {
-      id: 1,
-      problem: "Two Sum",
-      status: "Correct",
-      language: "Java",
-      runtime: "68ms",
-      memory: "44.2MB",
-      submittedAt: "2024-01-15 14:30",
-    },
-    {
-      id: 2,
-      problem: "Reverse Linked List",
-      status: "Correct",
-      language: "Python",
-      runtime: "32ms",
-      memory: "16.1MB",
-      submittedAt: "2024-01-15 13:45",
-    },
-    {
-      id: 3,
-      problem: "Valid Parentheses",
-      status: "Incorrect",
-      language: "Java",
-      runtime: "-",
-      memory: "-",
-      submittedAt: "2024-01-15 12:20",
-    },
-    {
-      id: 4,
-      problem: "Binary Tree Inorder",
-      status: "Incorrect",
-      language: "Java",
-      runtime: "-",
-      memory: "-",
-      submittedAt: "2024-01-15 11:15",
-    },
-    {
-      id: 5,
-      problem: "Merge Two Sorted Lists",
-      status: "Correct",
-      language: "Python",
-      runtime: "40ms",
-      memory: "14.8MB",
-      submittedAt: "2024-01-15 10:30",
-    },
-  ];
-
-  const getStatusBadge = (status: string) => {
-    switch (status) {
-      case "Correct":
-        return <Badge className="bg-green-800 text-white hover:bg-green-100">Correct</Badge>;
-      case "Incorrect":
-        return <Badge variant="destructive">Incorrect</Badge>;
-      default:
-        return <Badge variant="secondary">{status}</Badge>;
-    }
-  };
-
-  const { user, updateUser } = useAuth();
+  const { user, updateUser, accessToken } = useAuth();
   const [isLoading, setIsLoading] = useState(false);
+  const [pageLoading, setPageLoading] = useState(true);
   const [firstName, setFirstName] = useState(user?.firstName || "");
   const [lastName, setLastName] = useState(user?.lastName || "");
   const [email, setEmail] = useState(user?.email || "");
   const [skillLevel, setSkillLevel] = useState(user?.skill || "Beginner");
+  const [submissions, setSubmissions] = useState<Submission[]>([]);
+
+  async function getSubmissions() {
+    const response = await apiClient.get<DatabaseSubmission[]>(API_ENDPOINTS.SUBMISSIONS.ALL, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        Accept: "application/json",
+      },
+    });
+    if (response.success) {
+      setSubmissions(
+        response.data.map((submission) => ({
+          ...submission,
+          language: submission.language === "java" ? "java" : "python",
+          results: JSON.parse(submission.results),
+        }))
+      );
+    } else {
+      if (response.status != 404) {
+        console.error("Failed to fetch problems:", response.message);
+      }
+    }
+    setPageLoading(false);
+  }
+
+  useEffect(() => {
+    getSubmissions();
+  }, [accessToken]);
 
   const handleUpdateProfile = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -108,6 +79,14 @@ export default function DashboardPage() {
       setIsLoading(false);
     }
   };
+
+  if (pageLoading) {
+    return (
+      <div className="container flex items-center justify-center min-h-[50vh]">
+        <div className="animate-spin rounded-full size-20 border-b-2 border-primary"></div>
+      </div>
+    );
+  }
 
   return (
     <div className="container mx-auto p-6 max-w-7xl">
@@ -182,50 +161,41 @@ export default function DashboardPage() {
                       Saving...
                     </span>
                   ) : (
-                    <span className="flex items-center">
-                      Save Details
-                    </span>
+                    <span className="flex items-center">Save Details</span>
                   )}
                 </Button>
               </form>
             </CardContent>
           </Card>
         </div>
-
-        <div className="lg:col-span-2">
-          <Card>
-            <CardHeader>
-              <CardTitle>Code Problem Submissions</CardTitle>
-            </CardHeader>
+        <Card className="min-h-40 h-full w-full lg:col-span-2">
+          <CardHeader>
+            <CardTitle>Code Problem Submissions</CardTitle>
+          </CardHeader>
+          {submissions.length === 0 ? (
+              <p className="lg:mt-12 w-full text-muted-foreground text-left lg:text-center pt-0 lg:pt-6 p-6">No submissions found. Start coding to see your submissions here!</p>
+          ) : (
             <CardContent>
               <div className="overflow-x-auto">
                 <Table>
                   <TableHeader>
                     <TableRow>
-                      <TableHead>Problem</TableHead>
+                      <TableHead>Problem ID</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead>Language</TableHead>
-                      <TableHead className="hidden sm:table-cell">Runtime</TableHead>
-                      <TableHead className="hidden sm:table-cell">Memory</TableHead>
-                      <TableHead className="hidden md:table-cell">Submitted</TableHead>
+                      <TableHead className="md:table-cell">Submitted</TableHead>
                     </TableRow>
                   </TableHeader>
                   <TableBody>
                     {submissions.map((submission) => (
-                      <TableRow key={submission.id}>
-                        <TableCell className="font-medium">{submission.problem}</TableCell>
+                      <TableRow key={submission.submission_id}>
+                        <TableCell className="font-medium">{submission.problem_id}</TableCell>
                         <TableCell>{getStatusBadge(submission.status)}</TableCell>
                         <TableCell>
                           <Badge variant="outline">{submission.language}</Badge>
                         </TableCell>
-                        <TableCell className="hidden sm:table-cell text-muted-foreground">
-                          {submission.runtime}
-                        </TableCell>
-                        <TableCell className="hidden sm:table-cell text-muted-foreground">
-                          {submission.memory}
-                        </TableCell>
                         <TableCell className="hidden md:table-cell text-muted-foreground text-sm">
-                          {submission.submittedAt}
+                          {submission.createdAt}
                         </TableCell>
                       </TableRow>
                     ))}
@@ -233,9 +203,20 @@ export default function DashboardPage() {
                 </Table>
               </div>
             </CardContent>
-          </Card>
-        </div>
+          )}
+        </Card>
       </div>
     </div>
   );
 }
+
+const getStatusBadge = (status: string) => {
+  switch (status) {
+    case "passed":
+      return <Badge className="bg-green-800 text-white hover:bg-green-100">Correct</Badge>;
+    case "failed":
+      return <Badge variant="destructive">Incorrect</Badge>;
+    default:
+      return <Badge variant="secondary">{status}</Badge>;
+  }
+};

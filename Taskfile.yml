@@ -104,6 +104,12 @@ tasks:
       - docker-compose -f infrastructure/docker/docker-compose.yml -p openjudge up --build -d
     silent: true
 
+  down:
+    desc: Tear down local docker containers for the project.
+    cmds:
+      - docker-compose -f infrastructure/docker/docker-compose.yml -p openjudge down --volumes --remove-orphans
+    silent: true
+
   deploy:
     desc: Deploy the project.
     cmds:

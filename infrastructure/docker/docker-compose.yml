@@ -110,7 +110,7 @@ services:
       POSTGRES_PASSWORD: ${PROBLEMS_DATABASE_PASSWORD}
       POSTGRES_DB: ${PROBLEMS_DATABASE_NAME}
     volumes:
-      - problems_data:/var/lib/postgresql/data
+      - problemsdata:/var/lib/postgresql/data
     networks:
       - problems
     healthcheck:
@@ -131,7 +131,7 @@ services:
       POSTGRES_PASSWORD: ${SUBMISSION_DATABASE_PASSWORD}
       POSTGRES_DB: ${SUBMISSION_DATABASE_NAME}
     volumes:
-      - submission_data:/var/lib/postgresql/data
+      - submissiondata:/var/lib/postgresql/data
     networks:
       - submission
     healthcheck:
@@ -152,7 +152,7 @@ services:
       POSTGRES_PASSWORD: ${USER_DATABASE_PASSWORD}
       POSTGRES_DB: ${USER_DATABASE_NAME}
     volumes:
-      - user_data:/var/lib/postgresql/data
+      - userdata:/var/lib/postgresql/data
     networks:
       - auth
     healthcheck:
@@ -169,7 +169,7 @@ services:
     ports:
       - "${REDIS_PORT}:6379"
     volumes:
-      - cache_data:/data
+      - cachedata:/data
     networks:
       - auth-cache
     healthcheck:
@@ -185,7 +185,7 @@ services:
     ports:
       - "${QUEUE_PORT}:6379"
     volumes:
-      - queue_data:/data
+      - queuedata:/data
     networks:
       - execution-submission-queue
     healthcheck:
@@ -286,23 +286,23 @@ services:
       - auth-cache
       - api
 
-  frontend:
-    build: { 
-      context: ../../services/frontend, 
-      dockerfile:  ../../infrastructure/docker/Dockerfile.frontend 
-    }
-    container_name: frontend
-    restart: unless-stopped
-    env_file:
-      - ../../.env
-    ports:
-      - "${FRONTEND_PORT}:8080"
-    networks:
-      - api
+  # frontend:
+  #   build: { 
+  #     context: ../../services/frontend, 
+  #     dockerfile:  ../../infrastructure/docker/Dockerfile.frontend 
+  #   }
+  #   container_name: frontend
+  #   restart: unless-stopped
+  #   env_file:
+  #     - ../../.env
+  #   ports:
+  #     - "${FRONTEND_PORT}:8080"
+  #   networks:
+  #     - api
 
 volumes:
-  user_data:
-  cache_data:
-  queue_data:
-  problems_data:
-  submission_data:
+  userdata:
+  cachedata:
+  queuedata:
+  problemsdata:
+  submissiondata:

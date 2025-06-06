@@ -13,7 +13,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { useAuth } from "@/components/AuthContext";
-import { DatabaseRecord, Problem } from "@/lib/problems";
+import { DatabaseRecord, Problem } from "@/lib/types";
 import { apiClient } from "@/lib/api";
 import { API_ENDPOINTS } from "@/lib/env";
 
@@ -24,7 +24,6 @@ const ProblemsPage = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const [difficultyFilter, setDifficultyFilter] = useState<string>("");
   const [filteredProblems, setFilteredProblems] = useState<Problem[]>([]);
-
 
   async function getProblems() {
     const response = await apiClient.get<DatabaseRecord[]>(API_ENDPOINTS.PROBLEMS.ALL, {

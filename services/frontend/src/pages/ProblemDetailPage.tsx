@@ -10,12 +10,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Play, ChevronLeft, Lock, Unlock, Eye, EyeOff } from "lucide-react";
+import { ChevronLeft, Lock, Unlock, Eye, EyeOff } from "lucide-react";
 import { toast } from "sonner";
 import { apiClient } from "@/lib/api";
-import { DatabaseRecord, Problem } from "@/lib/problems";
+import { DatabaseRecord, Problem } from "@/lib/types";
 import { API_ENDPOINTS } from "@/lib/env";
 import { useAuth } from "@/components/AuthContext";
+import Editor, { OnMount, BeforeMount } from '@monaco-editor/react'
+import * as monacoEditor from 'monaco-editor'
 
 const ProblemDetailPage = () => {
   const { id } = useParams<{ id: string }>();
@@ -27,6 +29,27 @@ const ProblemDetailPage = () => {
   const [showHiddenTestCases, setShowHiddenTestCases] = useState(false);
   const [problem, setProblem] = useState<Problem | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  const handleBeforeMount: BeforeMount = (monaco) => {
+    monaco.editor.defineTheme('custom-dark', {
+      base: 'vs-dark',
+      inherit: true,
+      rules: [
+        { token: '', foreground: 'c3dafe' },            // default text (lavender)
+        { token: 'keyword', foreground: '7aa2f7' },      // keywords (blue)
+        { token: 'string', foreground: '9d7cd8' },       // strings (purple)
+        { token: 'number', foreground: '7dcfff' },       // numbers (light blue)
+        { token: 'comment', foreground: '5c6370' },      // comments (gray)
+        { token: 'type', foreground: 'bb9af7' },         // types (purple)
+        { token: 'function', foreground: '7aa2f7' },     // functions (blue)
+        { token: 'variable', foreground: 'c3dafe' },     // variables (lavender)
+        { token: 'multiline-comment', foreground: '5c6370' }, // multiline comments (gray)
+      ],
+      colors: {
+        'editor.background': '#030711',
+      },
+    })
+  }
 
   function determineType(type: "boolean" | "integer" | "string", language: "Java" | "Python"): string {
     switch (type) {
@@ -88,6 +111,7 @@ const ProblemDetailPage = () => {
     loadCodeFromLocalStorage(setCode);
   }, []);
 
+  {/* eslint-disable-next-line @typescript-eslint/no-explicit-any */ }
   function debounce<T extends (...args: any[]) => void>(fn: T, delay: number): T {
     let timeoutId: ReturnType<typeof setTimeout>;
     return function (...args: Parameters<T>) {
@@ -109,24 +133,40 @@ const ProblemDetailPage = () => {
     );
   }
 
-  const handleCodeChange = (e: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setCode(e.target.value);
-    saveCodeToLocalStorage(e.target.value);
+  const handleCodeChange = (value: string) => {
+    setCode(value);
+    saveCodeToLocalStorage(value);
   };
 
-  const handleSubmit = () => {
+  async function postSubmit() {
     setIsSubmitting(true);
-
-    // Simulate submission for now
-    setTimeout(() => {
+    const response = await apiClient.post(API_ENDPOINTS.SUBMISSIONS.ALL, {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        "Content-Type": "application/json",
+        Accept: "application/json",
+      },
+      body: JSON.stringify({
+        problem_id: id,
+        user_id: user?.id,
+        language,
+        code,
+      }),
+    });
+    if (response.success) {
       toast.success("Code submitted successfully");
       setIsSubmitting(false);
       navigate("/submission-success");
-    }, 1500);
-  };
+    } else {
+      console.error("Failed to submit problem:", response.message);
+      toast.error("Failed to submit problem: " + response.message);
+    }
+    setIsLoading(false);
+  }
 
-  const handleRunCode = () => {
-    toast.success("Job submitted");
+
+  const handleSubmit = () => {
+    postSubmit();
   };
 
   // Generate difficulty badge
@@ -417,11 +457,22 @@ const ProblemDetailPage = () => {
           </div>
 
           <div className="relative flex-grow code-editor-container">
-            <textarea
-              className="w-full h-full p-4 font-code text-sm resize-none bg-background border-none focus:outline-none"
-              value={code}
-              onChange={handleCodeChange}
-              placeholder="Write your solution here..."
+            <Editor
+              height="100%"
+              key={language.toLowerCase()}
+              defaultLanguage={language.toLowerCase()}
+              defaultValue={code}
+              theme="custom-dark"
+              beforeMount={handleBeforeMount}
+              onChange={(value) => {
+                handleCodeChange(value)
+              }}
+              options={{
+                minimap: { enabled: false },
+                fontFamily: 'JetBrains Mono, monospace',
+                fontSize: 14,
+                scrollBeyondLastLine: false,
+              }}
             />
           </div>
         </div>

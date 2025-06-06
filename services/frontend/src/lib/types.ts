@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 export interface Problem {
   problem_id: string;
   problem_title: string;
@@ -44,23 +46,39 @@ export interface CodeSubmission {
   code: string;
 }
 
-export interface TestCaseResult {
-  input: string;
-  expectedOutput: string;
-  actualOutput: string;
-  passed: boolean;
-  executionTime: number;
-  memoryUsed: number;
-  error?: string;
+export interface DatabaseSubmission {
+  submission_id: string;
+  user_id: string;
+  problem_id: string;
+  language: string;
+  code: string;
+  num_tests: number;
+  function_name: string;
+  status: 'pending' | 'passed' | 'failed'
+  results: string;
+  createdAt: string;
+  updatedAt: string;
 }
 
-export interface SubmissionResult {
-  id: string;
-  status: 'Pending' | 'Running' | 'Accepted' | 'Wrong Answer' | 'Time Limit Exceeded' | 'Memory Limit Exceeded' | 'Runtime Error' | 'Compilation Error';
-  testResults: TestCaseResult[];
-  executionTime: number;
-  memoryUsed: number;
-  score: number;
-  totalScore: number;
+export interface Submission {
+  submission_id: string;
+  user_id: string;
+  problem_id: string;
+  language: "python" | "java";
+  code: string;
+  num_tests: number;
+  function_name: string;
+  status: 'pending' | 'passed' | 'failed'
+  results: Array<{
+    test_number: number;
+    inputs: string;
+    output: string;
+    expected: string;
+    passed: boolean;
+    stdout: string;
+    error: string;
+    timestamp: string;
+  }>
   createdAt: string;
+  updatedAt: string;
 }
