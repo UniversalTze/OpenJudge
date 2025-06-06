@@ -71,6 +71,7 @@ async def submit_code(request: Request, session: AsyncSession = Depends(get_sess
             problem_id=problem_id,
             function_name=problem.function_name,
             language=language,
+            num_tests=len(tests),
             code=code,
             results=[],
             status="pending"
@@ -107,3 +108,22 @@ async def get_submission_history(user_id: str, session: AsyncSession = Depends(g
         return "No submissions found for this user", 404
 
     return [submission.to_dict() for submission in submissions]
+
+@app.get("/submissions/ai/{submission_id}")
+async def get_submission_ai(submission_id: str, session: AsyncSession = Depends(get_session)):
+    stmt = select(Submission).filter_by(submission_id=submission_id)
+    result = await session.execute(stmt)
+    submission = result.scalar_one_or_none()
+
+    if not submission:
+        return "Submission not found", 404
+    
+    if submission.status == "pending":
+        return "Submission is still being processed", 400
+    
+    if submission.status == "success":
+        return "Submission correct", 400
+
+    # call ai model here
+
+    return "Not implemented yet", 501

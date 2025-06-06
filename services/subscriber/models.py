@@ -13,8 +13,9 @@ class Submission(Base):
     problem_id = Column(String, nullable=False)
     language = Column(String, nullable=False)
     code = Column(Text, nullable=False)
+    num_tests = Column(Integer, nullable=False, default=0)
     function_name = Column(String, nullable=False)
-    status = Column(String, nullable=False, default='queued')
+    status = Column(String, nullable=False, default='pending')
     results = Column(JSONB, default=list)
     created_at = Column(DateTime, default=datetime.utcnow)
     updated_at = Column(DateTime, default=datetime.utcnow, onupdate=datetime.utcnow)
@@ -26,9 +27,10 @@ class Submission(Base):
             'problem_id': self.problem_id,
             'language': self.language,
             'code': self.code,
+            'num_tests': self.num_tests,
             'function_name': self.function_name,
             'status': self.status,
             'results': self.results,
             'created_at': self.created_at.isoformat() if self.created_at else None,
-            'updated_at': self.updated_at.isoformat() if self.updated_at else None
+            'updated_at': self.updated_at.isoformat() if self.updated_at else None,
         }

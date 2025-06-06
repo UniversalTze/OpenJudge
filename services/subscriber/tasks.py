@@ -30,7 +30,7 @@ async def _process_result(result: dict):
         if not submission:
             print(f"Submission with ID {submission_id} not found.")
             return
-
+        
         if not isinstance(submission.results, list):
             submission.results = []
 
@@ -44,6 +44,9 @@ async def _process_result(result: dict):
             "error": result.get("error"),
             "timestamp": datetime.utcnow().isoformat()
         })
+
+        if len(submission.results) >= submission.num_tests:
+            submission.status = "passed" if all(test["passed"] for test in submission.results) else "failed"
 
         submission.updated_at = datetime.utcnow()
 

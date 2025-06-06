@@ -27,6 +27,13 @@ async def rate_limit_middleware(request: Request, call_next):
                     status_code=429,
                     content="Rate limit exceeded: Maximum 5 login attempts per minute",
                 )
+        elif path.startswith("/submission/ai"):
+            limit_key = f"ai_submissions:{client_ip}"
+            if not await _check_rate_limit(request, limit_key, 5, 60):
+                return PlainTextResponse(
+                    status_code=429,
+                    content="Rate limit exceeded: Maximum 5 AI requests per minute",
+                )
         overall_limit_key = f"overall:{client_ip}"
         if not await _check_rate_limit(request, overall_limit_key, 100, 60):
             return PlainTextResponse(

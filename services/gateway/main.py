@@ -235,3 +235,9 @@ async def list_user_submissions(request: Request):
     client = request.app.state.http_client
     target_url = f"{config.SUBMISSION_SERVICE_URL}/submission/history/{request.state.user}"
     return await forward_request(request, target_url, client)
+
+@app.get("/submission/ai/{id}")
+async def get_ai_submission_details(request: Request, id: str):
+    client = request.app.state.http_client
+    target_url = f"{config.SUBMISSION_SERVICE_URL}/submission/ai/{id}"
+    return await forward_request(request, target_url, client)
