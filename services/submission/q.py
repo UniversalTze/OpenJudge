@@ -10,13 +10,12 @@ celery_client.conf.update(
     broker_url=config.CELERY_BROKER_URL,
 )
 
-def send(payload, queue, client):
+def send(submission_id, submission_code, inputs, outputs, function_name, queue, client):
     """Send a task to the specified queue."""
     queue = config.PYTHON_QUEUE_NAME if queue == "python" else config.JAVA_QUEUE_NAME
     client.send_task("execute_submission", args=[
-        payload.submission_id, 
-        payload.submission_code,
-        payload.inputs,
-        payload.outputs,
-        payload.function_name], queue=queue)
-    
+        submission_id,
+        submission_code,
+        inputs,
+        outputs,
+        function_name], queue=queue)

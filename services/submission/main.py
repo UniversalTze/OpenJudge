@@ -74,17 +74,22 @@ async def submit_code(request: Request, session: AsyncSession = Depends(get_sess
         )
         session.add(submission)
         await session.commit()
-        
-        payload = {
-            submission_id: submission.submission_id,
-            "submission_code": code,
-            "inputs": inputs,
-            "outputs": outputs,
-            "function_name": problem["function_name"],
-        }
-        
-        send(payload, language, request.app.state.celery)
-        
+
+        send(
+            submission_id=submission.submission_id,
+            submission_code=code,
+            inputs=inputs,
+            outputs=outputs,
+            function_name=problem["function_name"],
+            payload={
+                "user_id": user_id,
+                "problem_id": problem_id,
+                "language": language
+            },
+            queue=language,
+            client=request.app.state.celery
+        )
+
         return JSONResponse(status_code=201, content={"submission_id": submission.submission_id, "status": "pending"})
     
     except Exception as e:
