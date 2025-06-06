@@ -62,7 +62,7 @@ resource "aws_ecs_service" "ProblemsAPI" {
 
   depends_on = [
     aws_db_instance.ProblemDatabase,
-    docker_registry_image.ProblemAPIImageName,
+    docker_registry_image.ProblemsAPIImageName,
     aws_lb_listener.ProblemsAPILoadBalancerListener
   ]
 
