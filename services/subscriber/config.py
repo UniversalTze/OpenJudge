@@ -13,10 +13,10 @@ def get_env(key: str) -> str:
 
 class Config:
     def __init__(self):
-        self.DATABASE_URL = get_env("DATABASE_URL")
-        self.BROKER_URL = get_env("BROKER_URL")
-        self.PROBLEMS_SERVICE_URL = get_env("PROBLEMS_SERVICE_URL")
-        self.JAVA_QUEUE = get_env("JAVA_QUEUE")
-        self.PYTHON_QUEUE = get_env("PYTHON_QUEUE")
+        self.SUBMISSION_DATABASE_URL = get_env("SUBMISSION_DATABASE_URL")
+        self.OUTPUT_QUEUE_URL = get_env("OUTPUT_QUEUE_URL")
+        self.OUTPUT_QUEUE_NAME = get_env("OUTPUT_QUEUE_NAME")
+        self.AWS_REGION = get_env("AWS_REGION")
+        self.ENV = get_env("ENV")
 
 config = Config()

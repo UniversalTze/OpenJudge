@@ -1,27 +1,15 @@
 FROM python:3.12-slim
-
-# TODO - SWITCH TO NON-ROOT USER FOR CELERY
-# RUN adduser --system --no-create-home --group celeryuser
-# USER celeryuser
-
-# Set working directory
+RUN apt-get update && apt-get install -y \
+    build-essential \
+    && rm -rf /var/lib/apt/lists/*
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
 WORKDIR /app
-
-# Install uv
-RUN pip install --no-cache-dir uv
-
-# Copy Files
-COPY . .
-
-# Create a virtual environment and install dependencies
-RUN python -m venv /venv && \
-    /venv/bin/pip install --no-cache-dir -e .
-
-# Add virtual environment to PATH
-ENV PATH="/venv/bin:$PATH"
-
-# Verify installation
-RUN python --version && celery --version
-
-# Start the Celery worker
-CMD ["celery", "-A", "subscriber.subscriber.celery", "worker", "--loglevel=info"]
+RUN --mount=type=cache,target=/root/.cache/uv \
+    --mount=type=bind,source=uv.lock,target=uv.lock \
+    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
+    uv sync --frozen --no-install-project
+COPY . /app
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen
+ENV PATH="/app/.venv/bin:$PATH"
+CMD ["celery", "-A", "celery", "worker", "-l", "info"]

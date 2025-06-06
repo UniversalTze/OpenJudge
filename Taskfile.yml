@@ -10,7 +10,11 @@ tasks:
       - docker-compose -f infrastructure/docker/docker-compose.yml -p openjudge up authentication_service user_database --build -d 
     silent: true
 
-  #test:auth:
+  down:auth:
+    desc: Tear down local docker containers for authentication service
+    cmds:
+      - docker-compose -f infrastructure/docker/docker-compose.yml -p openjudge down authentication_service user_database --volumes
+    silent: true
 
   # EXECUTION SERVICE COMMANDS
   run:execution:
@@ -19,23 +23,23 @@ tasks:
       - docker compose -f infrastructure/docker/docker-compose.yml -p openjudge up execution-submission-queue python-executor java-executor --build -d
     silent: true
 
-  test:execution:
-    desc: Run the execution service in development mode, and then runs unit tests against this service.
-    cmds:
-      - docker compose -f infrastructure/docker/docker-compose.yml -p openjudge up execution-submission-queue python-executor java-executor execution-test-client --build -d
-      - docker compose -f infrastructure/docker/docker-compose.yml -p openjudge exec execution-test-client python test_client.py
-    silent: true
+  # test:execution:
+  #   desc: Run the execution service in development mode, and then runs unit tests against this service.
+  #   cmds:
+  #     - docker compose -f infrastructure/docker/docker-compose.yml -p openjudge up execution-submission-queue python-executor java-executor execution-test-client --build -d
+  #     - docker compose -f infrastructure/docker/docker-compose.yml -p openjudge exec execution-test-client python test_client.py
+  #   silent: true
 
   down:execution:
     desc: Tear down local docker containers for execution service
     cmds:
-      - docker compose -f infrastructure/docker/docker-compose.yml -p openjudge down execution-submission-queue python-executor java-executor execution-test-client
+      - docker compose -f infrastructure/docker/docker-compose.yml -p openjudge down execution-submission-queue python-executor java-executor --volumes
     silent: true
 
   # FRONTEND COMMANDS
   #run:app:
 
-  #test:app:
+
 
   # PROBLEMS SERVICE COMMANDS
   run:problems:
@@ -47,7 +51,7 @@ tasks:
   down:problems:
     desc: Run the problems service in development mode.
     cmds:
-      - docker-compose -f infrastructure/docker/docker-compose.yml -p openjudge down problems_service problems_database
+      - docker-compose -f infrastructure/docker/docker-compose.yml -p openjudge down problems_service problems_database --volumes
     silent: true
 
 
@@ -63,10 +67,20 @@ tasks:
   down:submission:
     desc: Tears down submission service containers
     cmds:
-      - docker-compose -f infrastructure/docker/docker-compose.yml -p openjudge down submission_database submission_service execution-submission-queue
+      - docker-compose -f infrastructure/docker/docker-compose.yml -p openjudge down submission_database submission_service execution-submission-queue --volumes
     silent: true
 
-  # test:submission:
+  run:subscriber:
+    desc: Run the subscriber service in development mode.
+    cmds:
+      - docker-compose -f infrastructure/docker/docker-compose.yml -p openjudge up subscriber submission_database execution-submission-queue --build -d
+    silent: true
+
+  down:subscriber:
+    desc: Tears down subscriber service containers
+    cmds:
+      - docker-compose -f infrastructure/docker/docker-compose.yml -p openjudge down subscriber submission_database execution-submission-queue --volumes
+    silent: true
 
   # API GATEWAY COMMANDS
   run:gateway:
@@ -89,8 +103,6 @@ tasks:
     cmds:
       - docker-compose -f infrastructure/docker/docker-compose.yml -p openjudge up --build -d
     silent: true
-  
-  #test:
 
   deploy:
     desc: Deploy the project.

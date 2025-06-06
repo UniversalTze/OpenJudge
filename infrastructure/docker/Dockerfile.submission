@@ -1,52 +1,12 @@
-# FROM python:3.12-slim
-
-# RUN apt-get update && apt-get install -y --no-install-recommends \
-#     libpq-dev \
-#     gcc \
-#     g++ \
-#     python3-dev \
-#     curl \
-#     ca-certificates \
-#     pkg-config \
-#     libssl-dev \
-#     dos2unix \
-#     && rm -rf /var/lib/apt/lists/*
-
-# RUN pip install --no-cache-dir uv
-
-# WORKDIR /app
-
-# # Copy dependency definition files first for effective Docker caching
-# COPY uv.lock pyproject.toml ./
-
-# RUN dos2unix uv.lock
-
-# # Install project dependencies
-# RUN --mount=type=cache,target=/root/.cache/uv \
-#     uv sync --frozen --no-install-project
-
-# # Copy project files
-# COPY ./app ./app/
-# COPY run.py .
-
-# EXPOSE 5000
-
-# CMD ["uv", "run", "uvicorn", "run:app", "--host", "0.0.0.0", "--port", "5000"]
-
-# Install Base Layer
-FROM ubuntu:24.04
-
-# # Install engine and poetry dependencies.
-RUN apt-get update && apt-get install -y wget steghide pipx python3.12 python3-pip libpq-dev gcc g++ && rm -rf /var/lib/apt/lists/*
-RUN pipx ensurepath 
-RUN pipx install poetry 
-
-WORKDIR /app 
-COPY . .
-
-# Install project dependencies
-RUN pipx run poetry install --no-root 
-  
-# Start api
+FROM python:3.12
+COPY --from=ghcr.io/astral-sh/uv:latest /uv /uvx /bin/
+WORKDIR /app
+RUN --mount=type=cache,target=/root/.cache/uv \
+    --mount=type=bind,source=uv.lock,target=uv.lock \
+    --mount=type=bind,source=pyproject.toml,target=pyproject.toml \
+    uv sync --frozen --no-install-project
+ADD . /app
+RUN --mount=type=cache,target=/root/.cache/uv \
+    uv sync --frozen
 EXPOSE 5000
-CMD ["pipx", "run", "poetry", "run", "gunicorn", "--bind", "0.0.0.0:5000", "--workers", "9", "run:app"]
+CMD ["uv", "run", "uvicorn", "main:app", "--host", "0.0.0.0", "--port", "5000"]

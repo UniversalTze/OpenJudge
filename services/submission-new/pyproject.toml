@@ -1,0 +1,16 @@
+[project]
+name = "submission-3-0"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.13"
+dependencies = [
+    "asyncpg>=0.30.0",
+    "celery>=5.5.3",
+    "dotenv>=0.9.9",
+    "fastapi>=0.115.12",
+    "httpx>=0.28.1",
+    "requests>=2.32.3",
+    "sqlalchemy>=2.0.41",
+    "uvicorn>=0.34.3",
+]

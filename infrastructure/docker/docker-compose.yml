@@ -72,17 +72,17 @@ services:
 
   submission_service:
     build: { 
-      context: ../../services/submission, 
+      context: ../../services/submission-3.0, 
       dockerfile:  ../../infrastructure/docker/Dockerfile.submission
     }
     container_name: submission_service
     restart: unless-stopped
     environment:
-      DATABASE_URL: "postgres+psycopg2://${SUBMISSION_DATABASE_USER}:${SUBMISSION_DATABASE_PASSWORD}@submission_database:5432/${SUBMISSION_DATABASE_NAME}?sslmode=disable"
-      BROKER_URL: "redis://execution-submission-queue:6379"
+      SUBMISSION_DATABASE_URL: "postgresql+asyncpg://${SUBMISSION_DATABASE_USER}:${SUBMISSION_DATABASE_PASSWORD}@submission_database:5432/${SUBMISSION_DATABASE_NAME}"
+      CELERY_BROKER_URL: "redis://execution-submission-queue:6379"
       PROBLEMS_SERVICE_URL: "http://problems_service:6400"
-      JAVA_QUEUE: "javaq"
-      PYTHON_QUEUE: "pythonq"
+      JAVA_QUEUE_URL: "http://execution-submission-queue:6379"
+      PYTHON_QUEUE_URL: "http://execution-submission-queue:6379"
     env_file:
       - ../../.env
     ports:
@@ -169,7 +169,7 @@ services:
     ports:
       - "${REDIS_PORT}:6379"
     volumes:
-      - auth-cache:/data
+      - cache_data:/data
     networks:
       - auth-cache
     healthcheck:
@@ -194,17 +194,37 @@ services:
       timeout: 3s
       retries: 5
 
+  subscriber:
+    build:
+      context: ../../services/subscriber
+      dockerfile: ../../infrastructure/docker/Dockerfile.subscriber
+    restart: always
+    container_name: subscriber
+    environment:
+      SUBMISSION_DATABASE_URL: "postgresql+asyncpg://${SUBMISSION_DATABASE_USER}:${SUBMISSION_DATABASE_PASSWORD}@submission_database:5432/${SUBMISSION_DATABASE_NAME}"
+      CELERY_BROKER_URL: "redis://execution-submission-queue:6379"
+    env_file:
+      - ../../.env
+    depends_on:
+      execution-submission-queue:
+        condition: service_healthy
+      submission_database:
+        condition: service_healthy
+    networks:
+      - execution-submission-queue
+      - submission
+
   python-executor:
     build:
       context: ../../services/execution
       dockerfile: ../../infrastructure/docker/Dockerfile.python
     restart: always
+    container_name: python-executor
     environment:
-      CELERY_BROKER_URL: redis://execution-submission-queue:6379
-      TARGET_QUEUE: pythonq
-      OUTPUT_QUEUE: outputq
+      CELERY_BROKER_URL: "redis://execution-submission-queue:6379"
+      TARGET_QUEUE: ${PYTHON_QUEUE_NAME}
+      OUTPUT_QUEUE: ${OUTPUT_QUEUE_NAME}
       LANGUAGE: python
-    command: celery -A src.receiver.celery worker --loglevel=info
     depends_on:
       execution-submission-queue:
         condition: service_healthy
@@ -216,31 +236,31 @@ services:
       context: ../../services/execution
       dockerfile: ../../infrastructure/docker/Dockerfile.java
     restart: always
+    container_name: java-executor
     environment:
-      CELERY_BROKER_URL: redis://execution-submission-queue:6379
-      TARGET_QUEUE: javaq
-      OUTPUT_QUEUE: outputq
+      CELERY_BROKER_URL: "redis://execution-submission-queue:6379"
+      TARGET_QUEUE: ${JAVA_QUEUE_NAME}
+      OUTPUT_QUEUE: ${OUTPUT_QUEUE_NAME}
       LANGUAGE: java
-    command: celery -A src.receiver.celery worker --loglevel=info
     depends_on:
       execution-submission-queue:
         condition: service_healthy
     networks:
       - execution-submission-queue
 
-  execution-test-client:
-    build:
-      context: ../../services/execution
-      dockerfile: ../../infrastructure/docker/execution/Dockerfile.test
-    restart: always
-    environment:
-      CELERY_BROKER_URL: redis://execution-submission-queue:6379
-    command: bash -c "echo 'Test client container is running. Connect with `docker compose exec test-client bash`'; while true; do sleep 360; done" # Loop indefinitely in main thread
-    depends_on:
-      execution-submission-queue:
-        condition: service_healthy
-    networks:
-      - execution-submission-queue
+  # execution-test-client:
+  #   build:
+  #     context: ../../services/execution
+  #     dockerfile: ../../infrastructure/docker/execution/Dockerfile.test
+  #   restart: always
+  #   environment:
+  #     CELERY_BROKER_URL: redis://execution-submission-queue:6379
+  #   command: bash -c "echo 'Test client container is running. Connect with `docker compose exec test-client bash`'; while true; do sleep 360; done" # Loop indefinitely in main thread
+  #   depends_on:
+  #     execution-submission-queue:
+  #       condition: service_healthy
+  #   networks:
+  #     - execution-submission-queue
 
   gateway:
     build: { 
@@ -250,10 +270,10 @@ services:
     container_name: gateway
     restart: unless-stopped
     environment:
-      AUTH_SERVICE_URL: http://authentication_service:8080
-      PROBLEMS_SERVICE_URL: http://problems_service:6400
-      SUBMISSION_SERVICE_URL: http://submission_service:5000
-      REDIS_URL: redis://auth-cache:6379
+      AUTH_SERVICE_URL: "http://authentication_service:8080"
+      PROBLEMS_SERVICE_URL: "http://problems_service:6400"
+      SUBMISSION_SERVICE_URL: "http://submission_service:5000"
+      REDIS_URL: "redis://auth-cache:6379"
     env_file:
       - ../../.env
     ports:
@@ -282,7 +302,7 @@ services:
 
 volumes:
   user_data:
-  auth-cache:
+  cache_data:
   queue_data:
   problems_data:
   submission_data:
