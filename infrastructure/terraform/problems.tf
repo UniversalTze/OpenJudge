@@ -4,7 +4,7 @@ resource "docker_image" "problemsAPIImage" {
   name = "${aws_ecr_repository.open-judge-ecr.repository_url}:Problems-latest"
   build {
     context    = "../../services/problems"
-    dockerfile = "../infrastructure/docker/Dockerfile.problems"
+    dockerfile = "../../infrastructure/docker/Dockerfile.problems"
   }
 }
 
@@ -15,7 +15,7 @@ resource "docker_registry_image" "ProblemAPIImageName" {
 ############################################################################
 # Problem Database
 resource "aws_db_instance" "ProblemDatabase" {
-  identifier                   = "ProblemDatabase"
+  identifier                   = "problems-db"
   allocated_storage            = 20
   max_allocated_storage        = 1000
   engine                       = "postgres"
@@ -132,7 +132,7 @@ resource "aws_ecs_task_definition" "ProblemsAPITask" {
 
 resource "aws_security_group" "problems_security_group" {
   name        = "problem security group"
-  description = "Problem's security Group for inbound and outbound communication"
+  description = "Problems security Group for inbound and outbound communication"
 
   ingress {
     from_port       = 6400
@@ -172,7 +172,7 @@ resource "aws_lb_listener" "ProblemsAPILoadBalancerListener" {
 }
 
 resource "aws_lb_target_group" "ProblemAPILoadBalancerTargetGroup" {
-  name        = "ProblemAPILoadBalancerTargetGroup"
+  name        = "ProblemAPILBTargetGroup"
   port        = 6400
   protocol    = "HTTP"
   vpc_id      = data.aws_vpc.default.id
@@ -208,6 +208,9 @@ resource "aws_security_group" "ProblemAPILoadBalancerSecurityGroup" {
     cidr_blocks = ["0.0.0.0/0"]
   }
 }
+
+############################################################################
+# Autoscaling TODO
 
 ############################################################################
 # Output

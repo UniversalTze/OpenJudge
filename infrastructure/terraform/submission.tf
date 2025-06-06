@@ -343,6 +343,9 @@ resource "aws_lb_target_group" "SubmissionAPILoadBalancerTargetGroup" {
 }
 
 ############################################################################
+# Autoscaling TODO
+
+############################################################################
 # Output
 resource "null_resource" "summary_problem" {
   provisioner "local-exec" {
