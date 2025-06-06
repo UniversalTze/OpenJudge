@@ -43,7 +43,7 @@ RUN pipx install poetry
 
 WORKDIR /app 
 # # Copy project files
-COPY run.py uv.lock pyproject.toml ./
+COPY run.py poetry.lock pyproject.toml ./
 
 COPY ./app ./app/
 
