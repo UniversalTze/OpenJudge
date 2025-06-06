@@ -51,5 +51,5 @@ COPY ./app ./app/
 RUN pipx run poetry install --no-root 
   
 # Start api
-EXPOSE 8080
-CMD ["pipx", "run", "poetry", "run", "gunicorn", "--bind", "0.0.0.0:8080", "--workers", "9", "run:app"]
+EXPOSE 5000
+CMD ["pipx", "run", "poetry", "run", "gunicorn", "--bind", "0.0.0.0:5000", "--workers", "9", "run:app"]

@@ -97,6 +97,7 @@ services:
       - submission
       - gateway
       - execution-submission-queue
+      - problems
 
   problems_database:
     image: postgres:15
