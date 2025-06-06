@@ -345,6 +345,61 @@ resource "aws_lb_target_group" "SubmissionAPILoadBalancerTargetGroup" {
 ############################################################################
 # Autoscaling TODO
 
+# Main API
+resource "aws_appautoscaling_target" "SubmissionAPIAutoScalingTarget" {
+  max_capacity       = 3
+  min_capacity       = 1
+  resource_id        = "service/${aws_ecs_cluster.open-judge-cluster.name}/${aws_ecs_service.SubmissionAPI.name}"
+  scalable_dimension = "ecs:service:DesiredCount"
+  service_namespace  = "ecs"
+}
+
+resource "aws_appautoscaling_policy" "SubmissionAPIAutoScalingPolicy" {
+  name               = "SubmissionAPIAutoScalingPolicy"
+  policy_type        = "TargetTrackingScaling"
+  resource_id        = aws_appautoscaling_target.SubmissionAPIAutoScalingTarget.resource_id
+  scalable_dimension = aws_appautoscaling_target.SubmissionAPIAutoScalingTarget.scalable_dimension
+  service_namespace  = aws_appautoscaling_target.SubmissionAPIAutoScalingTarget.service_namespace
+
+  target_tracking_scaling_policy_configuration {
+    predefined_metric_specification {
+      predefined_metric_type = "ECSServiceAverageCPUUtilization"
+    }
+    target_value       = 50.0
+    scale_out_cooldown = 60
+  }
+}
+
+# Result Receiver
+resource "aws_appautoscaling_target" "SubmissionResultReceiverAutoScalingTarget" {
+  max_capacity       = 3
+  min_capacity       = 1
+  resource_id        = "service/${aws_ecs_cluster.open-judge-cluster.name}/${aws_ecs_service.SubmissionResultReceiver.name}"
+  scalable_dimension = "ecs:service:DesiredCount"
+  service_namespace  = "ecs"
+}
+
+resource "aws_appautoscaling_policy" "SubmissionResultReceiverAutoScalingPolicy" {
+  name               = "SubmissionResultReceiverAutoScalingPolicy"
+  policy_type        = "TargetTrackingScaling"
+  resource_id        = aws_appautoscaling_target.SubmissionResultReceiverAutoScalingTarget.resource_id
+  scalable_dimension = aws_appautoscaling_target.SubmissionResultReceiverAutoScalingTarget.scalable_dimension
+  service_namespace  = aws_appautoscaling_target.SubmissionResultReceiverAutoScalingTarget.service_namespace
+
+  target_tracking_scaling_policy_configuration {
+    predefined_metric_specification {
+      predefined_metric_type = "ECSServiceAverageCPUUtilization"
+    }
+    target_value       = 50.0
+    scale_out_cooldown = 60
+  }
+}
+
+############################################################################
+# Alarms
+# TODO - ADD IN SQS QUEUE BASED ALARM FOR SUBMISSION WORKER!
+
+
 ############################################################################
 # Output
 resource "null_resource" "summary_submission" {

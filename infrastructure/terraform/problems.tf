@@ -236,7 +236,6 @@ resource "aws_appautoscaling_policy" "ProblemsAPIAutoScalingPolicy" {
   }
 }
 
-
 ############################################################################
 # Output
 resource "null_resource" "summary_problem" {
