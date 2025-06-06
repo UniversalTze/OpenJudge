@@ -51,7 +51,7 @@ resource "aws_security_group" "ExecutionSecurityGroup" {
 }
 
 ############################################################################
-# ECS Cluster
+# ECS
 
 # Python
 resource "aws_ecs_service" "ExecutionPythonService" {

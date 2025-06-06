@@ -265,47 +265,6 @@ resource "aws_security_group" "AuthenticationAPISecurityGroup" {
 }
 
 ############################################################################
-# Token Revocation List
-resource "aws_elasticache_replication_group" "TokenRevocationList" {
-  replication_group_id       = "TokenRevocationList"
-  description                = "TokenRevocationList"
-  node_type                  = "cache.t3.medium"
-  num_cache_clusters         = 1
-  port                       = 6379
-  engine                     = "redis"
-  engine_version             = "7.x"
-  parameter_group_name       = "default.redis7"
-  subnet_group_name          = aws_elasticache_subnet_group.TokenRevocationListSubnetGroup.name
-  security_group_ids         = [aws_security_group.TokenRevocationListSecurityGroup.id]
-  automatic_failover_enabled = false
-  transit_encryption_enabled = true
-}
-
-resource "aws_elasticache_subnet_group" "TokenRevocationListSubnetGroup" {
-  name       = "TokenRevocationListSubnetGroup"
-  subnet_ids = data.aws_subnets.private.ids
-}
-
-resource "aws_security_group" "TokenRevocationListSecurityGroup" {
-  name   = "TokenRevocationListSecurityGroup"
-  vpc_id = data.aws_vpc.default.id
-
-  ingress {
-    from_port       = 6379
-    to_port         = 6379
-    protocol        = "tcp"
-    security_groups = [aws_security_group.AuthenticationAPISecurityGroup.id]
-  }
-
-  egress {
-    from_port   = 0
-    to_port     = 0
-    protocol    = "-1"
-    cidr_blocks = ["0.0.0.0/0"]
-  }
-}
-
-############################################################################
 # Output
 resource "null_resource" "summary_authentication" {
   provisioner "local-exec" {
