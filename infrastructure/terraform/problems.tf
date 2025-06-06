@@ -90,13 +90,13 @@ resource "aws_ecs_task_definition" "ProblemsAPITask" {
 
   container_definitions = jsonencode([
     {
-      name      = "ProblemsAPI"
-      image     = "${docker_image.ProblemsAPIImage.name}"
+      name      = "ProblemAPI"
+      image     = "${docker_image.problemsAPIImage.name}"
       essential = true
       logConfiguration = {
         logDriver = "awslogs"
         options = {
-          "awslogs-group"         = "/ProblemsAPI"
+          "awslogs-group"         = "/ProblemAPI"
           "awslogs-region"        = var.AWS_REGION
           "awslogs-stream-prefix" = "ecs"
           "awslogs-create-group"  = "true"
