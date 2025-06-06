@@ -250,7 +250,7 @@ resource "aws_ecs_service" "SubmissionResultReceiver" {
   ]
 
   network_configuration {
-    subnets          = data.aws_subnets.default.ids
+    subnets          = data.aws_subnets.private.ids
     security_groups  = [aws_security_group.SubmissionResultReceiverSecurityGroup.id]
     assign_public_ip = true
   }
