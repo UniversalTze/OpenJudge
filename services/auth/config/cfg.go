@@ -58,7 +58,7 @@ func Load() Config {
 	if jwp == "" {
 		log.Fatalf("Error: Environment variable 'JWT_PUBLIC_KEY' is not set.")
 	}
-	pubBytes, err := base64.StdEncoding.DecodeString(jwp)
+	pubBytes, err := base64.URLEncoding.DecodeString(jwp)
 	if err != nil {
 		log.Fatalf("Error: Environment variable 'JWT_PUBLIC_KEY' is not a valid base64 string.")
 	}
