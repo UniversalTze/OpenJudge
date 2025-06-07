@@ -42,7 +42,7 @@ resource "aws_security_group" "FrontendSecurityGroup" {
 ############################################################################
 # ECS
 resource "aws_ecs_service" "FrontendService" {
-  name            = "APIGatewayService"
+  name            = "FrontendService"
   cluster         = aws_ecs_cluster.open-judge-cluster.id
   task_definition = aws_ecs_task_definition.FrontendTask.arn
   desired_count   = 1
