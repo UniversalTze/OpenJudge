@@ -1,6 +1,6 @@
-# XX. ECS Task Per Language
-**Date:** 2025-06-XX
-**Status:** Pending  
+# 18. ECS Task Per Language
+**Date:** 2025-05-25
+**Status:** Accepted  
 **Summary**  
 *In the context of* supporting multiple programming languages for automated code execution, *facing* the challenge of dynamically assigning execution environments based on the test language and handling potentially disproportional load per language, *we decided* to implement an ECS based containerisation scheme, with independent auto-scaling groups per language, *to achieve* efficient and independently scalable environments for each language.  
 

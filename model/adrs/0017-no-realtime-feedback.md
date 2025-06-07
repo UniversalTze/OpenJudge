@@ -1,6 +1,6 @@
-# NN. Acceptable Latency for Real-Time Feedback
-**Date:** 2025-06-NN
-**Status:** Pending
+# 17. Acceptable Latency for Real-Time Feedback
+**Date:** 2025-05-25
+**Status:** Accepted
 **Summary**  
 *In the context of* sending real-time feedback for submissions, *facing* the challenge of securely executing code *we decided* the tradeoff of *additional latency* before returning results in return for enabling *additional security* was acceptable.
 

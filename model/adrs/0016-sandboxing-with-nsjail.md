@@ -1,6 +1,6 @@
-# NN. Use Linux Namespace Tooling for Sandboxing 
-**Date:** 2025-06-NN
-**Status:** Pending
+# 16. Use Linux Namespace Tooling for Sandboxing 
+**Date:** 2025-05-24
+**Status:** Accepted
 **Summary**  
 *In the context of* effectively sandboxing test processes, *facing* the challenge of *malicious and/or poorly written* user submissions *we decided* to utilise *Linux based tools* for sandboxing. This enables access to a *comprehensive ecosystem* of sandboxing tools *to help achieve* secure and efficient execution.
 
