@@ -195,7 +195,7 @@ resource "aws_ecs_task_definition" "SubmissionAPITask" {
       logConfiguration = {
         logDriver = "awslogs"
         options = {
-          "awslogs-group"         = "/AuthenticationAPI"
+          "awslogs-group"         = "/SubmissionAPI"
           "awslogs-region"        = var.AWS_REGION
           "awslogs-stream-prefix" = "ecs"
           "awslogs-create-group"  = "true"
@@ -276,7 +276,7 @@ resource "aws_ecs_task_definition" "SubmissionResultReceiverTask" {
       logConfiguration = {
         logDriver = "awslogs"
         options = {
-          "awslogs-group"         = "/ExecutionPython"
+          "awslogs-group"         = "/SubmissionResultReceiver"
           "awslogs-region"        = var.AWS_REGION
           "awslogs-stream-prefix" = "ecs"
           "awslogs-create-group"  = "true"
@@ -285,7 +285,7 @@ resource "aws_ecs_task_definition" "SubmissionResultReceiverTask" {
       environment = [
         {
           name  = "SUBMISSION_DATABASE_URL",
-          value = "postgresql://${var.SUBMISSION_DATABASE_USER}:${var.SUBMISSION_DATABASE_PASSWORD}@${aws_db_instance.SubmissionDatabase.endpoint}/${var.SUBMISSION_DATABASE_NAME}"
+          value = "postgresql+asyncpg://${var.SUBMISSION_DATABASE_USER}:${var.SUBMISSION_DATABASE_PASSWORD}@${aws_db_instance.SubmissionDatabase.endpoint}/${var.SUBMISSION_DATABASE_NAME}"
         },
         {
           name  = "CELERY_BROKER_URL"
