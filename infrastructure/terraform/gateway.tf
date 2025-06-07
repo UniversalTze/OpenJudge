@@ -77,7 +77,7 @@ resource "aws_ecs_task_definition" "APIGatewayTask" {
 
   container_definitions = jsonencode([
     {
-      name      = "APIGatewayTask"
+      name      = "APIGatewayService"
       image     = "${docker_image.APIGatewayImage.name}"
       essential = true
       logConfiguration = {

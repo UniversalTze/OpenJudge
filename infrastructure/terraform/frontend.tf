@@ -77,7 +77,7 @@ resource "aws_ecs_task_definition" "FrontendTask" {
 
   container_definitions = jsonencode([
     {
-      name      = "FrontendTask"
+      name      = "FrontendService"
       image     = "${docker_image.FrontendImage.name}"
       essential = true
       logConfiguration = {
