@@ -62,7 +62,7 @@ async def submit_code(request: Request, session: AsyncSession = Depends(get_sess
 
         tests = json.loads(problem["test_cases"])
         inputs = [test["input"] for test in tests]
-        outputs = [test["output"] for test in tests]
+        outputs = [json.dumps(test["output"]) for test in tests]
 
         submission = Submission(
             user_id=user_id,

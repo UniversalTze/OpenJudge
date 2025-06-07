@@ -1,7 +1,7 @@
 from celery import Celery
 from config import config
-from database import get_session
-from datetime import datetime
+from database import connect_db
+from datetime import datetime, timezone
 from models import Submission
 from sqlalchemy import select
 import asyncio
@@ -22,37 +22,32 @@ celery.conf.update(
 
 @celery.task(name="result", queue=config.OUTPUT_QUEUE_NAME)
 def process_result(result: dict):
-    try:
-        loop = asyncio.new_event_loop()
-        asyncio.set_event_loop(loop)
-        try:
-            return loop.run_until_complete(_process_result(result))
-        finally:
-            loop.close()
-    except Exception as e:
-        print(f"Error processing result: {e}")
-        return False
+    time = datetime.now(timezone.utc)
+    loop = asyncio.new_event_loop()
+    asyncio.set_event_loop(loop)
+    try: 
+        return loop.run_until_complete(_process_result(result))
+    finally:
+        loop.close()
 
 async def _process_result(result: dict):
-    session_gen = get_session()
-    session = await session_gen.__anext__()
-    try:
-        submission_id = result.get("submission_id")
-        if not submission_id:
-            print("Missing submission_id in result payload")
-            return
-
-        stmt = select(Submission).filter_by(submission_id=submission_id)
-        res = await session.execute(stmt)
-        submission = res.scalar_one_or_none()
-
+    submission_id = result.get("submission_id")
+    if not submission_id:
+        print("Missing submission_id in result payload")
+        return False
+    
+    db = await connect_db()
+    try: 
+        stmt = select(Submission).where(Submission.submission_id == submission_id)
+        result_obj = await db.execute(stmt)
+        submission = result_obj.scalar_one_or_none()
         if not submission:
             print(f"Submission with ID {submission_id} not found.")
-            return
-        
+            return False
+    
         if not isinstance(submission.results, list):
             submission.results = []
-
+    
         submission.results.append({
             "test_number": result.get("test_number"),
             "passed": result.get("passed"),
@@ -63,19 +58,16 @@ async def _process_result(result: dict):
             "error": result.get("error"),
             "timestamp": datetime.utcnow().isoformat()
         })
-
         submission.status = "passed" if all(test["passed"] for test in submission.results) else "failed"
         submission.updated_at = datetime.utcnow()
-        await session.commit()
-        print(f"Updated submission {submission_id} with new results.")
+        
+        await db.commit()
+        await db.refresh(submission)
+        
         return True
     except Exception as e:
-        print("Error committing session:", e)
-        await session.rollback()
+        print("Error updating database:", e)
+        await db.rollback()
         return False
-    
     finally:
-        try:
-            await session_gen.aclose()
-        except Exception as e:
-            print("Error closing session:", e)
+        await db.close()

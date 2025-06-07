@@ -13,7 +13,7 @@ export interface Problem {
   }>;
   constraints: string[];
   test_cases: Array<{
-    input: Array<any>;
+    input: string;
     output: string;
     hidden: boolean;
   }>;

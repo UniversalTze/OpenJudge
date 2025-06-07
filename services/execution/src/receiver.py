@@ -12,6 +12,7 @@ from src.config import (
     OUTPUT_QUEUE,
 )
 
+from json import loads
 # TODO: Add proper logging!
 
 # Initialise the Celery application
@@ -44,7 +45,24 @@ def execute_submission(
     Returns:
         list: Results for each test case (pass/fail and error messages).
     """
-    print(f"RECEIVED TASK {submission_id}")
+    # print(f"RECEIVED TASK {submission_id}")
+    # print(submission_code)
+    # print(function_name)
+    # print(inputs)
+    # for input in inputs:
+    #     try:
+    #         x = loads(input)
+    #         print("Inputs:", x, type(x))
+    #     except Exception as e:
+    #         print(f"Error loading input: {input, type(input)}")
+    # for output in outputs:
+    #     try:
+    #         x = loads(output)
+    #         print("Outputs:", x, type(x))
+    #     except Exception as e:
+    #         print(f"Error loading output: {output, type(output)}")
+    
+
     # Run tests in sandboxed environment
     test_runner = executor(
         function_name,
@@ -69,7 +87,7 @@ def execute_submission(
     
 def send_results(results):
     """Send results to the output queue."""
-    print("Sending results to output queue:", results)
+    # print("Sending results to output queue:", results)
     celery.send_task(
             'result',
             args=[results],
