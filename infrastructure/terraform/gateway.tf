@@ -109,6 +109,10 @@ resource "aws_ecs_task_definition" "APIGatewayTask" {
           value = "${aws_lb.ProblemsAPILoadBalancer.dns_name}",
         },
         {
+          name  = "FRONTEND_URL"
+          value = "http://${aws_lb.FrontendLoadBalancer.dns_name}"
+        },
+        {
           name  = "AUTH_SERVICE_URL"
           value = "${aws_lb.AuthenticationAPILoadBalancer.dns_name}",
         },
