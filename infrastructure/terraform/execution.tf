@@ -4,7 +4,7 @@ resource "docker_image" "ExecutionPythonImage" {
   name = "${aws_ecr_repository.open-judge-ecr.repository_url}:execution-python-latest"
   build {
     context    = "../../services/execution"
-    dockerfile = "../../infrastructure/docker/execution/Dockerfile.python"
+    dockerfile = "../../infrastructure/docker/Dockerfile.python"
   }
 }
 
@@ -12,7 +12,7 @@ resource "docker_image" "ExecutionJavaImage" {
   name = "${aws_ecr_repository.open-judge-ecr.repository_url}:execution-java-latest"
   build {
     context    = "../../services/execution"
-    dockerfile = "../../infrastructure/docker/execution/Dockerfile.java"
+    dockerfile = "../../infrastructure/docker/Dockerfile.java"
   }
 }
 
