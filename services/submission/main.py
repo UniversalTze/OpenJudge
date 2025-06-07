@@ -101,9 +101,16 @@ async def get_submission(submission_id: str, session: AsyncSession = Depends(get
         raise HTTPException(status_code=400, detail="Submission ID is required")
     
     try:
-        submission = await session.get(Submission, submission_id)
+        stmt = select(Submission).filter_by(submission_id=submission_id)
+        result = await session.execute(stmt)
+        submission = result.scalar_one_or_none()
         if not submission:
             raise HTTPException(status_code=404, detail="Submission not found")
+
+        if submission.results and len(submission.results) == submission.num_tests and submission.status == "pending":
+            submission.status = "passed" if all(result["passed"] for result in submission.results) else "failed"
+
+        await session.commit()
         return submission
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid submission ID format")
@@ -117,12 +124,18 @@ async def get_submission_history(user_id: str, session: AsyncSession = Depends(g
         stmt = select(Submission).filter_by(user_id=user_id).order_by(Submission.created_at.desc())
         result = await session.execute(stmt)
         submissions = result.scalars().all()
+        
+        for submission in submissions:
+            if submission.results and len(submission.results) == submission.num_tests and submission.status == "pending":
+                submission.status = "passed" if all(result["passed"] for result in submission.results) else "failed"
+        
+        await session.commit()
     except Exception as e:
         print(f"[Error] Failed to retrieve submissions: {e}")
         raise HTTPException(status_code=500, detail="Internal server error")
 
     if not submissions:
-        raise HTTPException(status_code=404, detail="No submissions found for this user")   
+        raise HTTPException(status_code=404, detail="No submissions found for this user")
 
     return [submission.to_dict() for submission in submissions]
 
@@ -141,6 +154,9 @@ async def get_submission_ai(submission_id: str, session: AsyncSession = Depends(
 
     if not submission:
         raise HTTPException(status_code=404, detail="Submission not found")
+    
+    if submission.results and len(submission.results) == submission.num_tests and submission.status == "pending":
+        submission.status = "passed" if all(result["passed"] for result in submission.results) else "failed"
 
     if submission.status == "pending":
         raise HTTPException(status_code=400, detail="Submission is still being processed")

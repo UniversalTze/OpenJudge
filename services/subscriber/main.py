@@ -58,7 +58,6 @@ async def _process_result(result: dict):
             "error": result.get("error"),
             "timestamp": datetime.utcnow().isoformat()
         })
-        submission.status = "passed" if all(test["passed"] for test in submission.results) else "failed"
         submission.updated_at = datetime.utcnow()
         
         await db.commit()
