@@ -15,7 +15,14 @@ def get_env(key: str) -> str:
 
 def getPublicKey() -> str:
     publicKey = get_env("JWT_PUBLIC_KEY")
-    raw_key_bytes = base64.b64decode(publicKey)
+    try:
+        raw_key_bytes = base64.urlsafe_b64decode(publicKey)
+    except Exception as e:
+        if isinstance(e, base64.binascii.Error):
+            print(f"Error: Failed to Base64 decode JWT_PUBLIC_KEY due to padding or invalid characters: {e}")
+        else:
+            print(f"Error: Failed to decode JWT_PUBLIC_KEY: {e}")
+        sys.exit(1) # Exit if decoding fails
     return ed25519.Ed25519PublicKey.from_public_bytes(raw_key_bytes)
 
 class Config:
