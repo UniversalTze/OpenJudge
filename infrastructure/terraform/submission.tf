@@ -11,7 +11,7 @@ resource "docker_image" "SubmissionAPIImage" {
 resource "docker_image" "SubmissionResultReceiverImage" {
   name = "${aws_ecr_repository.open-judge-ecr.repository_url}:submission-result-receiver-latest"
   build {
-    context    = "../../services/submission"
+    context    = "../../services/subscriber"
     dockerfile = "../../infrastructure/docker/Dockerfile.subscriber"
   }
 }
