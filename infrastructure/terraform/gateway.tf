@@ -4,7 +4,7 @@ resource "docker_image" "APIGatewayImage" {
   name = "${aws_ecr_repository.open-judge-ecr.repository_url}:gateway-latest"
   build {
     context    = "../../services/gateway"
-    dockerfile = "../../infrastructure/docker/execution/Dockerfile.gateway"
+    dockerfile = "../../infrastructure/docker/Dockerfile.gateway"
   }
 }
 
