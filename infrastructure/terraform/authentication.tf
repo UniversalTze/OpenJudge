@@ -15,7 +15,7 @@ resource "docker_registry_image" "AuthenticationAPIImageName" {
 ############################################################################
 # UserDatabase
 resource "aws_db_instance" "UserDatabase" {
-  identifier                   = "UserDatabase"
+  identifier                   = "user-db"
   allocated_storage            = 20
   max_allocated_storage        = 1000
   engine                       = "postgres"
@@ -73,7 +73,7 @@ resource "aws_ecs_service" "AuthenticationAPI" {
   }
 
   load_balancer {
-    target_group_arn = aws_lb_target_group.AuthenticationAPILoadBalancerTargetGroup.arn
+    target_group_arn = aws_lb_target_group.AuthenticationAPILBTargetGroup.arn
     container_name   = "AuthenticationAPI"
     container_port   = 8080
   }
@@ -175,12 +175,12 @@ resource "aws_lb_listener" "AuthenticationAPILoadBalancerListener" {
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.AuthenticationAPILoadBalancerTargetGroup.arn
+    target_group_arn = aws_lb_target_group.AuthenticationAPILBTargetGroup.arn
   }
 }
 
-resource "aws_lb_target_group" "AuthenticationAPILoadBalancerTargetGroup" {
-  name        = "AuthenticationAPILoadBalancerTargetGroup"
+resource "aws_lb_target_group" "AuthenticationAPILBTargetGroup" {
+  name        = "AuthenticationAPILBTargetGroup"
   port        = 8080
   protocol    = "HTTP"
   vpc_id      = data.aws_vpc.default.id
@@ -274,7 +274,6 @@ resource "null_resource" "summary_authentication" {
       echo "Authentication API URL: http://${aws_lb.AuthenticationAPILoadBalancer.dns_name}"
       echo "Database URL: postgres://${var.USER_DATABASE_USER}:${var.USER_DATABASE_PASSWORD}@${aws_db_instance.UserDatabase.endpoint}?sslmode=require"
       echo "Redis URL: redis://${aws_elasticache_replication_group.TokenRevocationList.primary_endpoint_address}:${aws_elasticache_replication_group.TokenRevocationList.port}"
-      echo "S3 Bucket URL: https://${aws_s3_bucket.ObjectStore.bucket}.s3.${var.AWS_REGION}.amazonaws.com"
       echo ""
     EOT
   }

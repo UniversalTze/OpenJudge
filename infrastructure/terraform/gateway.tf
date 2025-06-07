@@ -60,7 +60,7 @@ resource "aws_ecs_service" "APIGatewayService" {
   }
 
   load_balancer {
-    target_group_arn = aws_lb_target_group.APIGatewayLoadBalancerTargetGroup.arn
+    target_group_arn = aws_lb_target_group.APIGatewayLBTargetGroup.arn
     container_name   = "APIGatewayService"
     container_port   = 8080
   }
@@ -124,12 +124,12 @@ resource "aws_lb_listener" "APIGatewayLoadBalancerListener" {
 
   default_action {
     type             = "forward"
-    target_group_arn = aws_lb_target_group.APIGatewayLoadBalancerTargetGroup.arn
+    target_group_arn = aws_lb_target_group.APIGatewayLBTargetGroup.arn
   }
 }
 
-resource "aws_lb_target_group" "APIGatewayLoadBalancerTargetGroup" {
-  name        = "APIGatewayLoadBalancerTargetGroup"
+resource "aws_lb_target_group" "APIGatewayLBTargetGroup" {
+  name        = "APIGatewayLBTargetGroup"
   port        = 8080
   protocol    = "HTTP"
   vpc_id      = data.aws_vpc.default.id
@@ -182,7 +182,7 @@ resource "aws_elasticache_replication_group" "TokenRevocationList" {
   num_cache_clusters         = 1
   port                       = 6379
   engine                     = "redis"
-  engine_version             = "7.x"
+  engine_version             = "7.0"
   parameter_group_name       = "default.redis7"
   subnet_group_name          = aws_elasticache_subnet_group.TokenRevocationListSubnetGroup.name
   security_group_ids         = [aws_security_group.TokenRevocationListSecurityGroup.id]
