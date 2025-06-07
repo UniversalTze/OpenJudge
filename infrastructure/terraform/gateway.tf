@@ -99,7 +99,28 @@ resource "aws_ecs_task_definition" "APIGatewayTask" {
         {
           name  = "ENV"
           value = "production"
+        },
+        {
+          name  = "JWT_PUBLIC_KEY"
+          value = var.JWT_PUBLIC_KEY
+        },
+        {
+          name  = "PROBLEMS_SERVICE_URL"
+          value = "${aws_lb.ProblemsAPILoadBalancer.dns_name}",
+        },
+        {
+          name  = "AUTH_SERVICE_URL"
+          value = "${aws_lb.AuthenticationAPILoadBalancer.dns_name}",
+        },
+        {
+          name  = "SUBMISSION_SERVICE_URL"
+          value = "${aws_lb.SubmissionAPILoadBalancer.dns_name}",
+        },
+        {
+          name  = "REDIS_URL"
+          value = "redis://${aws_elasticache_replication_group.TokenRevocationList.primary_endpoint_address}:${aws_elasticache_replication_group.TokenRevocationList.port}",
         }
+        # TODO - ADD IN FRONTEND URL
         # TODO - ADD IN OTHER ENVIRONMENT VARIABLES!
       ]
     }
