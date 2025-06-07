@@ -11,4 +11,5 @@ dependencies = [
     "uvloop",
     "kombu[amazon]>=5.5.4",
     "boto3>=1.38.31",
+    "dotenv>=0.9.9",
 ]

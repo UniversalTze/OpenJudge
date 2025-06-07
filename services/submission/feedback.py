@@ -1,6 +1,3 @@
-
-
-
 async def get_ai_feedback(code: str, inputs: list, outputs: list, groq) -> str:
     prompt = repr(
 f"""

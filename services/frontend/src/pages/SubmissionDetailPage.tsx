@@ -20,6 +20,8 @@ import Editor, { OnMount, BeforeMount } from "@monaco-editor/react";
 
 const ProblemDetailPage = () => {
   const { id } = useParams<{ id: string }>();
+  const [searchParams] = useSearchParams();
+  const submission_id = searchParams.get("submission");
   const { user, accessToken } = useAuth();
   const navigate = useNavigate();
   const [language, setLanguage] = useState<"Java" | "Python">("Python");
@@ -28,6 +30,28 @@ const ProblemDetailPage = () => {
   const [showHiddenTestCases, setShowHiddenTestCases] = useState(false);
   const [problem, setProblem] = useState<Problem | null>(null);
   const [isLoading, setIsLoading] = useState(true);
+
+  async function fetchSubmission() {
+    if (!submission_id) return;
+    const response = await apiClient.get<Submission>(
+      API_ENDPOINTS.SUBMISSIONS.ID(submission_id),
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          Accept: "application/json",
+        },
+      }
+    );
+    if (response.success) {
+      const submission = response.data;
+      setLanguage(submission.language === "java" ? "Java" : "Python");
+      setCode(submission.code);
+    } else {
+      console.error("Failed to fetch submission:", response.message);
+      toast.error("Failed to fetch submission: " + response.message);
+    }
+  }
+
 
   const handleBeforeMount: BeforeMount = (monaco) => {
     monaco.editor.defineTheme("custom-dark", {
@@ -42,6 +66,7 @@ const ProblemDetailPage = () => {
         { token: "type", foreground: "bb9af7" },
         { token: "function", foreground: "7aa2f7" },
         { token: "variable", foreground: "c3dafe" },
+        { token: "multiline-comment", foreground: "5c6370" }, // multiline comments (gray)
       ],
       colors: {
         "editor.background": "#030711",
@@ -82,12 +107,63 @@ const ProblemDetailPage = () => {
       console.error("Failed to fetch problem:", response.message);
       toast.error("Problem not found or access denied.");
     }
-    setIsLoading(false);
   }
 
   useEffect(() => {
-    getProblem();
+    async function load() {
+      await getProblem();
+      await fetchSubmission();
+      setIsLoading(false);
+    }
+    load();
   }, [accessToken]);
+
+  function loadCodeFromLocalStorage(setCode: (value: string) => void): void {
+    const code = localStorage.getItem(id);
+    if (code !== null) {
+      setCode(code);
+    }
+  }
+
+  useEffect(() => {
+    if (problem && language === "Java") {
+      setCode(
+        `/** \n * ${
+          problem?.description
+        }\n * \n */ \npublic class Solution {\n    public static ${determineType(
+          problem.return_type,
+          language
+        )} ${
+          problem?.function_name ?? "FunctionName"
+        }(/*Insert*/) {\n        // Your code here\n    }\n}`
+      );
+    } else if (problem && language === "Python") {
+      setCode(
+        `def ${problem.function_name ?? "function_name"}("""Insert""") -> ${determineType(
+          problem.return_type,
+          language
+        )}:\n    """${problem.description}"""\n    #...`
+      );
+    }
+  }, [language, problem]);
+
+  useEffect(() => {
+    loadCodeFromLocalStorage(setCode);
+  }, []);
+
+  
+    /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+  function debounce<T extends (...args: any[]) => void>(fn: T, delay: number): T {
+    let timeoutId: ReturnType<typeof setTimeout>;
+    return function (...args: Parameters<T>) {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => fn(...args), delay);
+    } as T;
+  }
+
+  const saveCodeToLocalStorage = debounce((code: string) => {
+    localStorage.setItem("code", code);
+  }, 500);
 
   if (!problem) {
     return (
@@ -97,6 +173,11 @@ const ProblemDetailPage = () => {
       </div>
     );
   }
+
+  const handleCodeChange = (value: string) => {
+    setCode(value);
+    saveCodeToLocalStorage(value);
+  };
 
   async function postSubmit() {
     setIsSubmitting(true);
@@ -121,13 +202,14 @@ const ProblemDetailPage = () => {
       console.error("Failed to submit problem:", response.message);
       toast.error("Failed to submit problem: " + response.message);
     }
-    setIsSubmitting(false);
+    setIsLoading(false);
   }
 
   const handleSubmit = () => {
     postSubmit();
   };
 
+  // Generate difficulty badge
   const getDifficultyBadge = (difficulty: string) => {
     switch (difficulty) {
       case "Easy":
@@ -437,7 +519,9 @@ const ProblemDetailPage = () => {
               }
               theme="custom-dark"
               beforeMount={handleBeforeMount}
-              onChange={setCode}
+              onChange={(value) => {
+                handleCodeChange(value);
+              }}
               options={{
                 minimap: { enabled: false },
                 fontFamily: "JetBrains Mono, monospace",

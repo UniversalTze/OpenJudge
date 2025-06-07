@@ -18,6 +18,7 @@ import SkillSlider from "@/components/Slider";
 import { apiClient } from "@/lib/api";
 import { API_ENDPOINTS } from "@/lib/env";
 import { DatabaseSubmission, Submission } from "@/lib/types";
+import { useNavigate } from "react-router-dom";
 
 export default function DashboardPage() {
   const { user, updateUser, accessToken } = useAuth();
@@ -28,6 +29,7 @@ export default function DashboardPage() {
   const [email, setEmail] = useState(user?.email || "");
   const [skillLevel, setSkillLevel] = useState(user?.skill || "Beginner");
   const [submissions, setSubmissions] = useState<Submission[]>([]);
+  const navigate = useNavigate();
 
   async function getSubmissions() {
     const response = await apiClient.get<DatabaseSubmission[]>(API_ENDPOINTS.SUBMISSIONS.ALL, {
@@ -37,13 +39,12 @@ export default function DashboardPage() {
       },
     });
     if (response.success) {
-      setSubmissions(
-        response.data.map((submission) => ({
-          ...submission,
-          language: submission.language === "java" ? "java" : "python",
-          results: JSON.parse(submission.results),
-        }))
-      );
+      const sorted = response.data.map((submission) => ({
+        ...submission,
+        language: (submission.language === "java" ? "java" : "python") as "java" | "python",
+        results: submission.results,
+      })).sort((a, b) => new Date(b.created_at).getTime() - new Date(a.created_at).getTime());
+      setSubmissions(sorted);
     } else {
       if (response.status != 404) {
         console.error("Failed to fetch problems:", response.message);
@@ -173,13 +174,15 @@ export default function DashboardPage() {
             <CardTitle>Code Problem Submissions</CardTitle>
           </CardHeader>
           {submissions.length === 0 ? (
-              <p className="lg:mt-12 w-full text-muted-foreground text-left lg:text-center pt-0 lg:pt-6 p-6">No submissions found. Start coding to see your submissions here!</p>
+            <p className="lg:mt-12 w-full text-muted-foreground text-left lg:text-center pt-0 lg:pt-6 p-6">
+              No submissions found. Start coding to see your submissions here!
+            </p>
           ) : (
             <CardContent>
               <div className="overflow-x-auto">
                 <Table>
-                  <TableHeader>
-                    <TableRow>
+                  <TableHeader className="hover:bg-transparent">
+                    <TableRow className="hover:bg-transparent">
                       <TableHead>Problem ID</TableHead>
                       <TableHead>Status</TableHead>
                       <TableHead>Language</TableHead>
@@ -187,18 +190,24 @@ export default function DashboardPage() {
                     </TableRow>
                   </TableHeader>
                   <TableBody>
-                    {submissions.map((submission) => (
-                      <TableRow key={submission.submission_id}>
-                        <TableCell className="font-medium">{submission.problem_id}</TableCell>
-                        <TableCell>{getStatusBadge(submission.status)}</TableCell>
-                        <TableCell>
-                          <Badge variant="outline">{submission.language}</Badge>
-                        </TableCell>
-                        <TableCell className="hidden md:table-cell text-muted-foreground text-sm">
-                          {submission.createdAt}
-                        </TableCell>
-                      </TableRow>
-                    ))}
+                    {submissions.map((submission, index) =>
+                      index >= 10 ? null : (
+                          <TableRow key={submission.submission_id} className="cursor-pointer"onClick={() => {
+                            navigate(`/problem/${submission.problem_id}?submission=${submission.submission_id}`);
+                          }}>
+                            <TableCell className="font-medium">{submission.problem_id}</TableCell>
+                            <TableCell>{getStatusBadge(submission.status)}</TableCell>
+                            <TableCell>
+                              <Badge variant="outline" className={`${submission.language === "python" ? "border-blue-900" : "border-yellow-900"}`}>
+                                {submission.language == "python" ? "Python" : "Java"}
+                              </Badge>
+                            </TableCell>
+                            <TableCell className="table-cell text-muted-foreground text-sm">
+                              {submission.created_at}
+                            </TableCell>
+                          </TableRow>
+                      )
+                    )}
                   </TableBody>
                 </Table>
               </div>
@@ -217,6 +226,6 @@ const getStatusBadge = (status: string) => {
     case "failed":
       return <Badge variant="destructive">Incorrect</Badge>;
     default:
-      return <Badge variant="secondary">{status}</Badge>;
+      return <Badge variant="secondary">Pending</Badge>;
   }
 };

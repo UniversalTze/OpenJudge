@@ -26,6 +26,7 @@ async def forward_request(request: Request, target_url: str, client: httpx.Async
             content=body,
             timeout=30.0
         )
+        print(f"Forwarded request to {target_url}. Returned {rp.status_code}")
 
         response_headers = dict(rp.headers)
         response_headers.pop("transfer-encoding", None)

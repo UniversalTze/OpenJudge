@@ -54,9 +54,6 @@ tasks:
       - docker-compose -f infrastructure/docker/docker-compose.yml -p openjudge down problems_service problems_database --volumes
     silent: true
 
-
-  # test:problems:
-
   # SUBMISSION SERVICE COMMANDS
   run:submission:
     desc: Run the submission service in development mode.
@@ -136,6 +133,7 @@ tasks:
       TF_VAR_SMTP_USER: "{{.SMTP_USER}}"
       TF_VAR_SMTP_PASSWORD: "{{.SMTP_PASSWORD}}"
       TF_VAR_SMTP_FROM: "{{.SMTP_FROM}}"
+      TF_VAR_GROQ_API_KEY: "{{.GROQ_API_KEY}}"
 
   destroy:
     desc: Destroy the project.
@@ -163,4 +161,5 @@ tasks:
       TF_VAR_SMTP_USER: "{{.SMTP_USER}}"
       TF_VAR_SMTP_PASSWORD: "{{.SMTP_PASSWORD}}"
       TF_VAR_SMTP_FROM: "{{.SMTP_FROM}}"
+      TF_VAR_GROQ_API_KEY: "{{.GROQ_API_KEY}}"
 

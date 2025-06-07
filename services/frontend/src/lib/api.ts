@@ -34,6 +34,9 @@ class ApiClient {
       } else {
         message = await response.text();
       }
+      if (data && data.detail) {
+        message = data.detail;
+      }
 
       if (response.ok) {
         message = "Request successful";

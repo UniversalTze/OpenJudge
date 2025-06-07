@@ -55,9 +55,9 @@ export interface DatabaseSubmission {
   num_tests: number;
   function_name: string;
   status: 'pending' | 'passed' | 'failed'
-  results: string;
-  createdAt: string;
-  updatedAt: string;
+  results: Array<any>;
+  created_at: string;
+  updated_at: string;
 }
 
 export interface Submission {
@@ -79,6 +79,6 @@ export interface Submission {
     error: string;
     timestamp: string;
   }>
-  createdAt: string;
-  updatedAt: string;
+  created_at: string;
+  updated_at: string;
 }
