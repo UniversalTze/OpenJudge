@@ -209,4 +209,10 @@ resource "null_resource" "summary_frontend" {
   }
 }
 
+# Final Frontend Endpoint!
+resource "local_file" "url" {
+  content  = "http://${aws_lb.FrontendLoadBalancer.dns_name}"
+  filename = "../../api.txt"
+}
+
 ############################################################################
