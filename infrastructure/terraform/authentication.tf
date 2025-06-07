@@ -135,7 +135,7 @@ resource "aws_ecs_task_definition" "AuthenticationAPITask" {
         },
         {
           name  = "USER_DATABASE_URL"
-          value = "postgres://${var.USER_DATABASE_USER}:${var.USER_DATABASE_PASSWORD}@${aws_db_instance.UserDatabase.endpoint}?sslmode=require"
+          value = "postgres://${var.USER_DATABASE_USER}:${var.USER_DATABASE_PASSWORD}@${aws_db_instance.UserDatabase.endpoint}/${var.USER_DATABASE_NAME}?sslmode=require"
         },
         {
           name  = "SMTP_HOST"
