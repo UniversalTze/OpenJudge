@@ -31,11 +31,11 @@ resource "aws_security_group" "FrontendSecurityGroup" {
 
   # Allows outgoing HTTP (Port 80 TCP) traffic to any IP address (0.0.0.0/0)
   egress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1" # -1 means all protocols
     cidr_blocks = ["0.0.0.0/0"]
-    description = "Allow outbound HTTP to anywhere"
+    description = "Allow all outbound traffic"
   }
 }
 
