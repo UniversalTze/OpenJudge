@@ -122,6 +122,10 @@ resource "aws_ecs_task_definition" "AuthenticationAPITask" {
           value = "http://${aws_lb.FrontendLoadBalancer.dns_name}"
         },
         {
+          name  = "API_GATEWAY_URL"
+          value = "http://${aws_lb.APIGatewayLoadBalancer.dns_name}"
+        },
+        {
           name  = "JWT_SECRET"
           value = var.JWT_SECRET
         },
