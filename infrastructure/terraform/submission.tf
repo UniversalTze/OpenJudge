@@ -230,7 +230,7 @@ resource "aws_ecs_task_definition" "SubmissionAPITask" {
         },
         {
           name  = "GROQ_API_KEY"
-          value = var.GROQ_API_KEY
+          value = "${var.GROQ_API_KEY}"
         },
 
       ]
