@@ -14,6 +14,6 @@ __pycache__/
 .pytest_cache/
 .venv/
 venv/
-.DS_Store
-
+*.DS_Store
+*.dccache
 infrastructure/terraform/.terraform*

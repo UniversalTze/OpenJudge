@@ -218,7 +218,7 @@ resource "aws_ecs_task_definition" "SubmissionAPITask" {
         },
         {
           name  = "PROBLEMS_SERVICE_URL",
-          value = "${aws_lb.ProblemsAPILoadBalancer.dns_name}",
+          value = "http://${aws_lb.ProblemsAPILoadBalancer.dns_name}",
         },
         {
           name  = "JAVA_QUEUE_NAME",

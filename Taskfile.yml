@@ -171,4 +171,3 @@ tasks:
       TF_VAR_SMTP_PASSWORD: "{{.SMTP_PASSWORD}}"
       TF_VAR_SMTP_FROM: "{{.SMTP_FROM}}"
       TF_VAR_GROQ_API_KEY: "{{.GROQ_API_KEY}}"
-
