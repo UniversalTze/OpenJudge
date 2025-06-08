@@ -35,13 +35,14 @@ app.middleware("http")(rate_limit_middleware)
 app.middleware("http")(authorise_request)
 
 # Security middleware
-app.add_middleware(
-    CORSMiddleware,
-    allow_origins=["*"] if config.ENV == "local" else [config.FRONTEND_URL],
-    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# TODO - ADD BACK IN HTTPS WHEN IMPLEMENTED
+# app.add_middleware(
+#     CORSMiddleware,
+#     allow_origins=["*"] if config.ENV == "local" else [config.FRONTEND_URL],
+#     allow_credentials=True,
+#     allow_methods=["*"],
+#     allow_headers=["*"],
+# )
 if config.ENV != "local":
     app.add_middleware(TrustedHostMiddleware, allowed_hosts=[config.FRONTEND_URL])
     app.add_middleware(HTTPSRedirectMiddleware)
