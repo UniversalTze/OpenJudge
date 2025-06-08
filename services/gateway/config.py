@@ -7,7 +7,9 @@ load_dotenv()
 
 def get_env(key: str) -> str:
     """Retrieve the environment variable value for the given key."""
+    print(f"Attempting to retrieve environment variable: {key}")
     value = os.environ.get(key)
+    print(f"The value was: {value}")
     if value is None:
         print(f"Error: Environment variable '{key}' is not set.")
         sys.exit(1)
