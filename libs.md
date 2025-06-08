@@ -1,0 +1,5 @@
+- **Flask v2.3.1** – https://flask.palletsprojects.com/ – Web framework for our REST API  
+- **Celery v5.4.0** – https://docs.celeryq.dev/ – Asynchronous task queue for submission processing  
+- **psycopg2 v2.9.6** – https://www.psycopg.org/ – PostgreSQL adapter for Python  
+- **docker-py v6.1.3** – https://github.com/docker/docker-py – Programmatic Docker client  
+- **PyYAML v6.0** – https://pyyaml.org/ – YAML parsing for configuration files
