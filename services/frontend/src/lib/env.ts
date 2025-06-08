@@ -1,5 +1,5 @@
 export const env = {
-  API_BASE_URL: import.meta.env.VITE_API_GATEWAY_URL ?? "http://apigatewayloadbalancer-198465570.us-east-1.elb.amazonaws.com",
+  API_BASE_URL: import.meta.env.VITE_API_GATEWAY_URL ?? "https://api.openjudge.software",
   ENV: import.meta.env.VITE_ENV as "local" | "production" ?? "production",
 } as const;
 
