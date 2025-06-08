@@ -37,8 +37,8 @@ app.middleware("http")(authorise_request)
 # Security middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"] if config.ENV == "local" else [config.FRONTEND_URL, config.GATEWAY_LB_DNS],
-    allow_credentials=True,
+    # allow_origins=["*"] if config.ENV == "local" else [config.FRONTEND_URL, config.GATEWAY_LB_DNS],
+    allow_origins=["*"],    allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
 )
