@@ -72,6 +72,11 @@ async def authorise_request(request: Request, call_next):
     """
     Middleware to authorize requests
     """
+    print("Received a request")
+    if request.url.path.startswith(("/health")):
+        response = await call_next(request)
+        return response
+    
     if request.url.path.startswith(("/user", "/submission", "/problems")):
         auth_header = request.headers.get("Authorization")
         if not auth_header or not auth_header.startswith("Bearer "):
