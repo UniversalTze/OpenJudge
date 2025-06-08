@@ -22,11 +22,11 @@ resource "aws_security_group" "FrontendSecurityGroup" {
 
   # Allows incoming HTTP (Port 80 TCP) traffic from any IP address (0.0.0.0/0)
   ingress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
-    cidr_blocks = ["0.0.0.0/0"]
-    description = "Allow inbound HTTP from anywhere"
+    from_port       = 8080
+    to_port         = 8080
+    protocol        = "tcp"
+    security_groups = [aws_security_group.FrontendLoadBalancerSecurityGroup.id]
+    description     = "Allow inbound app traffic from Load Balancer"
   }
 
   # Allows outgoing HTTP (Port 80 TCP) traffic to any IP address (0.0.0.0/0)
@@ -193,11 +193,11 @@ resource "aws_security_group" "FrontendLoadBalancerSecurityGroup" {
 
   # Allows outgoing HTTP (Port 80 TCP) traffic to any IP address (0.0.0.0/0)
   egress {
-    from_port   = 80
-    to_port     = 80
-    protocol    = "tcp"
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
-    description = "Allow outbound HTTP to anywhere"
+    description = "Allow all outbound"
   }
 }
 

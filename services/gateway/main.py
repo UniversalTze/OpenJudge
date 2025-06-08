@@ -49,7 +49,8 @@ if config.ENV != "local":
 # Health check endpoints
 @app.get("/health")
 async def health_check():
-    return "API Gateway operational"
+    print("Received health check get request")
+    return Response(status_code=200, content="API Gateway operational")
 
 
 @app.get("/status")

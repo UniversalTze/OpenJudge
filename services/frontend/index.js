@@ -14,6 +14,7 @@ app.use(compression());
 app.use(express.static(path.join(__dirname, "dist")));
 
 app.get("/health", (req, res) => {
+  console.log(`Received health request`);
   res.status(200).send("OK");
 });
 
