@@ -65,12 +65,28 @@ This alternative architecture retains the existing microservices layout but repl
 #### Deployment Diagram
 ![Alternative Architecture 1 Container](2025_P5_OpenJudge/model/images/AltArchitecture-1-Deployment.png)
 
+In contrast to this hybrid approach, the second alternative explored was a comprehensive pure event-driven architecture.
 
+### Pure Event Driven Architecture
+This alternative architecture represents a comprehensive event-driven approach, utilising Apache Kafka as the central event streaming platform to orchestrate all inter-service communication. Unlike the hybrid approach described above, this design eliminates direct service-to-service API calls entirely, instead routing all interactions through a centralised event bus with dedicated event sourcing capabilities via EventStore DB.
+
+The architecture employs Apache Kafka topics to categorise different event types (submission events, authentication events, execution events), with each microservice acting as both an event producer and consumer. Kafka's partitioning mechanism distributes events across multiple brokers for horizontal scalability, whilst consumer groups ensure load balancing across service instances. Key Kafka concepts integral to this design include dead letter queues (DLQs) for handling failed message processing, offset management for tracking message consumption progress, and replication factors to ensure fault tolerance across the cluster. The EventStore DB provides event sourcing capabilities, maintaining an immutable log of all domain events that enables complete system state reconstruction and audit trail functionality.
+
+#### Pros
+- The pure event-driven approach offers several compelling advantages, particularly in scalability and operational resilience. Horizontal scaling becomes inherently natural through Kafka's partitioning strategy, where increased load automatically distributes across available service instances without manual intervention. The loose coupling achieved through event-driven communication ensures that service failures remain isolated—if the problem management service experiences downtime, code submissions can continue queuing through the event bus until the service recovers, providing graceful degradation rather than cascading failures.
+- Event sourcing capabilities represent a significant architectural advantage, offering complete audit trails and the ability to replay system events for debugging, compliance, or analytical purposes. This proves particularly valuable for an educational platform where understanding user interaction patterns and submission histories is crucial for improving the learning experience. The asynchronous nature of event processing aligns perfectly with code execution workflows, where submissions naturally follow a queue-and-process pattern rather than requiring immediate synchronous responses.
+- Operational observability improves dramatically through Kafka's built-in monitoring capabilities and the immutable event log, enabling comprehensive tracking of system behaviour and performance metrics. The architecture also supports temporal decoupling, allowing services to process events at their optimal pace without blocking other system components.
+
+#### Cons
+- However, this architectural approach introduces substantial complexity that must be carefully considered. Kafka operational complexity represents the most significant challenge, requiring specialised expertise in managing multi-node clusters, monitoring partition health, and handling broker failures. The learning curve for the development team would be considerable, encompassing understanding of consumer group coordination, partition assignment strategies, and exactly-once delivery semantics.
+- Debugging distributed workflows becomes significantly more challenging compared to traditional REST API tracing. Identifying the root cause of a failed submission might require examining dozens of events across multiple Kafka topics and correlating them through the EventStore, demanding sophisticated observability tooling and expertise. Eventual consistency replaces the immediate consistency of traditional database transactions, requiring careful consideration of how data propagation delays might affect user experience.
+- Infrastructure overhead increases substantially with the need to maintain Kafka clusters, Zookeeper ensembles (for older Kafka versions), and EventStore instances, along with their associated monitoring and backup systems. Event schema evolution presents ongoing challenges, as changes to event structures must maintain backward compatibility whilst enabling system evolution.
+
+Most critically for this project, the implementation timeline would be significantly extended due to the team's unfamiliarity with event-driven patterns and Kafka's operational requirements. The complexity of achieving reliable event ordering, handling duplicate message processing, and implementing proper dead letter queue strategies would substantially delay the delivery of core functionality. Whilst this architecture offers superior long-term scalability and observability, the immediate practical constraints of team expertise and project timeline make it unsuitable for initial implementation, though it remains an excellent target for future architectural evolution once the team develops the necessary distributed systems expertise.
 
 
 ## Architecture
-TODO: Describe the software architecture in detail.
-ASSIGNED TO:
+
 
 ## Trade-Offs
 TODO: Describe and justify the trade-offs made in designing the architecture.
