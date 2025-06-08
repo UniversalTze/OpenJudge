@@ -1,6 +1,3 @@
-// TODO: Fix the structurizr code to reflect our actual architecture
-// ASSIGNED TO: 
-
 workspace "OpenJudge" "A CSSE6400 Project" {
   !identifiers hierarchical
 
