@@ -1,12 +1,33 @@
-[insert ai usage]
+# Usage of Artifical Intelligence
 
-## AI Usage - Report Writing 
-AI has been used to edit and refine project documentation. It is believed that 20% of the report documentation can be attributed to AI. 
+### Usages 
+AI was used in numerous ways to ie. complete code, explain complex software libraries, assist in 
+writing documentation, and developing 
 
-
-
-
-| File         | AI-Generated % | Prompts & Notes                                      |
-|--------------|----------------|------------------------------------------------------|
-| `services/submission/main.py`  | 40%            | Added error handling and logging manually using ChatGPT along with little development |
-| `services/submission/validation.py`| 30%            | Used Copilot to suggest AST-inspection code; refactored to fit blacklist rules.|
+### Files
+```
+.
+├── demo.md 20%
+├── infrastructure
+│   └── docker
+│       ├── docker-compose.yml 10%
+│       ├── Dockerfile.authentication 40%
+│       ├── Dockerfile.frontend 40%
+│       ├── Dockerfile.gateway 40%
+│       ├── Dockerfile.java 40%
+│       ├── Dockerfile.problems 20%
+│       ├── Dockerfile.python 40%
+│       ├── Dockerfile.submission 40%
+│       ├── Dockerfile.subscriber 40%
+│       └── execution
+│           └── Dockerfile.test 40%
+├── libs.md 90%
+├── report
+│   └── report.md 20%
+├── services
+│   ├── frontend 40% - most of the ui was developed using ai - loveable.ai
+│   ├── keygen
+│   │   └── keygen.go 80%
+│   └── subscriber - 20%
+├── Taskfile.yml 20%
+```
