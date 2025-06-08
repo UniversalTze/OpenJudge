@@ -1,4 +1,4 @@
-async def get_ai_feedback(code: str, inputs: list, outputs: list, groq) -> str:
+async def get_ai_feedback(code: str, description: str, examples: str, groq) -> str:
     prompt = repr(
 f"""
 Please provide 1-2 sentences of feedback on the following code submission. ENSURE YOUR FEEDBACK IS
@@ -8,10 +8,10 @@ Code:
 {code}
 
 Inputs:
-{inputs}
+{description}
 
 Outputs:
-{outputs}
+{examples}
 """)
     response = await groq.chat.completions.create(
         model="llama3-8b-8192",

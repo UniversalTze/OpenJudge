@@ -106,6 +106,8 @@ async def get_submission(submission_id: str, session: AsyncSession = Depends(get
         submission = result.scalar_one_or_none()
         if not submission:
             raise HTTPException(status_code=404, detail="Submission not found")
+        
+        return submission.to_dict()
 
     except ValueError:
         raise HTTPException(status_code=400, detail="Invalid submission ID format")
@@ -130,7 +132,7 @@ async def get_submission_history(user_id: str, session: AsyncSession = Depends(g
     return [submission.to_dict() for submission in submissions]
 
 @app.get("/submission/ai/{submission_id}")
-async def get_submission_ai(submission_id: str, session: AsyncSession = Depends(get_session)):
+async def get_submission_ai(request: Request, submission_id: str, session: AsyncSession = Depends(get_session)):
     if not submission_id:
         raise HTTPException(status_code=400, detail="Submission ID is required")
 
@@ -148,14 +150,28 @@ async def get_submission_ai(submission_id: str, session: AsyncSession = Depends(
     if submission.status == "pending":
         raise HTTPException(status_code=400, detail="Submission is still being processed")
 
-    if submission.status == "success":
+    if submission.status == "passed":
         raise HTTPException(status_code=400, detail="Submission correct")
+    
+    client = request.app.state.http_client
+    response = await client.get(f"{config.PROBLEMS_SERVICE_URL}/problems/{submission.problem_id}")
+    if response.status_code != 200:
+        raise HTTPException(status_code=502, detail="Problems service error")
+    problem = response.json()
+    
+    if not problem:
+        raise HTTPException(status_code=404, detail="Problem not found")
+    
+    print(f"[Info] Fetching AI feedback for submission {submission_id}")
+    print(f"[Info] Submission code: {submission.code}")
+    print(f"[Info] Problem description: {problem['description']}")
+    print(f"[Info] Examples: {problem['examples']}")
 
     try:
         response = await get_ai_feedback(
             submission.code,
-            submission.inputs,
-            submission.outputs,
+            problem["description"],
+            problem["examples"],
             app.state.groq
         )
         return response

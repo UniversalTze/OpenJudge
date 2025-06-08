@@ -186,7 +186,7 @@ const ProblemDetailPage = () => {
       clearLocalStorage();
       toast.success("Code submitted successfully");
       setIsSubmitting(false);
-      navigate("/submission-success");
+      navigate("/submission");
     } else {
       console.error("Failed to submit problem:", response.message);
       toast.error("Failed to submit problem: " + response.message);
@@ -400,7 +400,7 @@ const ProblemDetailPage = () => {
                       Show {hiddenTestCases.length} Hidden Test Cases
                       <Badge
                         variant="secondary"
-                        className="ml-2 text-xs bg-primary/20 text-primary"
+                        className="ml-2 text-xs bg-primary/20 text-primary hidden sm:block"
                       >
                         🔥 OpenJudge Exclusive
                       </Badge>
