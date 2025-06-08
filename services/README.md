@@ -4,9 +4,9 @@ The `services` directory contains all the microservices that make up the OpenJud
 
 The services are as follows:
 
-- `application`: The frontend web application, built with Next.js
+- `application`: The frontend web application, built with Vite/React/Express
 - `gateway`: The API gateway, built with FastAPI
-- `auth`: The authentication service
-- `problems`: The problems service, that handles problem CRUD operations and recommendations
-- `submission`: The code submission service
-- `execution`: The code execution service
+- `auth`: The authentication service built with Golang Fibre
+- `problems`: The problems service, built with FastAPI
+- `submission`: The code submission service built with FastAPI & Celery
+- `execution`: The code execution service built with Celery
