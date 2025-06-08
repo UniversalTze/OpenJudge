@@ -101,7 +101,7 @@ resource "aws_ecs_task_definition" "FrontendTask" {
           value = "production"
         },
         {
-          name  = "API_GATEWAY_URL"
+          name  = "VITE_API_GATEWAY_URL"
           value = "http://${aws_lb.APIGatewayLoadBalancer.dns_name}"
         },
       ]
