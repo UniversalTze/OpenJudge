@@ -98,18 +98,15 @@ const ProblemDetailPage = () => {
 
   async function getSubmission() {
     if (!submissionId) return;
-    const response = await apiClient.get<Submission>(
-      API_ENDPOINTS.SUBMISSIONS.ID(submissionId),
-      {
-        headers: {
-          Authorization: `Bearer ${accessToken}`,
-          Accept: "application/json",
-        },
-      }
-    );
+    const response = await apiClient.get<Submission>(API_ENDPOINTS.SUBMISSIONS.ID(submissionId), {
+      headers: {
+        Authorization: `Bearer ${accessToken}`,
+        Accept: "application/json",
+      },
+    });
     if (response.success) {
       const submission = response.data;
-      setLanguage(submission.language as "Java" | "Python");
+      setLanguage(submission.language === "java" ? "Java" : "Python");
       setCode(submission.code);
     } else {
       console.error("Failed to fetch submission:", response.message);
@@ -119,13 +116,50 @@ const ProblemDetailPage = () => {
   }
 
   async function getFromLocalStorage(id: string) {
-    const storedLanguage = localStorage.getItem(`${id}.language`);
+    const storedLanguage = localStorage.getItem(`${id}_language`);
+    const storedCode = localStorage.getItem(`${id}_code`);
+    if (storedLanguage) {
+      setLanguage(storedLanguage as "Java" | "Python");
+    }
+    if (storedCode) {
+      setCode(storedCode);
+    }
+  }
 
+  const debouncedSave = debounce((value: string | undefined) => {
+    if (value !== undefined) {
+      saveToLocalStorage(value);
+    }
+  }, 2000);
+
+  function saveCode(value: string | undefined) {
+    setCode(value);
+    debouncedSave(value);
+  }
+
+  /* eslint-disable-next-line @typescript-eslint/no-explicit-any */
+  function debounce<T extends (...args: any[]) => void>(fn: T, delay: number): T {
+    let timeoutId: ReturnType<typeof setTimeout>;
+    return function (...args: Parameters<T>) {
+      clearTimeout(timeoutId);
+      timeoutId = setTimeout(() => fn(...args), delay);
+    } as T;
+  }
+
+  function saveToLocalStorage(code: string) {
+    localStorage.setItem(`${id}_language`, language);
+    localStorage.setItem(`${id}_code`, code);
+  }
+
+  function clearLocalStorage() {
+    localStorage.removeItem(`${id}_language`);
+    localStorage.removeItem(`${id}_code`);
+  }
 
   useEffect(() => {
     async function fetchData() {
       await getProblem();
-      await getFromLocalStorage(id)
+      await getFromLocalStorage(id);
       await getSubmission();
       setIsLoading(false);
     }
@@ -149,6 +183,7 @@ const ProblemDetailPage = () => {
       }),
     });
     if (response.success) {
+      clearLocalStorage();
       toast.success("Code submitted successfully");
       setIsSubmitting(false);
       navigate("/submission-success");
@@ -450,37 +485,39 @@ const ProblemDetailPage = () => {
           </div>
 
           <div className="relative flex-grow code-editor-container">
-            <Editor
-              height="100%"
-              key={language.toLowerCase()}
-              defaultLanguage={language.toLowerCase()}
-              defaultValue={
-                language === "Java"
-                  ? `/** \n * ${
-                      problem?.description
-                    }\n * \n */ \npublic class Solution {\n    public static ${determineType(
-                      problem.return_type,
-                      language
-                    )} ${
-                      problem?.function_name ?? "FunctionName"
-                    }(/*Insert*/) {\n        // Your code here\n    }\n}`
-                  : `def ${
-                      problem.function_name ?? "function_name"
-                    }("""Insert""") -> ${determineType(problem.return_type, language)}:\n    """${
-                      problem.description
-                    }"""\n    #...`
-              }
-              value={code}
-              theme="custom-dark"
-              beforeMount={handleBeforeMount}
-              onChange={setCode}
-              options={{
-                minimap: { enabled: false },
-                fontFamily: "JetBrains Mono, monospace",
-                fontSize: 14,
-                scrollBeyondLastLine: false,
-              }}
-            />
+            {language && (
+              <Editor
+                height="100%"
+                key={language.toLowerCase()}
+                defaultLanguage={language.toLowerCase()}
+                defaultValue={
+                  language === "Java"
+                    ? `/** \n * ${
+                        problem?.description
+                      }\n * \n */ \npublic class Solution {\n    public static ${determineType(
+                        problem.return_type,
+                        language
+                      )} ${
+                        problem?.function_name ?? "FunctionName"
+                      }(/*Insert*/) {\n        // Your code here\n    }\n}`
+                    : `def ${
+                        problem.function_name ?? "function_name"
+                      }("""Insert""") -> ${determineType(problem.return_type, language)}:\n    """${
+                        problem.description
+                      }"""\n    #...`
+                }
+                value={code}
+                theme="custom-dark"
+                beforeMount={handleBeforeMount}
+                onChange={saveCode}
+                options={{
+                  minimap: { enabled: false },
+                  fontFamily: "JetBrains Mono, monospace",
+                  fontSize: 14,
+                  scrollBeyondLastLine: false,
+                }}
+              />
+            )}
           </div>
         </div>
       </div>
