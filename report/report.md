@@ -31,7 +31,7 @@ In addition, the functional requirements of the program were:
 - Secure Code Execution: A user-friendly UI will be provided for submitting code. Code will be executed in isolated, sandboxed Docker containers hosted on AWS (using services such as Fargate) along with basic load balancing implemented via AWS services.
 
 A context diagram for our project has been provided:
-![OpenJudge Software Context](2025_P5_OpenJudge/model/images/OpenJudgeSystemContext.png)
+![OpenJudge Software Context](../model/images/OpenJudgeSystemContext.png)
 
 
 ## Changes
