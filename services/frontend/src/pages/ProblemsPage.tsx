@@ -201,7 +201,7 @@ const ProblemsPage = () => {
                       </h3>
                       <div className="flex flex-wrap gap-2 mb-3">
                         {problem.topics.map((tag) => (
-                          <Badge key={tag} variant="secondary" className="font-normal">
+                          <Badge key={tag + problem.problem_id} variant="secondary" className="font-normal">
                             {tag}
                           </Badge>
                         ))}

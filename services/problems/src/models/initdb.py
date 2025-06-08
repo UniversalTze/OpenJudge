@@ -25,7 +25,7 @@ async def wait_for_db(max_retries: int, delay:int):
     
     DB_URI = SQLALCHEMY_DATABASE_URI.replace('postgresql+asyncpg', 'postgresql')
     for attempt in range(max_retries):
-        con_logger.info("Attempting to connect to Postgress")
+        con_logger.info("Attempting to connect to Postgres")
         try:
             conn = await asyncpg.connect(DB_URI)
             await conn.close()

@@ -65,6 +65,15 @@ const ProblemDetailPage = () => {
     }
   }
 
+  function convertInput(input: string): string {
+    input = input.toString();
+    input = input.trim();
+    if (input.startsWith("[")) {
+      input = input.slice(1, -1).trim(); // Remove brackets
+    }
+    return input;
+  }
+
   async function getProblem() {
     const response = await apiClient.get<DatabaseRecord>(API_ENDPOINTS.PROBLEMS.ID(id), {
       headers: {
@@ -297,7 +306,7 @@ const ProblemDetailPage = () => {
                     <div>
                       <span className="text-xs text-muted-foreground">Input:</span>
                       <pre className="mt-1 bg-secondary/70 p-2 rounded overflow-x-auto font-code text-xs">
-                        {testCase.input.toString()}
+                        {convertInput(testCase.input)}
                       </pre>
                     </div>
                     <div>
@@ -368,7 +377,7 @@ const ProblemDetailPage = () => {
                           <div>
                             <span className="text-xs text-muted-foreground">Input:</span>
                             <pre className="mt-1 bg-primary/10 p-2 rounded overflow-x-auto font-code text-xs">
-                              {testCase.input.toString()}
+                              {convertInput(testCase.input)}
                             </pre>
                           </div>
                           <div>
