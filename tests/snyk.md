@@ -53,3 +53,21 @@ Summary:
 
 ### Execution
 
+Code:
+```bash
+
+Testing /Users/ben/Documents/csse6400/project/services/execution ...
+
+
+✔ Test completed
+
+Organization:      ben-hdFEt9mZPkd5ZMk8ZWf9NV
+Test type:         Static code analysis
+Project path:      /Users/ben/Documents/csse6400/project/services/execution
+
+Summary:
+
+✔ Awesome! No issues were found.
+```
+
+### 
