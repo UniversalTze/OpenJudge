@@ -2,7 +2,6 @@ from fastapi import FastAPI, Request, Response
 from fastapi.responses import JSONResponse
 from fastapi.middleware.cors import CORSMiddleware
 from fastapi.middleware.trustedhost import TrustedHostMiddleware
-from fastapi.middleware.httpsredirect import HTTPSRedirectMiddleware
 from config import config
 import httpx
 from middleware import authorise_request, process_time, rate_limit_middleware
@@ -37,7 +36,7 @@ app = FastAPI(title="OpenJudge API Gateway", lifespan=lifespan)
 # # Security middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"] if config.ENV == "local" else [config.FRONTEND_URL, config.FRONTEND_URL.lower()],
+    allow_origins=["*"] if config.ENV == "local" else [config.FRONTEND_URL, config.FRONTEND_URL.lower(), "api.openjudge.software", "openjudge.software"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
@@ -48,7 +47,6 @@ app.add_middleware(
 #                        allowed_hosts=[config.FRONTEND_URL,
 #                                       config.GATEWAY_LB_DNS, 
 #                                       "172.31.*"])
-#     app.add_middleware(HTTPSRedirectMiddleware)
 
 # Health check endpoints
 @app.get("/health")
