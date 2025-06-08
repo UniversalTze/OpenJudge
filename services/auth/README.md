@@ -12,12 +12,6 @@ Run the service from root using the following command.
 task run:auth
 ```
 
-Test the service from root using the following command.
-
-```
-task test:auth
-```
-
 ## Documentation
 
 The Auth service is built in golang fiber using a postgresql database for user data.
