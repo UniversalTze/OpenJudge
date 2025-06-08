@@ -30,18 +30,18 @@ async def lifespan(app: FastAPI):
 app = FastAPI(title="OpenJudge API Gateway", lifespan=lifespan)
 
 # Process time, rate limiting, and authorization middleware
-app.middleware("http")(process_time)
-app.middleware("http")(rate_limit_middleware)
-app.middleware("http")(authorise_request)
+# app.middleware("http")(process_time)
+# app.middleware("http")(rate_limit_middleware)
+# app.middleware("http")(authorise_request)
 
-# Security middleware
-app.add_middleware(
-    CORSMiddleware,
-    # allow_origins=["*"] if config.ENV == "local" else [config.FRONTEND_URL, config.GATEWAY_LB_DNS],
-    allow_origins=["*"],    allow_credentials=True,
-    allow_methods=["*"],
-    allow_headers=["*"],
-)
+# # Security middleware
+# app.add_middleware(
+#     CORSMiddleware,
+#     # allow_origins=["*"] if config.ENV == "local" else [config.FRONTEND_URL, config.GATEWAY_LB_DNS],
+#     allow_origins=["*"],    allow_credentials=True,
+#     allow_methods=["*"],
+#     allow_headers=["*"],
+# )
 # TODO - ADD BACK IN HTTPS WHEN IMPLEMENTED
 # if config.ENV != "local":
 #     app.add_middleware(TrustedHostMiddleware, 
