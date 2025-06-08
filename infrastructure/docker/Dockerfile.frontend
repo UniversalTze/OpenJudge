@@ -1,17 +1,20 @@
 # LOCAL DEV VERSION
-FROM node:20 AS builder
-WORKDIR /app
-COPY . .
-RUN npm install
-RUN npm run build
-RUN npm run build:server
-FROM node:20-slim
-WORKDIR /app
-COPY --from=builder /app/dist ./dist
-COPY --from=builder /app/dist-server ./dist-server
-COPY --from=builder /app/package.json ./
-RUN npm install --omit=dev
-CMD ["node", "dist/server/index.js"]
+# FROM node:20 AS builder
+# WORKDIR /app
+# COPY . .
+# RUN npm install
+# RUN npm run build
+# RUN npm run serve
+# RUN echo "TSC Exit Code: $?" # Check the exit code of tsc directly
+# RUN ls -l dist/server/ # Verify output directory
+
+# FROM node:20-slim
+# WORKDIR /app
+# COPY --from=builder /app/dist ./dist
+# COPY --from=builder /app/dist-server ./dist-server
+# COPY --from=builder /app/package.json ./
+# RUN npm install --omit=dev
+# CMD ["node", "dist/server/index.js"]
 
 # BASIC SHELL FOR DEPLOYMENT TESTING
 # FROM python:3.12-slim
@@ -19,31 +22,31 @@ CMD ["node", "dist/server/index.js"]
 # CMD ["sleep", "36000"]
 
 # PRODUCTION DEPLOYMENT VERSION
-# # Stage 1: Build the application
-# FROM node:20.12.2 AS builder
+# Stage 1: Build the application
+FROM node:20.12.2 AS builder
 
-# WORKDIR /app
-# COPY package.json package-lock.json ./
-# RUN npm ci
-# COPY . .
-# RUN npm run build
-# RUN npm run build:server
+WORKDIR /app
+COPY package.json package-lock.json ./
+RUN npm ci
+COPY . .
+RUN npm run build
+RUN npm run serve
 
-# # Stage 2: Create the production-ready image
-# FROM node:20.12.2-slim
+# Stage 2: Create the production-ready image
+FROM node:20.12.2-slim
 
-# ENV NODE_ENV=production
-# EXPOSE 8080
+ENV NODE_ENV=production
+EXPOSE 8080
 
-# WORKDIR /app
-# RUN addgroup --gid 1001 appgroup && adduser --uid 1001 --ingroup appgroup --disabled-password --gecos "" appuser
-# USER appuser
+WORKDIR /app
+RUN addgroup --gid 1001 appgroup && adduser --uid 1001 --ingroup appgroup --disabled-password --gecos "" appuser
+USER appuser
 
-# COPY --from=builder /app/dist ./dist
-# COPY --from=builder /app/dist-server ./dist-server
-# COPY --from=builder /app/node_modules ./node_modules
-# COPY --from=builder /app/package.json ./
+COPY --from=builder /app/dist ./dist
+COPY --from=builder /app/dist/server ./dist-server
+COPY --from=builder /app/node_modules ./node_modules
+COPY --from=builder /app/package.json ./
 
-# HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 CMD curl -f http://localhost:8080/health || exit 1
+HEALTHCHECK --interval=30s --timeout=10s --start-period=5s --retries=3 CMD curl -f http://localhost:8080/health || exit 1
 
-# CMD ["node", "dist-server/index.js"]
+CMD ["node", "dist-server/index.js"]
