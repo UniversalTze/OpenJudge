@@ -12,6 +12,7 @@ from uuid import uuid4
 from typing import List, Dict, Any
 
 from src.config import TEMP_DIR, DEFAULT_MEMORY_LIMIT, DEFAULT_TIMEOUT
+from src.sandbox.secure_executor import SecureSandbox
 
 class AbstractExecutor:
     def __init__(
@@ -36,6 +37,7 @@ class AbstractExecutor:
 
         self.timeout = DEFAULT_TIMEOUT
         self.memory_limit = DEFAULT_MEMORY_LIMIT
+        self.secure_exec = SecureSandbox(DEFAULT_MEMORY_LIMIT, DEFAULT_TIMEOUT)
 
     def __enter__(self):
         """
@@ -85,13 +87,14 @@ class AbstractExecutor:
         """
         # TODO - SANDBOX THIS FURTHER!
         # cmd = ["bash", "-c", f"ulimit -v {self.memory_limit // 1024} && timeout {self.timeout}s "] + self._get_execution_command(test_num)
-        cmd = self._get_execution_command(test_num)
+        # cmd = self._get_execution_command(test_num)
         # print("Cmd was: ", ' '.join(cmd))
-        proc = subprocess.Popen(
-            cmd,
-            stdout=subprocess.PIPE,
-            stderr=subprocess.PIPE
-        )
+        # proc = subprocess.Popen(
+        #     cmd,
+        #     stdout=subprocess.PIPE,
+        #     stderr=subprocess.PIPE
+        # )
+        proc = self.secure_exec.execute_nsjail(self._get_execution_command(test_num))
         return (test_num, proc)
 
     async def __collect_tests_async(self,
