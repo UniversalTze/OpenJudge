@@ -21,6 +21,8 @@ import Editor, { OnMount, BeforeMount } from "@monaco-editor/react";
 const ProblemDetailPage = () => {
   const { id } = useParams<{ id: string }>();
   const { user, accessToken } = useAuth();
+  const [searchParams] = useSearchParams();
+  const submissionId = searchParams.get("submission");
   const navigate = useNavigate();
   const [language, setLanguage] = useState<"Java" | "Python">("Python");
   const [code, setCode] = useState<string>("");
@@ -69,7 +71,7 @@ const ProblemDetailPage = () => {
     input = input.toString();
     input = input.trim();
     if (input.startsWith("[")) {
-      input = input.slice(1, -1).trim(); // Remove brackets
+      input = input.slice(1, -1).trim();
     }
     return input;
   }
@@ -90,22 +92,46 @@ const ProblemDetailPage = () => {
     } else {
       console.error("Failed to fetch problem:", response.message);
       toast.error("Problem not found or access denied.");
+      navigate("/problems");
     }
-    setIsLoading(false);
   }
+
+  async function getSubmission() {
+    if (!submissionId) return;
+    const response = await apiClient.get<Submission>(
+      API_ENDPOINTS.SUBMISSIONS.ID(submissionId),
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          Accept: "application/json",
+        },
+      }
+    );
+    if (response.success) {
+      const submission = response.data;
+      setLanguage(submission.language as "Java" | "Python");
+      setCode(submission.code);
+    } else {
+      console.error("Failed to fetch submission:", response.message);
+      toast.error("Failed to fetch submission: " + response.message);
+      navigate("/dashboard");
+    }
+  }
+
+  async function getFromLocalStorage(id: string) {
+    const storedLanguage = localStorage.getItem(`${id}.language`);
+
 
   useEffect(() => {
-    getProblem();
-  }, [accessToken]);
+    async function fetchData() {
+      await getProblem();
+      await getFromLocalStorage(id)
+      await getSubmission();
+      setIsLoading(false);
+    }
 
-  if (!problem) {
-    return (
-      <div className="container py-12 text-center">
-        <h2 className="text-2xl font-bold mb-4">Problem not found</h2>
-        <Button onClick={() => navigate("/problems")}>Back to Problems</Button>
-      </div>
-    );
-  }
+    fetchData();
+  }, [accessToken]);
 
   async function postSubmit() {
     setIsSubmitting(true);
@@ -165,10 +191,10 @@ const ProblemDetailPage = () => {
     }
   };
 
-  const visibleTestCases = problem.test_cases.filter((test) => !test.hidden);
-  const hiddenTestCases = problem.test_cases.filter((test) => test.hidden);
+  const visibleTestCases = problem?.test_cases.filter((test) => !test.hidden);
+  const hiddenTestCases = problem?.test_cases.filter((test) => test.hidden);
 
-  if (isLoading) {
+  if (isLoading || !problem) {
     return (
       <div className="container flex items-center justify-center min-h-[50vh]">
         <div className="animate-spin rounded-full size-20 border-b-2 border-primary"></div>
@@ -444,6 +470,7 @@ const ProblemDetailPage = () => {
                       problem.description
                     }"""\n    #...`
               }
+              value={code}
               theme="custom-dark"
               beforeMount={handleBeforeMount}
               onChange={setCode}

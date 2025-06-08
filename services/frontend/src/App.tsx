@@ -13,7 +13,7 @@ import SubmissionPage from "./pages/SubmissionPage";
 import AboutPage from "./pages/AboutPage";
 import NotFound from "./pages/NotFound";
 import AuthProtection from "./components/AuthProtection";
-import SampleProblemResultPage from "./pages/SampleProblemResultPage";
+import SampleProblemResultPage from "./pages/ResultPage";
 import VerifyPage from "./pages/VerifyPage";
 import DashboardPage from "./pages/DashboardPage";
 
@@ -37,7 +37,7 @@ const App = () => (
                 }
               />
               <Route
-                path="/problem/:id"
+                path="/problems/:id"
                 element={
                   <AuthProtection>
                     <ProblemDetailPage />
@@ -45,7 +45,7 @@ const App = () => (
                 }
               />
               <Route
-                path="/submission-success"
+                path="/submission"
                 element={
                   <AuthProtection>
                     <SubmissionPage />
@@ -53,7 +53,7 @@ const App = () => (
                 }
               />
               <Route
-                path="/sample-problem-result"
+                path="/result/:id"
                 element={
                   <AuthProtection>
                     <SampleProblemResultPage />

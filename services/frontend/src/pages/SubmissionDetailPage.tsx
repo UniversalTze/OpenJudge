@@ -18,10 +18,8 @@ import { API_ENDPOINTS } from "@/lib/env";
 import { useAuth } from "@/components/AuthContext";
 import Editor, { OnMount, BeforeMount } from "@monaco-editor/react";
 
-const ProblemDetailPage = () => {
+const SubmissionDetailPage = () => {
   const { id } = useParams<{ id: string }>();
-  const [searchParams] = useSearchParams();
-  const submission_id = searchParams.get("submission");
   const { user, accessToken } = useAuth();
   const navigate = useNavigate();
   const [language, setLanguage] = useState<"Java" | "Python">("Python");
@@ -29,12 +27,12 @@ const ProblemDetailPage = () => {
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [showHiddenTestCases, setShowHiddenTestCases] = useState(false);
   const [problem, setProblem] = useState<Problem | null>(null);
+  const [submission, setSubmission] = useState<Submission | null>(null);
   const [isLoading, setIsLoading] = useState(true);
 
-  async function fetchSubmission() {
-    if (!submission_id) return;
+  async function getData() {
     const response = await apiClient.get<Submission>(
-      API_ENDPOINTS.SUBMISSIONS.ID(submission_id),
+      API_ENDPOINTS.SUBMISSIONS.ID(id),
       {
         headers: {
           Authorization: `Bearer ${accessToken}`,
@@ -43,15 +41,38 @@ const ProblemDetailPage = () => {
       }
     );
     if (response.success) {
-      const submission = response.data;
-      setLanguage(submission.language === "java" ? "Java" : "Python");
-      setCode(submission.code);
+      setSubmission(response.data);
+      setLanguage(response.data.language === "java" ? "Java" : "Python");
+      setCode(response.data.code);
     } else {
-      console.error("Failed to fetch submission:", response.message);
-      toast.error("Failed to fetch submission: " + response.message);
+      console.error("Failed to fetch problem:", response.message);
+      toast.error("Submission not found or access denied.");
+      navigate("/dashboard");
+    }
+
+    const response2 = await apiClient.get<DatabaseRecord>(
+      API_ENDPOINTS.PROBLEMS.ID(response.data.problem_id),
+      {
+        headers: {
+          Authorization: `Bearer ${accessToken}`,
+          Accept: "application/json",
+        },
+      }
+    );
+    if (response2.success) {
+      setProblem({
+        ...response2.data,
+        examples: JSON.parse(response2.data.examples || "[]"),
+        test_cases: JSON.parse(response2.data.test_cases || "[]"),
+      })
+      setIsLoading(false);
+    }
+    else {
+      console.error("Failed to fetch problem:", response2.message);
+      toast.error("Problem not found or access denied.");
+      navigate("/dashboard");
     }
   }
-
 
   const handleBeforeMount: BeforeMount = (monaco) => {
     monaco.editor.defineTheme("custom-dark", {
@@ -66,7 +87,6 @@ const ProblemDetailPage = () => {
         { token: "type", foreground: "bb9af7" },
         { token: "function", foreground: "7aa2f7" },
         { token: "variable", foreground: "c3dafe" },
-        { token: "multiline-comment", foreground: "5c6370" }, // multiline comments (gray)
       ],
       colors: {
         "editor.background": "#030711",
@@ -90,32 +110,10 @@ const ProblemDetailPage = () => {
     }
   }
 
-  async function getProblem() {
-    const response = await apiClient.get<DatabaseRecord>(API_ENDPOINTS.PROBLEMS.ID(id), {
-      headers: {
-        Authorization: `Bearer ${accessToken}`,
-        Accept: "application/json",
-      },
-    });
-    if (response.success) {
-      setProblem({
-        ...response.data,
-        examples: JSON.parse(response.data.examples || "[]"),
-        test_cases: JSON.parse(response.data.test_cases || "[]"),
-      });
-    } else {
-      console.error("Failed to fetch problem:", response.message);
-      toast.error("Problem not found or access denied.");
-    }
-  }
+
 
   useEffect(() => {
-    async function load() {
-      await getProblem();
-      await fetchSubmission();
-      setIsLoading(false);
-    }
-    load();
+    getData();
   }, [accessToken]);
 
   function loadCodeFromLocalStorage(setCode: (value: string) => void): void {
@@ -237,9 +235,6 @@ const ProblemDetailPage = () => {
         return null;
     }
   };
-
-  const visibleTestCases = problem.test_cases.filter((test) => !test.hidden);
-  const hiddenTestCases = problem.test_cases.filter((test) => test.hidden);
 
   if (isLoading) {
     return (
@@ -366,7 +361,7 @@ const ProblemDetailPage = () => {
 
             {/* Visible Test Cases */}
             <div className="space-y-3 mb-4">
-              {visibleTestCases.map((testCase, index) => (
+              {problem.test_cases.map((testCase, index) => (
                 <div key={index} className="bg-secondary/30 rounded-md p-3 text-sm">
                   <div className="flex justify-between items-center mb-2">
                     <span className="font-medium">Test {index + 1}</span>
@@ -392,80 +387,6 @@ const ProblemDetailPage = () => {
                 </div>
               ))}
             </div>
-
-            {/* Hidden Test Cases Toggle - THE MAIN FEATURE */}
-            {hiddenTestCases.length > 0 && (
-              <div className="space-y-3">
-                <Button
-                  variant="outline"
-                  className="w-full"
-                  onClick={() => setShowHiddenTestCases(!showHiddenTestCases)}
-                >
-                  {showHiddenTestCases ? (
-                    <>
-                      <EyeOff className="h-4 w-4 mr-2" />
-                      Hide Hidden Test Cases
-                    </>
-                  ) : (
-                    <>
-                      <Eye className="h-4 w-4 mr-2" />
-                      Show {hiddenTestCases.length} Hidden Test Cases
-                      <Badge
-                        variant="secondary"
-                        className="ml-2 text-xs bg-primary/20 text-primary"
-                      >
-                        🔥 OpenJudge Exclusive
-                      </Badge>
-                    </>
-                  )}
-                </Button>
-
-                {/* Hidden Test Cases */}
-                {showHiddenTestCases && (
-                  <div className="space-y-3">
-                    <div className="bg-primary/10 border border-primary/20 rounded-md p-3 text-sm">
-                      <div className="flex items-center text-primary font-medium mb-2">
-                        <Lock className="h-4 w-4 mr-2" />
-                        Hidden Test Cases - Usually Secret!
-                      </div>
-                      <p className="text-xs text-muted-foreground">
-                        These test cases are typically hidden on other platforms like LeetCode.
-                        OpenJudge shows them to help you learn and debug your solutions effectively.
-                      </p>
-                    </div>
-
-                    {hiddenTestCases.map((testCase, index) => (
-                      <div
-                        key={index}
-                        className="bg-primary/5 border border-primary/10 rounded-md p-3 text-sm"
-                      >
-                        <div className="flex justify-between items-center mb-2">
-                          <span className="font-medium">Hidden Test {index + 1}</span>
-                          <span className="text-primary flex items-center">
-                            <Lock className="h-4 w-4 mr-1" />
-                            Hidden
-                          </span>
-                        </div>
-                        <div className="grid grid-cols-2 gap-2">
-                          <div>
-                            <span className="text-xs text-muted-foreground">Input:</span>
-                            <pre className="mt-1 bg-primary/10 p-2 rounded overflow-x-auto font-code text-xs">
-                              {testCase.input.toString()}
-                            </pre>
-                          </div>
-                          <div>
-                            <span className="text-xs text-muted-foreground">Expected:</span>
-                            <pre className="mt-1 bg-primary/10 p-2 rounded overflow-x-auto font-code text-xs">
-                              {testCase.output.toString()}
-                            </pre>
-                          </div>
-                        </div>
-                      </div>
-                    ))}
-                  </div>
-                )}
-              </div>
-            )}
           </div>
         </div>
 
@@ -536,4 +457,4 @@ const ProblemDetailPage = () => {
   );
 };
 
-export default ProblemDetailPage;
+export default SubmissionDetailPage;

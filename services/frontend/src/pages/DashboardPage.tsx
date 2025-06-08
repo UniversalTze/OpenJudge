@@ -193,7 +193,7 @@ export default function DashboardPage() {
                     {submissions.map((submission, index) =>
                       index >= 10 ? null : (
                           <TableRow key={submission.submission_id} className="cursor-pointer"onClick={() => {
-                            navigate(`/problem/${submission.problem_id}?submission=${submission.submission_id}`);
+                            navigate(`/problems/${submission.problem_id}?submission=${submission.submission_id}`);
                           }}>
                             <TableCell className="font-medium">{submission.problem_id}</TableCell>
                             <TableCell>{getStatusBadge(submission.status)}</TableCell>

@@ -192,7 +192,7 @@ const ProblemsPage = () => {
               key={problem.problem_id + Math.random().toString(36).substring(2, 15)}
               className="glass-card overflow-hidden hover:border-primary/50 transition-all"
             >
-              <Link to={`/problem/${problem.problem_id}`} className="block">
+              <Link to={`/problems/${problem.problem_id}`} className="block">
                 <CardContent className="p-6">
                   <div className="flex justify-between items-start">
                     <div>

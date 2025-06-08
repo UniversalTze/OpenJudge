@@ -97,10 +97,13 @@ resource "aws_ecs_task_definition" "FrontendTask" {
       ]
       environment = [
         {
-          name  = "ENV"
+          name  = "VITE_ENV"
           value = "production"
-        }
-        # TODO - ADD IN OTHER ENVIRONMENT VARIABLES!
+        },
+        {
+          name  = "API_GATEWAY_URL"
+          value = "http://${aws_lb.APIGatewayLoadBalancer.dns_name}"
+        },
       ]
     }
   ])
