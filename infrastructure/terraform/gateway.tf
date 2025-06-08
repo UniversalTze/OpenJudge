@@ -106,7 +106,7 @@ resource "aws_ecs_task_definition" "APIGatewayTask" {
         },
         {
           name  = "PROBLEMS_SERVICE_URL"
-          value = "${aws_lb.ProblemsAPILoadBalancer.dns_name}",
+          value = "http://${aws_lb.ProblemsAPILoadBalancer.dns_name}",
         },
         {
           name  = "FRONTEND_URL"
@@ -114,11 +114,11 @@ resource "aws_ecs_task_definition" "APIGatewayTask" {
         },
         {
           name  = "AUTH_SERVICE_URL"
-          value = "${aws_lb.AuthenticationAPILoadBalancer.dns_name}",
+          value = "http://${aws_lb.AuthenticationAPILoadBalancer.dns_name}",
         },
         {
           name  = "SUBMISSION_SERVICE_URL"
-          value = "${aws_lb.SubmissionAPILoadBalancer.dns_name}",
+          value = "http://${aws_lb.SubmissionAPILoadBalancer.dns_name}",
         },
         {
           name  = "REDIS_URL"
