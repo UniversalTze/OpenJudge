@@ -37,8 +37,17 @@ tasks:
     silent: true
 
   # FRONTEND COMMANDS
-  #run:app:
+  run:frontend:
+    desc: Run the frontend service in development mode.
+    cmds:
+      - docker-compose -f infrastructure/docker/docker-compose.yml -p openjudge up frontend --build -d
+    silent: true
 
+  down:frontend:
+    desc: Tear down local docker containers for frontend service
+    cmds:
+      - docker-compose -f infrastructure/docker/docker-compose.yml -p openjudge down frontend --volumes
+    silent: true
 
 
   # PROBLEMS SERVICE COMMANDS
