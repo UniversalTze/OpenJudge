@@ -6,8 +6,7 @@
   "scripts": {
     "dev": "vite",
     "build": "vite build",
-    "serve": "tsc && node dist/server/index.js",
-    "build:server": "tsc --outDir dist/server index.ts"
+    "serve": "node index.js"
   },
   "dependencies": {
     "@hookform/resolvers": "^3.9.0",
