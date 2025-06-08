@@ -58,8 +58,12 @@ This alternative architecture retains the existing microservices layout but repl
 
 - Most importantly, this design violates one of the core principles of the project: to fully sandbox the test runner service with no external dependencies beyond the input event queue. Introducing external connections undermines this goal and increases the system's attack surface.
 
-#### Container Diagram
+#### Container Diagram 
+![Alternative Architecture 1 Container](2025_P5_OpenJudge/model/images/AltArchitecture-1-Container.png)
 
+
+#### Deployment Diagram
+![Alternative Architecture 1 Container](2025_P5_OpenJudge/model/images/AltArchitecture-1-Deployment.png)
 
 
 
