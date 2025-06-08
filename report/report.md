@@ -1,12 +1,12 @@
 # OpenJudge (Practical 5)
 
 ### Team Members
-Tze Kheng Goh
-Nitish Madhavan
-Yash Mittal
-Benjamin Schenk
-Mittun Sudhahar
-Aryaman Tiwari 
+- Tze Kheng Goh
+- Nitish Madhavan
+- Yash Mittal
+- Benjamin Schenk
+- Mittun Sudhahar
+- Aryaman Tiwari 
 
 ## Abstract
 OpenJudge is a learning-oriented code evaluation platform that prioritizes transparency over the 
@@ -31,7 +31,7 @@ In addition, the functional requirements of the program were:
 - Secure Code Execution: A user-friendly UI will be provided for submitting code. Code will be executed in isolated, sandboxed Docker containers hosted on AWS (using services such as Fargate) along with basic load balancing implemented via AWS services.
 
 A context diagram for our project has been provided:
-![OpenJudge Software Context](../model/images/OpenJudgeSystemContext.png)
+![OpenJudge Software Context](2025_P5_OpenJudge/model/images/OpenJudgeSystemContext.png)
 
 
 ## Changes
@@ -39,8 +39,6 @@ TODO: Describe and justify any changes made to the project from what was outline
 ASSIGNED TO:
 
 ## Architecture Options
-TODO: What architectural design patterns were considered and their pros and cons.
-
 During the design phase, two different architectures were considered. The two options were a mix of an event-driven architecture with microservices and Functions as a Service (FaaS) and a pure event-driven architecture. These architectures and their pros and cons will be discussed below. 
 
 ### Event Driven + Microservices + FaaS
@@ -59,6 +57,8 @@ This alternative architecture retains the existing microservices layout but repl
 - Additionally, relying on an external database introduces security risks, including exposure to unauthorised access and data breaches. This setup also retains a key latency inefficiency from the current architecture: the front-end service must poll the submission service, which in turn repeatedly polls for test results. 
 
 - Most importantly, this design violates one of the core principles of the project: to fully sandbox the test runner service with no external dependencies beyond the input event queue. Introducing external connections undermines this goal and increases the system's attack surface.
+
+#### Container Diagram
 
 
 
