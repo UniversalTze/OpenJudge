@@ -36,7 +36,15 @@ app = FastAPI(title="OpenJudge API Gateway", lifespan=lifespan)
 # # Security middleware
 app.add_middleware(
     CORSMiddleware,
-    allow_origins=["*"] if config.ENV == "local" else [config.FRONTEND_URL, config.FRONTEND_URL.lower(), "api.openjudge.software", "openjudge.software"],
+    allow_origins=["*"] if config.ENV == "local" else [
+        config.FRONTEND_URL, 
+        config.FRONTEND_URL.lower(), 
+        "https://openjudge.software", 
+        "https://www.openjudge.software",
+        "http://openjudge.software",
+        "http://www.openjudge.software",
+        "http://api.openjudge.software",
+        "https://api.openjudge.software"],
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
