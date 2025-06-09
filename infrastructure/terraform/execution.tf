@@ -1,7 +1,7 @@
 ############################################################################
 # Docker Images
 resource "docker_image" "ExecutionPythonImage" {
-  name = "${aws_ecr_repository.open-judge-ecr.repository_url}:execution-python-latest"
+  name = "${aws_ecr_repository.open-judge-ecr.repository_url}:execution-python-latest-2"
   build {
     context    = "../../services/execution"
     dockerfile = "../../infrastructure/docker/Dockerfile.python"
@@ -9,7 +9,7 @@ resource "docker_image" "ExecutionPythonImage" {
 }
 
 resource "docker_image" "ExecutionJavaImage" {
-  name = "${aws_ecr_repository.open-judge-ecr.repository_url}:execution-java-latest"
+  name = "${aws_ecr_repository.open-judge-ecr.repository_url}:execution-java-latest-2"
   build {
     context    = "../../services/execution"
     dockerfile = "../../infrastructure/docker/Dockerfile.java"
@@ -212,7 +212,7 @@ resource "aws_ecs_task_definition" "ExecutionJavaTask" {
 
 # Python
 resource "aws_appautoscaling_target" "ExecutionPythonAutoScalingTarget" {
-  max_capacity       = 3
+  max_capacity       = 7
   min_capacity       = 1
   resource_id        = "service/${aws_ecs_cluster.open-judge-cluster.name}/${aws_ecs_service.ExecutionPythonService.name}"
   scalable_dimension = "ecs:service:DesiredCount"
@@ -226,18 +226,26 @@ resource "aws_appautoscaling_policy" "ExecutionPythonAutoScalingPolicy" {
   scalable_dimension = aws_appautoscaling_target.ExecutionPythonAutoScalingTarget.scalable_dimension
   service_namespace  = aws_appautoscaling_target.ExecutionPythonAutoScalingTarget.service_namespace
 
-  target_tracking_scaling_policy_configuration {
-    predefined_metric_specification {
-      predefined_metric_type = "ECSServiceAverageCPUUtilization"
+  step_scaling_policy_configuration {
+    adjustment_type         = "ChangeInCapacity"
+    metric_aggregation_type = "Average"
+    cooldown                = 30
+
+    step_adjustment {
+      metric_interval_lower_bound = 0
+      scaling_adjustment          = 2 # Add 2 tasks when alarm triggers to ensure quick scaling
     }
-    target_value       = 50.0
-    scale_out_cooldown = 60
+
+    step_adjustment {
+      metric_interval_upper_bound = 0
+      scaling_adjustment          = -1 # Remove 1 task
+    }
   }
 }
 
 # Java
 resource "aws_appautoscaling_target" "ExecutionJavaAutoScalingTarget" {
-  max_capacity       = 3
+  max_capacity       = 7
   min_capacity       = 1
   resource_id        = "service/${aws_ecs_cluster.open-judge-cluster.name}/${aws_ecs_service.ExecutionJavaService.name}"
   scalable_dimension = "ecs:service:DesiredCount"
@@ -251,12 +259,20 @@ resource "aws_appautoscaling_policy" "ExecutionJavaAutoScalingPolicy" {
   scalable_dimension = aws_appautoscaling_target.ExecutionJavaAutoScalingTarget.scalable_dimension
   service_namespace  = aws_appautoscaling_target.ExecutionJavaAutoScalingTarget.service_namespace
 
-  target_tracking_scaling_policy_configuration {
-    predefined_metric_specification {
-      predefined_metric_type = "ECSServiceAverageCPUUtilization"
+  step_scaling_policy_configuration {
+    adjustment_type         = "ChangeInCapacity"
+    metric_aggregation_type = "Average"
+    cooldown                = 30
+
+    step_adjustment {
+      metric_interval_lower_bound = 0
+      scaling_adjustment          = 2 # Add 2 tasks when alarm triggers to ensure quick scaling
     }
-    target_value       = 50.0
-    scale_out_cooldown = 60
+
+    step_adjustment {
+      metric_interval_upper_bound = 0
+      scaling_adjustment          = -1 # Remove 1 task
+    }
   }
 }
 
@@ -266,7 +282,7 @@ resource "aws_cloudwatch_metric_alarm" "scale_up_sqs_python_queue_alarm" {
   alarm_name          = "scale_up_sqs_python_queue_alarm"
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = 3
-  period              = 30
+  period              = 10
   metric_name         = "ApproximateNumberOfMessagesVisible"
   namespace           = "AWS/SQS"
   statistic           = "Average"
@@ -284,7 +300,7 @@ resource "aws_cloudwatch_metric_alarm" "scale_up_sqs_java_queue_alarm" {
   alarm_name          = "scale_up_sqs_java_queue_alarm"
   comparison_operator = "GreaterThanThreshold"
   evaluation_periods  = 3
-  period              = 30
+  period              = 10
   metric_name         = "ApproximateNumberOfMessagesVisible"
   namespace           = "AWS/SQS"
   statistic           = "Average"

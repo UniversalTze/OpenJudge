@@ -9,7 +9,7 @@ resource "docker_image" "SubmissionAPIImage" {
 }
 
 resource "docker_image" "SubmissionResultReceiverImage" {
-  name = "${aws_ecr_repository.open-judge-ecr.repository_url}:submission-result-receiver-latest"
+  name = "${aws_ecr_repository.open-judge-ecr.repository_url}:submission-result-receiver-latest-2"
   build {
     context    = "../../services/subscriber"
     dockerfile = "../../infrastructure/docker/Dockerfile.subscriber"
@@ -60,6 +60,7 @@ resource "aws_security_group" "SubmissionAPILoadBalancerSecurityGroup" {
     to_port     = 0
     protocol    = "-1"
     cidr_blocks = ["0.0.0.0/0"]
+    # security_groups = [aws_security_group.APIGatewaySecurityGroup.id, aws_security_group.APIGatewayLoadBalancerSecurityGroup.id]
   }
 
   ingress {
@@ -378,7 +379,7 @@ resource "aws_appautoscaling_policy" "SubmissionAPIAutoScalingPolicy" {
 
 # Result Receiver
 resource "aws_appautoscaling_target" "SubmissionResultReceiverAutoScalingTarget" {
-  max_capacity       = 3
+  max_capacity       = 7
   min_capacity       = 1
   resource_id        = "service/${aws_ecs_cluster.open-judge-cluster.name}/${aws_ecs_service.SubmissionResultReceiver.name}"
   scalable_dimension = "ecs:service:DesiredCount"
@@ -392,17 +393,26 @@ resource "aws_appautoscaling_policy" "SubmissionResultReceiverAutoScalingPolicy"
   scalable_dimension = aws_appautoscaling_target.SubmissionResultReceiverAutoScalingTarget.scalable_dimension
   service_namespace  = aws_appautoscaling_target.SubmissionResultReceiverAutoScalingTarget.service_namespace
 
-  target_tracking_scaling_policy_configuration {
-    predefined_metric_specification {
-      predefined_metric_type = "ECSServiceAverageCPUUtilization"
+  step_scaling_policy_configuration {
+    adjustment_type         = "ChangeInCapacity"
+    metric_aggregation_type = "Average"
+    cooldown                = 60
+
+    step_adjustment {
+      metric_interval_lower_bound = 0
+      scaling_adjustment          = 2 # Add 2 tasks when alarm triggers to ensure quick scaling
     }
-    target_value       = 50.0
-    scale_out_cooldown = 60
+
+    step_adjustment {
+      metric_interval_upper_bound = 0
+      scaling_adjustment          = -1 # Remove 1 task
+    }
   }
 }
 
 ############################################################################
 # Alarms
+
 resource "aws_cloudwatch_metric_alarm" "scale_up_sqs_output_queue_alarm" {
   alarm_name          = "scale_up_sqs_output_queue_alarm"
   comparison_operator = "GreaterThanThreshold"
@@ -438,7 +448,6 @@ resource "aws_cloudwatch_metric_alarm" "scale_down_sqs_output_queue_alarm" {
     aws_appautoscaling_policy.SubmissionResultReceiverAutoScalingPolicy.arn
   ]
 }
-
 
 ############################################################################
 # Output
