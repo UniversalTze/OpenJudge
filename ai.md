@@ -29,5 +29,14 @@ writing documentation, and developing
 │   ├── keygen
 │   │   └── keygen.go 80%
 │   └── subscriber - 20%
+├── tests
+│   └── scalability-tests
+│       ├── deadline-rush.js 50%
+│       ├── problem.js  50%
+│       ├── tests.js  30%
+│   └── security-tests
+│       ├── api-gateway-fuzzing.html 0%
+│       ├── frontend-fuzzing.html   0%
+│       ├── snyk.md    0%
 ├── Taskfile.yml 20%
 ```
