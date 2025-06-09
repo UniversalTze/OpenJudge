@@ -231,11 +231,11 @@ Our evaluation strategy validates both functional requirements and critical qual
 
 **Security Validation Testing**
 Our security validation strategy employed automated security analysis tools to identify and address potential vulnerabilities before production deployment. This proactive approach included static code analysis and web application security scanning across our microservices architecture.
-- Static Code Security Analysis (Snyk) ![Synk](../tests/security-tests/snyk.md)
+- Static Code Security Analysis (Snyk) ([Synk](../tests/security-tests/snyk.md))
   - We conducted comprehensive static analysis across our Go-based microservices to identify dependency vulnerabilities and code security issues. The Execution Service achieved a clean security scan with no issues detected, demonstrating secure coding practices for our most critical component handling untrusted user code. The Authentication Service scan identified one dependency requiring update (Fiber framework v2.52.7) and flagged the use of SHA1 hashing, which we can address through standard security hardening practices.
-- Web Application Security Scanning (OWASP ZAP) ![Frontend Fuzzing](../tests/security-tests/frontend-fuzzing.html)
+- Web Application Security Scanning (OWASP ZAP) ([Frontend Fuzzing](../tests/security-tests/frontend-fuzzing.html))
   - Our Frontend Service security scan revealed standard development-phase findings primarily related to security header configuration—common issues easily addressed through proper deployment configuration. The API Gateway scan identified CORS configuration that requires tightening for production deployment, ensuring proper origin restrictions while maintaining necessary cross-service communication.
-- Security Posture Assessment ![API Gateway](../tests/security-tests/api-gateway-fuzzing.html)
+- Security Posture Assessment ([API Gateway](../tests/security-tests/api-gateway-fuzzing.html))
   - The automated scanning demonstrates our commitment to security-first development practices. Most identified issues relate to deployment configuration rather than fundamental security flaws, indicating sound architectural security decisions. Our sandboxing and isolation mechanisms—the core security components for handling untrusted code execution—passed security analysis without issues.
 The security analysis confirms our layered security approach is fundamentally sound, with actionable configuration improvements identified for production hardening.
 
