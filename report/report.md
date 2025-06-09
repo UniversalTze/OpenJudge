@@ -269,6 +269,8 @@ The microservices architecture allows independent scaling of compute-intensive e
 
 Additional epidemic load testing scenarios ([Deadline Rush Tests](../tests/scalabiility-tests/deadline-rush.js)) were developed to simulate real-world traffic spikes such as assignment deadline rushes, providing comprehensive validation of the system's queue-based architecture resilience and auto-scaling capabilities under extreme load conditions.
 
+We also did a full pipeline K6 check that runs the code checks against test cases and can handle a good amount of users ([Full Pipeline Tests](../tests/scalabiility-tests/full-pipeline-rush.js))
+
 **Extensibility**
 
 The successful integration of LLM services during development demonstrates the architecture's extensibility in practice ([0020-LLM-Integration](../model/adrs/0020-LLM-Integration.md)). The modular executor framework enables straightforward language support additions through standardized interfaces - Python and Java executors both inherit from AbstractExecutor with consistent patterns for test file generation, execution commands, and result processing ([Python Executor Implementation](../services/execution/src/executor/python.py)), ([Java Executor Implementation](../services/execution/src/executor/java.py)), ([Abstract Executor Pattern](../services/execution/src/executor/abstract_executor.py)).
