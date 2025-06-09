@@ -280,7 +280,7 @@ The architecture prioritizes educational platform needs with per-language submis
 
 **Deployability**
 
-The OpenJudge system demonstrates excellent deployability through multiple automation layers. The project includes a complete CI/CD pipeline (example_ci_cd/example_workflows_main.yaml) that automatically builds and pushes Docker images to ECR for all eight microservices, followed by Terraform-managed infrastructure deployment.
+The OpenJudge system demonstrates excellent deployability through multiple automation layers. The project includes a complete CI/CD pipeline ([CI/CD pipeline](.github/workflows/main.yaml) - Please note that these can't be run yet since we don't have access to github actions) that automatically builds and pushes Docker images to ECR for all eight microservices, followed by Terraform-managed infrastructure deployment.
 
 Docker containerisation provides consistent deployment across environments with dedicated Dockerfiles for each service (authentication, frontend, gateway, problems, submission, subscriber, and execution engines for Java/Python). The docker-compose.yml orchestrates local development with proper networking and dependency management between services.
 
