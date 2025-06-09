@@ -127,13 +127,19 @@ AWS was utilised to provide a scalable, reliable, and managed infrastructure tha
 
 The user experience begins with registration, where individuals provide email credentials and secure passwords. Our Authentication Service validates these details, securely hashes passwords using Argon2, and stores credentials in a dedicated authentication database. Email verification confirms user identity before account activation.
 
-Upon successful authentication, users receive JWT access and refresh tokens that authenticate subsequent requests. The API Gateway validates these tokens and enforces access control policies, ensuring users can only access their own data and submissions whilst preventing unauthorised access to system resources.
+Upon successful authentication, users receive JWT access and refresh tokens that authenticate subsequent requests. JWT was used as they provide a stateless approach, reducing the need for session persistence across multiple services. JWTs simplify scaling and integration between services while allowing authentication data to be securely transmitted within signed tokens.  (["JWT-session-token"](../model/adrs/0008-jwts-over-sessions.md)).
+The API Gateway validates these tokens and enforces access control policies, ensuring users can only access their own data and submissions whilst preventing unauthorised access to system resources. (["Middleware-API-Gateway"](../model/adrs/0009-middleware-in-api-gateway.md)).
 
 User interactions flow through our front-end application, which forwards API requests to the API Gateway. Following successful authentication and authorisation, the gateway routes traffic to appropriate backend services including Authentication, Problem, Submission, and Execution services. Each core service maintains its own dedicated database, ensuring data isolation and preventing cross-service data corruption.
 
-### Code Submission
+### Code Submission + Execution Service
 
-When users submit code solutions, our Submission Service performs initial security inspection, checking for malicious content including unauthorised network calls, dangerous imports, system commands, and excessively long scripts. Submissions passing these preliminary checks enter our processing queue system. This was done as it catches many classes of user errors early, saving compute for valid submissions and increases robustness of the software system. ([Code-Validation-In-Submission-Service](../model/adrs/0012-code-validation-in-submission-service.md)). 
+When users submit code solutions, our Submission Service performs initial security inspection, checking for malicious content including unauthorised network calls, dangerous imports, system commands, and excessively long scripts. Submissions passing these preliminary checks enter our processing queue system. This was done as it catches many classes of user errors early, saving compute for valid submissions and increases robustness of the software system. (["Code-Validation-In-Submission-Service"](../model/adrs/0012-code-validation-in-submission-service.md)). 
+
+Our execution architecture employs dedicated message queues for each supported programming language, with submissions routed to language-specific queues (Python, Java, etc.).Each programming language operates its own isolated execution environment (sandbox) within separate containers, consuming tasks exclusively from their respective message queues. This design ensures complete isolation—execution services maintain no direct external connections beyond their queue interfaces, while also providing a scalable pipeline for code submissions and ensures consisten test handling. (["queue-system-code-execution"](../model/adrs/0010-queue-system-for-code-execution.md)).
+
+The Execution Service utilises NSJail, a Linux process sandboxing tool that restricts filesystem access to minimal jail environments, limits CPU and memory usage, prevents network calls, and blocks unauthorised system calls. This multi-layered security approach combines containerisation, message queue isolation, and process-level sandboxing to create robust protection against malicious or poorly written code.
+(["sandboxing-NSJail"](../model/adrs/0016-sandboxing-with-nsjail.md)).
 
 
 
