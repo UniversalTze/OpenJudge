@@ -1,7 +1,7 @@
 import http, { get } from "k6/http";
 import { check, sleep } from "k6";
 import { Counter} from "k6/metrics";
-import { problem } from "./problem"
+import { problem } from "./problem.js"
 
 const ENDPOINT = __ENV.ENDPOINT;
 const USERNAME = __ENV.USERNAME;
@@ -19,8 +19,8 @@ const params = {
 
 const errors = new Counter("errors");
 const attempted = new Counter("questions_attempted");
-const problems_queried = new Counter("problems asked for")
-const SubmissionCorrect = new Counter("Submission correct")
+const problems_queried = new Counter("problems_asked_for")
+const SubmissionCorrect = new Counter("Submission_correct")
 
 export const options = {
     scenarios: {
@@ -28,22 +28,12 @@ export const options = {
             executor: 'ramping-vus',
             startVUs: 0,
             stages: [
-            { duration: '1m', target: 5 },
-            { duration: '3m', target: 15 },
-            { duration: '1m', target: 0 },
+            { duration: '10s', target: 5 },
+            { duration: '30s', target: 15 },
+            { duration: '10s', target: 0 },
             ],
             exec: 'Normal_Circumstance',
-        },
-		cool_down: {
-			executor: 'ramping-vus',
-			startVUs: 0,
-			stages: [
-				{ duration: '2m', target: 1 },
-				{ duration: '2m', target: 0 },
-			],
-			exec: 'Cool_Down',
-			startTime: '45m',
-		},
+        }
     }
 };
 
@@ -56,13 +46,14 @@ const submission = {
 
 export function setup() {
     // Prepare or fetch data
-    const req = http.post(`${__ENV.ENDPOINT}/health`)
-    check(response, {
+    
+    const req = http.get(`${__ENV.ENDPOINT}/health`)
+    check(req, {
         'Gateway health status 200': (r) => r.status === 200,
     });
     const payload = JSON.stringify({
-    email: "test@example.com",
-    password: "your_password_here" 
+    email: USERNAME,
+    password: PASSWORD 
     });
 
     const request = http.post(`${__ENV.ENDPOINT}/login`, payload, params)
@@ -70,21 +61,26 @@ export function setup() {
         throw new Error("Login failed")
     }
     GLOBALTOKEN = request.json().accessToken;
-    return { token };  
+    console.log()
+    return GLOBALTOKEN ;
 }
 
 // Auth Header for every request.
 function getAuthHeaders(token) {
-    params.headers.Authorization = `Bearer ${token}`;
-    return params
+    return {
+        headers: {
+        'Content-Type': 'application/json',
+        'Authorization': `Bearer ${token}`
+    }
+    }
 }
 
-function GetSubmissionStatus (attempts, URL, endpoint_note, tag_note,) {
+function GetSubmissionStatus (attempts, URL, endpoint_note, tag_note, GLOBALTOKEN) {
     let query;
 	let attempt = 1;
     // Give service time to complete an analysis.
     while (attempt <= attempts) {
-        query = http.get(URL, params=getAuthHeaders(GLOBALTOKEN));
+        query = http.get(URL, getAuthHeaders(GLOBALTOKEN));
         try {
             if (query.status == 200 && query.json().status != 'pending') {
                 if (check(query, { "submission correct": (q) => q.json().status == "passed" })) {
@@ -127,37 +123,39 @@ function GetSubmissionStatus (attempts, URL, endpoint_note, tag_note,) {
  * Normal Circumstances - easy. Small load of people accessing problems, submission and looking at problems. 
  * Low load and gentle increase in load.
  */
-export function Normal_Circumstance() {
+export function Normal_Circumstance(GLOBALTOKEN) {
 	attempted.add(1, { tag: "normal circumstances" });
-
+    const here = getAuthHeaders(GLOBALTOKEN)
+    console.log(getAuthHeaders(GLOBALTOKEN))
     let getURL = `${ENDPOINT}/problems`;
-    let response = http.post(getURL, null, params);
+    let response = http.get(getURL, null, getAuthHeaders(GLOBALTOKEN));
     check(response, {
         'problems request status 200': (r) => r.status === 200,
     });
     
-    postURL = `${ENDPOINT}/submission`;
-    let submission = http.post(getURL, null, params)
-    check(submission, {
+    let postURL = `${ENDPOINT}/submission`;
+    let sub = http.post(postURL, submission, getAuthHeaders(GLOBALTOKEN))
+    check(sub, {
         'submission post request status 200': (r) => r.status === 201,
     })
     let taskId;
     try {
         const data = submission.json();
+        console.log(data);
         taskId = data.submission_id;
     } catch (e) {
         console.error("Failed to parse POST response or extract task ID");
-		errors.add(1, { endpoint: "POST /analysis", tag: "normal circumstances" });
+		errors.add(1, { endpoint: "POST /Submission", tag: "normal circumstances" });
         return;
     }
      // Check 25% of the results.
     if (Math.random() < 0.25 && taskId) {
         let resultURL = `${ENDPOINT}/submission/${taskId}`
 		let attempts = 6;  // One minute to complete analysis under low load.
-		GetAnalysis(attempts, resultURL, "GET /submission/{id}", "normal circumstances")
+		GetSubmissionStatus(attempts, resultURL, "GET /submission/{id}", "normal circumstances", GLOBALTOKEN)
 	}
 
-    sleep(5);
+    sleep(60);
 }
 
 /**
