@@ -5,6 +5,10 @@ FROM python:3.12-slim AS python-base
 # RUN adduser --system --no-create-home --group celeryuser
 # USER celeryuser
 
+# RUN apt-get update && \
+#     apt-get install -y nsjail libprotobuf-dev libnl-3-dev libnl-genl-3-dev && \
+#     rm -rf /var/lib/apt/lists/*
+
 # Install uv
 RUN pip install --no-cache-dir uv
 
