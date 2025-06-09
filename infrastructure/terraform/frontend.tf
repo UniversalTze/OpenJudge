@@ -14,7 +14,6 @@ resource "docker_registry_image" "FrontendImageName" {
 
 ############################################################################
 # Security Group
-# TODO - UPDATE THIS TO ACTUALLY BE SECURE!
 resource "aws_security_group" "FrontendSecurityGroup" {
   name        = "FrontendSecurityGroup"
   description = "Frontend Security Group Controlling External Input/Output"
@@ -50,7 +49,6 @@ resource "aws_ecs_service" "FrontendService" {
 
   depends_on = [
     docker_registry_image.FrontendImageName,
-    # TODO - ADD IN ALL THE OTHER SERVICES!
   ]
 
   network_configuration {
@@ -205,7 +203,6 @@ resource "aws_lb_target_group" "FrontendLoadBalancerTargetGroup" {
   }
 }
 
-# # TODO - UPDATE THIS TO ACTUALLY BE SECURE!
 resource "aws_security_group" "FrontendLoadBalancerSecurityGroup" {
   name        = "FrontendLoadBalancerSecurityGroup"
   description = "Frontend LB Security Group Controlling External Input/Output"
@@ -238,7 +235,6 @@ resource "aws_security_group" "FrontendLoadBalancerSecurityGroup" {
 }
 
 ############################################################################
-# Output TODO
 resource "null_resource" "summary_frontend" {
   provisioner "local-exec" {
     command = <<EOT

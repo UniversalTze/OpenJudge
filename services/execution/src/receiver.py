@@ -13,7 +13,6 @@ from src.config import (
 )
 
 from json import loads
-# TODO: Add proper logging!
 
 # Initialise the Celery application
 celery = Celery("receiver")

@@ -132,7 +132,7 @@ services/execution/src
 │   ├── ... # Other executors coming soon
 ├── sandbox/ # Sandbox Generators for Isolated Code Execution
 │   ├── __init__.py # Sandbox factory file
-│   ├── secure_executor.py # Secure sandbox generator (TBC WHAT TYPE TODO)
+│   ├── secure_executor.py # Secure sandbox generator
 ```
 
 ### New Language Requirements
@@ -178,15 +178,3 @@ To add new test cases, go to `services/execution/tests/test_cases`. From there, 
 You will then need to create a submission file for each language you wish to test for. This should be added to the relevant directory in the `submission_code` directory for the language. The filename should match the test case name (`test_{test_name}.{language extension}`, e.g. `test_basic_001.py`). The language extension also needs to be added to the `get_ext` function in the `test_client.py` file.  
 
 Finally, to check the exact results, open the container with `docker compose exec test-client bash` and run `cat test_client.log` to see the full results that were received.
-
-### Deployment Testing
-How to test deployment of just this microservice
-TODO
-
-### Integration Testing
-How to test this microservice integrated with other microservices (should probably reference other docs)
-TODO
-
-### Performance Testing
-How to run performance tests for just this microservice (ie k6).
-TODO

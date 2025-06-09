@@ -49,12 +49,6 @@ app.add_middleware(
     allow_methods=["*"],
     allow_headers=["*"],
 )
-# TODO - ADD BACK IN HTTPS WHEN IMPLEMENTED
-# if config.ENV != "local":
-#     app.add_middleware(TrustedHostMiddleware, 
-#                        allowed_hosts=[config.FRONTEND_URL,
-#                                       config.GATEWAY_LB_DNS, 
-#                                       "172.31.*"])
 
 # Health check endpoints
 @app.get("/health")

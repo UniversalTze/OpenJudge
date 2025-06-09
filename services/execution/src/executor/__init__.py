@@ -39,7 +39,6 @@ def select_execution_script(language: str):
     Returns:
         str: The path to the execution script for the specified language.
     """
-    # TODO: UPDATE THIS TO BE AN ACTUAL SCRIPT!
     if language == "python":
         return "python3"
     elif language == "java":

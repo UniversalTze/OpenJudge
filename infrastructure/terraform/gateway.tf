@@ -14,7 +14,6 @@ resource "docker_registry_image" "APIGatewayImageName" {
 
 ############################################################################
 # Security Group
-# TODO - UPDATE THIS TO ACTUALLY BE SECURE!
 resource "aws_security_group" "APIGatewaySecurityGroup" {
   name        = "APIGatewaySecurityGroup"
   description = "API Gateway Security Group Controlling External Input/Output"
@@ -50,7 +49,6 @@ resource "aws_ecs_service" "APIGatewayService" {
 
   depends_on = [
     docker_registry_image.APIGatewayImageName,
-    # TODO - ADD IN ALL THE OTHER SERVICES!
   ]
 
   network_configuration {
@@ -131,7 +129,6 @@ resource "aws_ecs_task_definition" "APIGatewayTask" {
 
 ########################################################################################
 # Load Balancer 
-# TODO - FRONT END NEEDS TO ACCESS THIS!
 resource "aws_lb" "APIGatewayLoadBalancer" {
   name               = "APIGatewayLoadBalancer"
   internal           = false
@@ -201,7 +198,6 @@ resource "aws_lb_target_group" "APIGatewayLBTargetGroup" {
   }
 }
 
-# TODO - UPDATE THIS TO ACTUALLY BE SECURE!
 resource "aws_security_group" "APIGatewayLoadBalancerSecurityGroup" {
   name        = "APIGatewayLoadBalancerSecurityGroup"
   description = "API Gateway LB Security Group Controlling External Input/Output"
@@ -311,7 +307,6 @@ resource "aws_appautoscaling_policy" "APIGatewayAutoScalingPolicy" {
 }
 
 ############################################################################
-# Output TODO
 resource "null_resource" "summary_gateway" {
   provisioner "local-exec" {
     command = <<EOT

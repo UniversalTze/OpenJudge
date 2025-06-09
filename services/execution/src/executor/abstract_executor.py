@@ -32,8 +32,6 @@ class AbstractExecutor:
         self.outputs = outputs
         self.num_tests = len(inputs)
         self.send_results = send_results
-        # TODO: ASSERT LENGTH OF INPUTS AND OUTPUTS IS THE SAME AND ERROR IF NOT
-        # TODO: ASSERT LENGTH OF EACH INPUT IS THE SAME AND ERROR IF NOT
 
         self.timeout = DEFAULT_TIMEOUT
         self.memory_limit = DEFAULT_MEMORY_LIMIT
@@ -69,7 +67,7 @@ class AbstractExecutor:
         """
         self._build_test_files()
 
-        # Clean up memory that is no longer needed TODO - SHOULD WE KEEP THIS IN?
+        # Clean up memory that is no longer needed
         # del self.submission_code, self.test_cases
         # gc.collect()
         
@@ -85,7 +83,6 @@ class AbstractExecutor:
         """ 
         Set up a fully sandboxed environment in which to start a test
         """
-        # TODO - SANDBOX THIS FURTHER!
         # cmd = ["bash", "-c", f"ulimit -v {self.memory_limit // 1024} && timeout {self.timeout}s "] + self._get_execution_command(test_num)
         # cmd = self._get_execution_command(test_num)
         # print("Cmd was: ", ' '.join(cmd))
@@ -94,7 +91,6 @@ class AbstractExecutor:
         #     stdout=subprocess.PIPE,
         #     stderr=subprocess.PIPE
         # )
-        # TODO - ADD SANDBOXING BACK IN
         # proc = self.secure_exec.execute_nsjail(self._get_execution_command(test_num))
         proc = subprocess.Popen(
             self._get_execution_command(test_num),
@@ -139,7 +135,6 @@ class AbstractExecutor:
             lambda: process.communicate()
         )
 
-        # TODO - ONLY GIVE THE LAST X BYTES OF STDOUT AND STDERR!
         # Process the result using the subclass implementation
         res = self._get_result(process.returncode, stdout, stderr)
         result = {

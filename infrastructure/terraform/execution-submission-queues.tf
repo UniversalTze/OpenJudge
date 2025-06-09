@@ -2,10 +2,6 @@
 # and execution service per language.
 
 ############################################################################
-# Queue Policies
-# ...TODO
-
-############################################################################
 # Results Queue
 resource "aws_sqs_queue" "ExecutionResultsQueue" {
   name = "outputq"
