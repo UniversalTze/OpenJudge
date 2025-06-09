@@ -94,7 +94,13 @@ class AbstractExecutor:
         #     stdout=subprocess.PIPE,
         #     stderr=subprocess.PIPE
         # )
-        proc = self.secure_exec.execute_nsjail(self._get_execution_command(test_num))
+        # TODO - ADD SANDBOXING BACK IN
+        # proc = self.secure_exec.execute_nsjail(self._get_execution_command(test_num))
+        proc = subprocess.Popen(
+            self._get_execution_command(test_num),
+            stdout=subprocess.PIPE,
+            stderr=subprocess.PIPE
+        )
         return (test_num, proc)
 
     async def __collect_tests_async(self,
