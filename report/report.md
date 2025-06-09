@@ -194,7 +194,7 @@ Our evaluation strategy validates both functional requirements and critical qual
 - Authentication bypass attempt validation
 - Input sanitisation verification across all user entry points
 
-- We had planned this, but due to time constraints, we were unable to achieve the exact results.
+- We had planned this, but due to time constraints, we were unable to achieve the exact results instead we ran a static code security analysis tool.
 
 **Functional Testing Coverage**
 - End-to-end user workflows from registration through submission
