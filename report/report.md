@@ -36,7 +36,7 @@ In addition, the functional requirements of the program were:
 - Secure Code Execution: A user-friendly UI will be provided for submitting code. Code will be executed in isolated, sandboxed Docker containers hosted on AWS (using services such as Fargate) along with basic load balancing implemented via AWS services.
 
 A context diagram for our project has been provided:
-![OpenJudge Software Context](2025_P5_OpenJudge/model/images/OpenJudgeSystemContext.png)
+![OpenJudge Software Context](../model/images/OpenJudgeSystemContext.png)
 
 
 ## Changes
@@ -66,11 +66,11 @@ This alternative architecture retains the existing microservices layout but repl
 - Most importantly, this design violates one of the core principles of the project: to fully sandbox the test runner service with no external dependencies beyond the input event queue. Introducing external connections undermines this goal and increases the system's attack surface.
 
 #### Container Diagram 
-![Alternative Architecture 1 Container](2025_P5_OpenJudge/model/images/AltArchitecture-1-Container.png)
+![Alternative Architecture 1 Container](../model/images/AltArchitecture-1-Container.png)
 
 
 #### Deployment Diagram
-![Alternative Architecture 1 Container](2025_P5_OpenJudge/model/images/AltArchitecture-1-Deployment.png)
+![Alternative Architecture 1 Container](../model/images/AltArchitecture-1-Deployment.png)
 
 In contrast to this hybrid approach, the second alternative explored was a comprehensive pure event-driven architecture.
 
@@ -90,7 +90,7 @@ The architecture employs Apache Kafka topics to categorise different event types
 - Infrastructure overhead increases substantially with the need to maintain Kafka clusters, Zookeeper ensembles (for older Kafka versions), and EventStore instances, along with their associated monitoring and backup systems. Event schema evolution presents ongoing challenges, as changes to event structures must maintain backward compatibility whilst enabling system evolution.
 
 #### Container
-![Alternative Architecture 2 Container](../model/Alt-Architecture-2-Container.dsl)
+![Alternative Architecture 2 Container](../model/images/AlternativeArchitecture-2-Container.png)
 
 Most importantly, adopting an event-driven architecture using Kafka would have significantly extended the implementation timeline due to the team’s limited experience with such patterns and Kafka’s operational overhead. Ensuring reliable event ordering, managing duplicate message handling, and configuring dead letter queues adds considerable complexity that would have delayed the delivery of core functionality of OpenJudge.
 
