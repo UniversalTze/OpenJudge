@@ -242,7 +242,7 @@ Our mid-development pivot from Flask to FastAPI proved highly beneficial, partic
 The decision to maintain separate databases for each service provided good isolation but increased operational complexity substantially. In retrospect, a shared database with robust access controls might have simplified deployment whilst maintaining adequate service separation. However, the separate database approach better supports future service independence and potential team scaling scenarios.
 
 **LLM Integration Success**
-The successful integration of AI-powered learning assistance validated our extensibility claims whilst providing genuine educational value. This feature demonstrates how well-designed architectures can accommodate unexpected opportunities for enhancement without requiring fundamental restructuring.
+The successful integration of AI-powered learning assistance validated our extensibility claims while providing genuine educational value. This feature demonstrates how well-designed architectures can accommodate unexpected opportunities for enhancement without requiring fundamental restructuring.
 
 ### Project Management Learnings
 
@@ -252,10 +252,13 @@ The project would have benefited from more comprehensive up-front planning, part
 **Infrastructure Constraint Impact**
 Limited IAM permissions within the university AWS environment constrained some deployment automation ambitions, particularly around CI/CD pipeline implementation. This highlighted the critical importance of understanding infrastructure limitations early in the design process and planning architectural decisions accordingly.
 
+**Testing**
+The project could have undergone more testing, particularly with Security (considering we built the service ourselves). Also, we could have done more load K6 testing. Better time management and team familiarity will definitely help with this in future.
+
 ### Alternative Approaches We Would Consider
 
 **Simplified Initial Implementation**
-Starting with a simpler monolithic architecture and evolving towards microservices might have accelerated initial development whilst providing better understanding of system requirements. The learning curve for microservices patterns and distributed systems concepts proved significant, and a more gradual architectural evolution could have provided deeper understanding whilst maintaining development momentum.
+Starting with a simpler monolithic architecture and evolving towards microservices might have accelerated initial development, whilst providing a better understanding of system requirements. The learning curve for microservices patterns and distributed systems concepts proved significant, and a more gradual architectural evolution could have provided deeper understanding whilst maintaining development momentum.
 
 **Enhanced Monitoring and Observability**
 Implementing comprehensive monitoring, distributed tracing, and observability tools from the project's inception would have greatly simplified debugging and performance optimisation efforts. The complexity of troubleshooting issues across multiple services became apparent only during integration testing phases.
