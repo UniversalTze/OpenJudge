@@ -133,7 +133,7 @@ function GetSubmissionStatus (attempts, URL, endpoint_note, tag_note, GLOBALTOKE
     try {
         if (check(query, { 
                             "get submission status 200": (q) => q.status === 200, 
-                            "submission correct": (q) => q.json().status == "correct" 
+                            "submission correct": (q) => q.json().status == "passed" 
                          })) {
             SubmissionCorrect.add(1, { endpoint: endpoint_note, tag: tag_note });
         } else {
