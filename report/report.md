@@ -328,7 +328,7 @@ Limited IAM permissions within the university AWS environment constrained some d
 The project could have undergone more testing, particularly, we could have done more load K6 testing. Better time management and team familiarity will definitely help with this in future.
 
 **Team**
-More active contributions by team members could have helped.
+More active contributions by team members could have helped. Having team members push their changes everyday would have also been a great strategy. This would allow team members to pick up tasks that other team members could not complete so that the team can meet project deadlines. 
 
 ### Alternative Approaches We Would Consider
 
