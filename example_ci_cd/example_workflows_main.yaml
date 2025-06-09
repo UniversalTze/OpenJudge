@@ -1,0 +1,401 @@
+# .github/workflows/main.yml
+name: CI/CD Pipeline
+
+on:
+  push:
+    branches:
+      - main # Trigger on pushes to the main branch
+  pull_request:
+    branches:
+      - main # Trigger on pull requests targeting the main branch
+
+env:
+  AWS_REGION: us-east-1
+  ECR_OPEN_JUDGE_REPO_NAME: open-judge-ecr
+
+jobs:
+
+  build_and_push_execution_java_image:
+    name: Build & Push Execution Java Image
+    runs-on: ubuntu-latest
+    outputs:
+      image_uri: ${{ steps.build-image.outputs.image_uri }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and Push ExecutionJavaImage
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }} 
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $ECR_REGISTRY/${{ env.ECR_EXECUTION_REPO_NAME }}:$IMAGE_TAG \
+                       -t $ECR_REGISTRY/${{ env.ECR_EXECUTION_REPO_NAME }}:latest \
+                       ./infrastructure/docker/Dockerfile.java
+
+          docker push $ECR_REGISTRY/${{ env.ECR_EXECUTION_REPO_NAME }}:$IMAGE_TAG
+          docker push $ECR_REGISTRY/${{ env.ECR_EXECUTION_REPO_NAME }}:latest
+
+        # Set output for the image URI for dependent jobs
+        outputs:
+          image_uri: ${{ env.ECR_REGISTRY }}/${{ env.ECR_EXECUTION_REPO_NAME }}:${{ github.sha }}
+
+
+  build_and_push_execution_python_image:
+    name: Build & Push Execution Python Image
+    runs-on: ubuntu-latest
+    outputs:
+      image_uri: ${{ steps.build-image.outputs.image_uri }}
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and Push ExecutionPythonImage
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }} 
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $ECR_REGISTRY/${{ env.ECR_EXECUTION_REPO_NAME }}:$IMAGE_TAG \
+                       -t $ECR_REGISTRY/${{ env.ECR_EXECUTION_REPO_NAME }}:latest \
+                       ./infrastructure/docker/Dockerfile.python
+
+          docker push $ECR_REGISTRY/${{ env.ECR_EXECUTION_REPO_NAME }}:$IMAGE_TAG
+          docker push $ECR_REGISTRY/${{ env.ECR_EXECUTION_REPO_NAME }}:latest
+
+        # Set output for the image URI for dependent jobs
+        outputs:
+          image_uri: ${{ env.ECR_REGISTRY }}/${{ env.ECR_EXECUTION_REPO_NAME }}:${{ github.sha }}
+
+  build_and_push_auth_image:
+    name: Build & Push Auth Image
+    runs-on: ubuntu-latest
+    outputs:
+      image_uri: ${{ steps.build-image.outputs.image_uri }} # Output the full image URI
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and Push AuthenticationAPIImage
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $ECR_REGISTRY/${{ env.ECR_AUTH_REPO_NAME }}:$IMAGE_TAG \
+                       -t $ECR_REGISTRY/${{ env.ECR_AUTH_REPO_NAME }}:latest \
+                       ./infrastructure/docker/Dockerfile.authentication
+
+          docker push $ECR_REGISTRY/${{ env.ECR_AUTH_REPO_NAME }}:$IMAGE_TAG
+          docker push $ECR_REGISTRY/${{ env.ECR_AUTH_REPO_NAME }}:latest
+
+        outputs:
+          image_uri: ${{ env.ECR_REGISTRY }}/${{ env.ECR_AUTH_REPO_NAME }}:${{ github.sha }}
+
+  build_and_push_problems_image:
+    name: Build & Push Problems Image
+    runs-on: ubuntu-latest
+    outputs:
+      image_uri: ${{ steps.build-image.outputs.image_uri }} # Output the full image URI
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and Push AuthenticationAPIImage
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $ECR_REGISTRY/${{ env.ECR_AUTH_REPO_NAME }}:$IMAGE_TAG \
+                       -t $ECR_REGISTRY/${{ env.ECR_AUTH_REPO_NAME }}:latest \
+                       ./infrastructure/docker/Dockerfile.problems
+
+          docker push $ECR_REGISTRY/${{ env.ECR_AUTH_REPO_NAME }}:$IMAGE_TAG
+          docker push $ECR_REGISTRY/${{ env.ECR_AUTH_REPO_NAME }}:latest
+
+        outputs:
+          image_uri: ${{ env.ECR_REGISTRY }}/${{ env.ECR_AUTH_REPO_NAME }}:${{ github.sha }}
+
+  build_and_push_frontend_image:
+    name: Build & Push Frontend Image
+    runs-on: ubuntu-latest
+    outputs:
+      image_uri: ${{ steps.build-image.outputs.image_uri }} # Output the full image URI
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and Push AuthenticationAPIImage
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $ECR_REGISTRY/${{ env.ECR_AUTH_REPO_NAME }}:$IMAGE_TAG \
+                       -t $ECR_REGISTRY/${{ env.ECR_AUTH_REPO_NAME }}:latest \
+                       ./infrastructure/docker/Dockerfile.frontend
+
+          docker push $ECR_REGISTRY/${{ env.ECR_AUTH_REPO_NAME }}:$IMAGE_TAG
+          docker push $ECR_REGISTRY/${{ env.ECR_AUTH_REPO_NAME }}:latest
+
+        outputs:
+          image_uri: ${{ env.ECR_REGISTRY }}/${{ env.ECR_AUTH_REPO_NAME }}:${{ github.sha }}
+
+  build_and_push_gateway_image:
+    name: Build & Push Gateway Image
+    runs-on: ubuntu-latest
+    outputs:
+      image_uri: ${{ steps.build-image.outputs.image_uri }} # Output the full image URI
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and Push AuthenticationAPIImage
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $ECR_REGISTRY/${{ env.ECR_AUTH_REPO_NAME }}:$IMAGE_TAG \
+                       -t $ECR_REGISTRY/${{ env.ECR_AUTH_REPO_NAME }}:latest \
+                       ./infrastructure/docker/Dockerfile.gateway
+
+          docker push $ECR_REGISTRY/${{ env.ECR_AUTH_REPO_NAME }}:$IMAGE_TAG
+          docker push $ECR_REGISTRY/${{ env.ECR_AUTH_REPO_NAME }}:latest
+
+        outputs:
+          image_uri: ${{ env.ECR_REGISTRY }}/${{ env.ECR_AUTH_REPO_NAME }}:${{ github.sha }}
+
+  build_and_push_submission_image:
+    name: Build & Push Submission Image
+    runs-on: ubuntu-latest
+    outputs:
+      image_uri: ${{ steps.build-image.outputs.image_uri }} # Output the full image URI
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and Push AuthenticationAPIImage
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $ECR_REGISTRY/${{ env.ECR_AUTH_REPO_NAME }}:$IMAGE_TAG \
+                       -t $ECR_REGISTRY/${{ env.ECR_AUTH_REPO_NAME }}:latest \
+                       ./infrastructure/docker/Dockerfile.submission
+
+          docker push $ECR_REGISTRY/${{ env.ECR_AUTH_REPO_NAME }}:$IMAGE_TAG
+          docker push $ECR_REGISTRY/${{ env.ECR_AUTH_REPO_NAME }}:latest
+
+        outputs:
+          image_uri: ${{ env.ECR_REGISTRY }}/${{ env.ECR_AUTH_REPO_NAME }}:${{ github.sha }}
+
+  build_and_push_submission_subscriber_image:
+    name: Build & Push Submission Subscriber Image
+    runs-on: ubuntu-latest
+    outputs:
+      image_uri: ${{ steps.build-image.outputs.image_uri }} # Output the full image URI
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Login to Amazon ECR
+        id: login-ecr
+        uses: aws-actions/amazon-ecr-login@v2
+
+      - name: Build and Push AuthenticationAPIImage
+        id: build-image
+        env:
+          ECR_REGISTRY: ${{ steps.login-ecr.outputs.registry }}
+          IMAGE_TAG: ${{ github.sha }}
+        run: |
+          docker build -t $ECR_REGISTRY/${{ env.ECR_AUTH_REPO_NAME }}:$IMAGE_TAG \
+                       -t $ECR_REGISTRY/${{ env.ECR_AUTH_REPO_NAME }}:latest \
+                       ./infrastructure/docker/Dockerfile.subscriber
+
+          docker push $ECR_REGISTRY/${{ env.ECR_AUTH_REPO_NAME }}:$IMAGE_TAG
+          docker push $ECR_REGISTRY/${{ env.ECR_AUTH_REPO_NAME }}:latest
+
+        outputs:
+          image_uri: ${{ env.ECR_REGISTRY }}/${{ env.ECR_AUTH_REPO_NAME }}:${{ github.sha }}
+
+  # Job to run Terraform plan for infrastructure changes
+  terraform_plan:
+    name: Terraform Plan
+    runs-on: ubuntu-latest
+    needs: [build_and_push_execution_image, build_and_push_auth_image]
+    if: github.event_name == 'pull_request' || github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.8.x
+
+      - name: Terraform fmt
+        id: fmt
+        run: terraform fmt -check
+        working-directory: infrastructure/terraform
+
+      - name: Terraform Init
+        id: init
+        run: terraform init
+        working-directory: infrastructure/terraform
+
+      - name: Terraform Validate
+        id: validate
+        run: terraform validate
+        working-directory: infrastructure/terraform
+
+      - name: Terraform Plan
+        id: plan
+        run: terraform plan -no-color -out=tfplan \
+             -var="execution_image_uri=${{ needs.build_and_push_execution_image.outputs.image_uri }}" \
+             -var="authentication_image_uri=${{ needs.build_and_push_auth_image.outputs.image_uri }}"
+        working-directory: infrastructure/terraform
+
+      - name: Save Terraform Plan Artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: tfplan
+          path: infrastructure/terraform/tfplan
+          retention-days: 1 
+
+  # Job to apply Terraform changes
+  terraform_apply:
+    name: Terraform Apply
+    runs-on: ubuntu-latest
+    needs: [terraform_plan, build_and_push_execution_image, build_and_push_auth_image]
+    if: github.ref == 'refs/heads/main'
+
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v4
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Setup Terraform
+        uses: hashicorp/setup-terraform@v3
+        with:
+          terraform_version: 1.8.x
+
+      - name: Download Terraform Plan Artifact
+        uses: actions/download-artifact@v4
+        with:
+          name: tfplan
+          path: infrastructure/terraform
+
+      - name: Terraform Apply
+        id: apply
+        run: terraform apply -auto-approve tfplan
+        working-directory: infrastructure/terraform
