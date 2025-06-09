@@ -255,6 +255,7 @@ The security analysis confirms our layered security approach is fundamentally so
 ### Quality Attribute Achievement Assessment
 
 **Security**
+
 Our security implementation exceeds initial requirements through multiple validated protection layers. JWT-based authentication with EdDSA signing (services/auth/core/jwt.go:33) provides cryptographically secure token validation, while the API gateway enforces comprehensive authorisation middleware with token revocation checking (services/gateway/middleware.py:71-191).
 
 Multi-layered rate limiting protects against abuse with endpoint-specific thresholds: 5 submissions per minute for code execution, 5 login attempts per minute for authentication, and 100 overall requests per minute (services/gateway/middleware.py:16-42). The sandboxed execution environment employs nsjail for resource isolation with strict limits on memory, CPU, file system access, and network connectivity (services/execution/src/sandbox/secure_executor.py:28-51).
@@ -262,6 +263,7 @@ Multi-layered rate limiting protects against abuse with endpoint-specific thresh
 Testing confirms the effectiveness of authentication mechanisms, whilst malicious code injection attempts are successfully contained within sandboxed execution environments. The zero-trust approach to execution service isolation has proven robust under various attack scenarios, with dedicated security testing documented in tests/security-tests/.
 
 **Scalability**
+
 The system architecture inherently supports horizontal scaling through queue-based decoupling and independent service scaling. K6 performance tests (tests/scalabiility-tests/tests.js) are implemented to validate system performance under load, with comprehensive test scenarios ready for execution to demonstrate scaling capabilities.
 
 The microservices architecture allows independent scaling of compute-intensive execution services separate from user-facing API services. SQS-based submission queues provide elastic buffering for code execution workloads, while ECS auto-scaling responds to queue depth metrics and CPU utilisation patterns.
@@ -269,6 +271,7 @@ The microservices architecture allows independent scaling of compute-intensive e
 Database scaling is supported through RDS configurations, and the stateless service design enables seamless horizontal scaling without session management complexity. Load testing results will demonstrate the system's ability to handle concurrent submissions and maintain response times within educational platform requirements.
 
 **Extensibility**
+
 The successful integration of LLM services during development demonstrates the architecture's extensibility in practice (model/adrs/0020-LLM-Integration.md). The modular executor framework enables straightforward language support additions through standardized interfaces - Python and Java executors both inherit from AbstractExecutor with consistent patterns for test file generation, execution commands, and result processing (services/execution/src/executor/).
 
 New language support can be added through standardised container deployment processes using dedicated Dockerfiles, separate execution queues, and language-specific security policies as outlined in the extensibility ASR (model/adrs/0019-Extensibility-ASR.md). The problem definition schema accommodates diverse test case types without requiring schema migrations, supporting JSON-based input/output validation across programming languages.
@@ -276,6 +279,7 @@ New language support can be added through standardised container deployment proc
 The architecture prioritizes educational platform needs with per-language submission queues and execution services, enabling support for diverse courses, curricula, and emerging programming languages. The modular approach has proven effective for incremental capability enhancement while maintaining security isolation between language environments.
 
 **Deployability**
+
 The OpenJudge system demonstrates excellent deployability through multiple automation layers. The project includes a complete CI/CD pipeline (example_ci_cd/example_workflows_main.yaml) that automatically builds and pushes Docker images to ECR for all eight microservices, followed by Terraform-managed infrastructure deployment.
 
 Docker containerisation provides consistent deployment across environments with dedicated Dockerfiles for each service (authentication, frontend, gateway, problems, submission, subscriber, and execution engines for Java/Python). The docker-compose.yml orchestrates local development with proper networking and dependency management between services.
