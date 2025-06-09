@@ -19,7 +19,7 @@ The delivered solution validates our architectural decisions whilst highlighting
 
 The OpenJudge platform addresses a persistent challenge in computer science education: the pedagogical limitations of traditional online judges that prioritise competitive assessment over genuine learning. Platforms such as LeetCode, whilst popular, often frustrate students with cryptic "Wrong Answer" responses and hidden test cases that provide little educational value.
 
-THe solution fundamentally reimagines this approach by embracing transparency as a core educational principle. Every test case, expected output, and failure explanation becomes a learning opportunity rather than an obstacle to overcome through guesswork.
+The solution fundamentally reimagines this approach by embracing transparency as a core educational principle. Every test case, expected output, and failure explanation becomes a learning opportunity rather than an obstacle to overcome through guesswork.
 
 From the [proposal](../model/proposal.md), the key Architecturally Significant Requirements (ASRs) for this project were: 
 - Security (Quality Attribute) - OpenJudge's core feature of executing potentially unsafe or malicious user submitted code leads to significant security risks alongside those already commonly place in web development.
@@ -258,7 +258,7 @@ The security analysis confirms our layered security approach is fundamentally so
 
 Our security implementation exceeds initial requirements through multiple validated protection layers. JWT-based authentication with EdDSA signing ([JWT Authentication](../services/auth/core/jwt.go)) provides cryptographically secure token validation, while the API gateway enforces comprehensive authorisation middleware with token revocation checking ([API Gateway Middleware](services/gateway/middleware.py:16-42)).
 
-Multi-layered rate limiting protects against abuse with endpoint-specific thresholds: 5 submissions per minute for code execution, 5 login attempts per minute for authentication, and 100 overall requests per minute ([API Gateway Middleware](services/gateway/middleware.py:16-42)). The sandboxed execution environment includes nsjail implementation framework (currently disabled in production for resource isolation with strict limits on memory, CPU, file system access, and network connectivity ([Sandboxed Execution](../services/execution/src/sandbox/secure_executor.py)).
+Multi-layered rate limiting protects against abuse with endpoint-specific thresholds: 5 submissions per minute for code execution, 5 login attempts per minute for authentication, and 100 overall requests per minute ([API Gateway Middleware](services/gateway/middleware.py:16-42)). The sandboxed execution environment includes nsjail implementation framework (currently disabled in production) for resource isolation with strict limits on memory, CPU, file system access, and network connectivity ([Sandboxed Execution](../services/execution/src/sandbox/secure_executor.py)).
 
 Testing confirms the effectiveness of authentication mechanisms, whilst malicious code injection attempts are successfully contained within sandboxed execution environments. The zero-trust approach to execution service isolation has proven robust under various attack scenarios, with dedicated security testing documented in tests/security-tests/.
 
