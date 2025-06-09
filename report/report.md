@@ -261,7 +261,7 @@ Testing confirms the effectiveness of authentication mechanisms, whilst maliciou
 
 **Scalability**
 
-The system architecture inherently supports horizontal scaling through queue-based decoupling and independent service scaling. K6 performance tests ([K6 Tests](tests/scalabiility-tests/tests.js)) were implemented to validate system performance under load, however authentication integration issues prevented successful completion within project timeframes. Nevertheless, the comprehensive auto-scaling infrastructure is deployed and functional, with ECS services configured for dynamic scaling based on queue metrics and CPU utilisation.
+The system architecture inherently supports horizontal scaling through queue-based decoupling and independent service scaling. K6 performance tests ([K6 Tests](../tests/scalabiility-tests/tests.js)) were implemented to validate system performance under load, however authentication integration issues prevented successful completion within project timeframes. Nevertheless, the comprehensive auto-scaling infrastructure is deployed and functional, with ECS services configured for dynamic scaling based on queue metrics and CPU utilisation.
 
 The microservices architecture allows independent scaling of compute-intensive execution services separate from user-facing API services. SQS-based submission queues provide elastic buffering for code execution workloads, while ECS auto-scaling responds to queue depth metrics and CPU utilisation patterns.
 
@@ -326,6 +326,9 @@ Limited IAM permissions within the university AWS environment constrained some d
 
 **Testing**
 The project could have undergone more testing, particularly, we could have done more load K6 testing. Better time management and team familiarity will definitely help with this in future.
+
+**Team**
+More active contributions by team members could have helped.
 
 ### Alternative Approaches We Would Consider
 
