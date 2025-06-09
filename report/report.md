@@ -9,18 +9,23 @@
 - Aryaman Tiwari 
 
 ## Abstract
-OpenJudge is a learning-oriented code evaluation platform that prioritizes transparency over the 
-traditionally opaque test suites found on most learning platforms like LeetCode. Designed as an 
-alternative to those platforms, this system distinguishes itself by providing complete visibility 
-of the test cases with detailed feedback mechanisms that enable users to understand their coding 
-mistakes rather than receiving cryptic pass/fail notifications. 
+OpenJudge represents a fundamental reimagining of how code evaluation platforms should serve educational purposes. Unlike traditional competitive programming platforms that prioritise opacity and gatekeeping, our system places learning transparency at its core. The platform provides complete visibility into test cases, detailed feedback mechanisms, and comprehensive explanations that transform coding challenges from frustrating puzzles into meaningful learning experiences.
 
-The key Architecturally Significant Requirements (ASRs) for this project were: 
+Using a microservices architecture addresses the critical quality attributes of security, scalability, extensibility, and deployability through containerised services, message queue-based asynchronous communication, and multi-layered security protocols. The system demonstrates practical scalability through independent service scaling, robust security through sandboxed code execution environments, and proven extensibility through modular language support and AI-powered learning assistance.
+
+The delivered solution validates our architectural decisions whilst highlighting important trade-offs between security isolation and real-time responsiveness, ultimately prioritising security, educational value and system integrity over immediate feedback loops.
+
+## Introduction
+
+The OpenJudge platform addresses a persistent challenge in computer science education: the pedagogical limitations of traditional online judges that prioritise competitive assessment over genuine learning. Platforms such as LeetCode, whilst popular, often frustrate students with cryptic "Wrong Answer" responses and hidden test cases that provide little educational value.
+
+THe solution fundamentally reimagines this approach by embracing transparency as a core educational principle. Every test case, expected output, and failure explanation becomes a learning opportunity rather than an obstacle to overcome through guesswork.
+
+From the [proposal](../model/proposal.md), the key Architecturally Significant Requirements (ASRs) for this project were: 
 - Security (Quality Attribute) - OpenJudge's core feature of executing potentially unsafe or malicious user submitted code leads to significant security risks alongside those already commonly place in web development.
 - Scalability (Quality Attribute) - Given our quality attribute, OpenJudge must be designed to handle many concurrent users attempting to browse problems, submit code and connect to the frontend.
 - Extensibility (Quality Attribute) - OpenJudge's MVP should be designed to be extensible - both for the addition of new features/services, and to handle more languages that users can solve problems in.
 - Deployability (Quality Attribute) - Our quality attribute ensures we need to have a deployable architecture, in particular an automated and simple deployment process.
-- Transparent Learning Focused Platform: The initial scope of the project involved having a problem solving platform focused on education and helping the user to solve problems rather than hiding the solution or focusing on competition between users.
 
 In addition, the functional requirements of the program were: 
 - User Authentication: Implement basic verification processes, secure storage of password using salted hashing and authentication processes using JWT when using the services. 
@@ -35,8 +40,10 @@ A context diagram for our project has been provided:
 
 
 ## Changes
-TODO: Describe and justify any changes made to the project from what was outlined in the proposal.
-ASSIGNED TO:
+During development, we made several strategic adjustments to strengthen our core quality attributes whilst adapting to practical constraints:
+- Real-time to Asynchronous Feedback Model: Originally, to provide real-time feedback a persistent WebSocket connections. However, to maintain absolute security isolation of execution environments, an asynchronous polling-based approach was adpoted. This change preserves rapid feedback whilst ensuring no direct network connections can compromise sandbox integrity. In addition, delays on the scale of 1–2 seconds—such as those introduced by a small backlog in queues and periodic polling—are an acceptable trade-offs. ([0017-no-realtime-feedback](../model/adrs/0017-no-realtime-feedback.md)). 
+- Extensibility Elevation: Initially conceived as a supporting requirement, extensibility became a primary ASR due to its fundamental importance for educational platforms serving diverse learning needs. The team's architecture now explicitly supports seamless integration of new programming languages and learning tools. ([0019-Extensibility](../model/adrs/0019-Extensibility-ASR.md)).
+- AI-Enhanced Learning Integration: We expanded scope to include Large Language Model (LLM) integration, providing contextual hints and explanations for failed test cases. This enhancement directly supports our educational mission by offering tailored guidance rather than generic error messages. ([0020-LLM-Integration](../model/adrs/0020-LLM-Integration.md)).
 
 ## Architecture Options
 During the design phase, two different architectures were considered. The two options were a mix of an event-driven architecture with microservices and Functions as a Service (FaaS) and a pure event-driven architecture. These architectures and their pros and cons will be discussed below. 
