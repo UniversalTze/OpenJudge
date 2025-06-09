@@ -38,7 +38,7 @@ In addition, the functional requirements of the program were:
 A context diagram for our project has been provided:
 ![OpenJudge Software Context](../model/images/OpenJudgeSystemContext.png)
 
-**Code**: ![Software-Context](../model/SoftwareContext.dsl)
+**Code**: [Software-Context](../model/SoftwareContext.dsl)
 
 ## Changes
 During development, the team made several strategic adjustments to strengthen our core quality attributes whilst adapting to practical constraints:
@@ -69,7 +69,7 @@ This alternative architecture retains the existing microservices layout but repl
 #### Container Diagram 
 ![Alternative Architecture 1 Container](../model/images/AltArchitecture-1-Container.png)
 
-**Code**: ![Alt-Architecture-1-Container](../model/Alt-Architecture-1-Container.dsl)
+**Code**: [Alt-Architecture-1-Container](../model/Alt-Architecture-1-Container.dsl)
 
 
 
@@ -77,7 +77,7 @@ This alternative architecture retains the existing microservices layout but repl
 #### Deployment Diagram
 ![Alternative Architecture 1 Deployment](../model/images/AltArchitecture-1-Deployment.png)
 
-**Code**: ![Alt-Architecture-1-Deployment](../model/Alt-Architecture-1-Deployment.dsl)
+**Code**: [Alt-Architecture-1-Deployment](../model/Alt-Architecture-1-Deployment.dsl)
 
 In contrast to this hybrid approach, the second alternative explored was a comprehensive pure event-driven architecture.
 
@@ -99,7 +99,7 @@ The architecture employs Apache Kafka topics to categorise different event types
 #### Container
 ![Alternative Architecture 2 Container](../model/images/AlternativeArchitecture-2-Container.png)
 
-**Code**: ![Alt-Architecture-2-Container](../model/Alt-Architecture-2-Container.dsl)
+**Code**: [Alt-Architecture-2-Container](../model/Alt-Architecture-2-Container.dsl)
 
 Most importantly, adopting an event-driven architecture using Kafka would have significantly extended the implementation timeline due to the team’s limited experience with such patterns and Kafka’s operational overhead. Ensuring reliable event ordering, managing duplicate message handling, and configuring dead letter queues adds considerable complexity that would have delayed the delivery of core functionality of OpenJudge.
 
@@ -107,46 +107,43 @@ However, if the team had more experience with event-driven architectures tools a
 
 
 ## Architecture
-During the designing phase, it was identified that a monolith architecture would not suffice for this software to achieve its ASRs. Thus, it was intially into a Front-End that handles UI interaction and Back-End which manages business logic, api requests and databases. Workers would also be used for asynchronous tasks in the back end. ([Seperation-Front-End-BackEnd-Worker-Logic](../model/adrs/0001-independent-services.md)).
+During the designing phase, it was identified that a monolith architecture would not suffice for this software to achieve its ASRs. Thus, it was intially into a Front-End that handles UI interaction and Back-End which manages business logic, api requests and databases. Workers would also be used for asynchronous tasks in the back end. (["0001-independent-Front-End-BackEnd-Worker-Logic](../model/adrs/0001-independent-services.md)).
 
-After further developing, the team identified that this software relied on core services in order to achieve the quality attributes of the proposal found [here](../model/proposal.md). These included: Authenthication, Front-End, Gateway Problems, Submission, Code Execution (test runner). Thus, it was decided that a microservice architecture and utilises message queues for asynchronous communication between specific services would be optimal for this software. It was believed that doing this enhanced scalability, maintainability, and team productivity, where each team member can focus on building their own service in parallel. ([Microservices-Architecture](../model/adrs/0002-microservices-architecture.md)). Container and deployment diagrams of the chosen architecture can be seen below. 
+After further developing, the team identified that this software relied on core services in order to achieve the quality attributes of the proposal found [here](../model/proposal.md). These included: Authenthication, Front-End, Gateway Problems, Submission, Code Execution (test runner). Thus, it was decided that a microservice architecture and utilises message queues for asynchronous communication between specific services would be optimal for this software. It was believed that doing this enhanced scalability, maintainability, and team productivity, where each team member can focus on building their own service in parallel. ([0002-microservices-Architecture](../model/adrs/0002-microservices-architecture.md)). Container and deployment diagrams of the chosen architecture can be seen below. 
 
 ### Container Diagram
 ![Container-Diagram-Chosen-Arch](../model/images/ChoseArchitecture-Container.png)
 
-**Code**: ![Container-Code-Chosen-Arch](../model/ChosenArchitecture-container.dsl)
+**Code**: [Container-Code-Chosen-Arch](../model/ChosenArchitecture-container.dsl)
 
 
 ### Deployment Diagram
 ![Deployment-Diagram-Chosen-Arch](../model/images/ChoseArchitecture-Deployment.png)
-**Code**: ![Deployment-Code-Chosen-Arch](../model/ChosenArchitecture-Deployment.dsl.dsl)
+**Code**: [Deployment-Code-Chosen-Arch](../model/ChosenArchitecture-Deployment.dsl.dsl)
 
-AWS was utilised to provide a scalable, reliable, and managed infrastructure that reduces operational overhead. The team's familiarity with AWS from previous experience was also a major reason for selecting it as the deployment platform. Core services adopted include ECS and ECR for containerised microservice deployment, ElastiCache for fast token revocation checks, S3 for object storage, SQS for asynchronous task handling, and RDS for persistent relational data. This approach enables the team to focus on application logic while leveraging AWS's operational maturity and ecosystem. ([Service-Deployment](../model/adrs/0011-service-deployment.md)). 
+AWS was utilised to provide a scalable, reliable, and managed infrastructure that reduces operational overhead. The team's familiarity with AWS from previous experience was also a major reason for selecting it as the deployment platform. Core services adopted include ECS and ECR for containerised microservice deployment, ElastiCache for fast token revocation checks, S3 for object storage, SQS for asynchronous task handling, and RDS for persistent relational data. This approach enables the team to focus on application logic while leveraging AWS's operational maturity and ecosystem. ([0011-service-deployment](../model/adrs/0011-service-deployment.md)). 
 
 ### System Flow and User Journey
 
 The user experience begins with registration, where individuals provide email credentials and secure passwords. Our Authentication Service validates these details, securely hashes passwords using Argon2, and stores credentials in a dedicated authentication database. Email verification confirms user identity before account activation.
 
-Upon successful authentication, users receive JWT access and refresh tokens that authenticate subsequent requests. JWT was used as they provide a stateless approach, reducing the need for session persistence across multiple services. JWTs simplify scaling and integration between services while allowing authentication data to be securely transmitted within signed tokens.  (["JWT-session-token"](../model/adrs/0008-jwts-over-sessions.md)).
-The API Gateway validates these tokens and enforces access control policies, ensuring users can only access their own data and submissions whilst preventing unauthorised access to system resources. (["Middleware-API-Gateway"](../model/adrs/0009-middleware-in-api-gateway.md)).
+Upon successful authentication, users receive JWT access and refresh tokens that authenticate subsequent requests. JWT was used as they provide a stateless approach, reducing the need for session persistence across multiple services. JWTs simplify scaling and integration between services while allowing authentication data to be securely transmitted within signed tokens.  (["0008-jwts-session-token"](../model/adrs/0008-jwts-over-sessions.md)).
+The API Gateway validates these tokens and enforces access control policies, ensuring users can only access their own data and submissions whilst preventing unauthorised access to system resources. (["0009-middleware-API-Gateway"](../model/adrs/0009-middleware-in-api-gateway.md)).
 
 User interactions flow through our front-end application, which forwards API requests to the API Gateway. Following successful authentication and authorisation, the gateway routes traffic to appropriate backend services including Authentication, Problem, Submission, and Execution services. Each core service maintains its own dedicated database, ensuring data isolation and preventing cross-service data corruption.
 
 ### Code Submission + Execution Service
 
-When users submit code solutions, our Submission Service performs initial security inspection, checking for malicious content including unauthorised network calls, dangerous imports, system commands, and excessively long scripts. Submissions passing these preliminary checks enter our processing queue system. This was done as it catches many classes of user errors early, saving compute for valid submissions and increases robustness of the software system. (["Code-Validation-In-Submission-Service"](../model/adrs/0012-code-validation-in-submission-service.md)). 
+When users submit code solutions, our Submission Service performs initial security inspection, checking for malicious content including unauthorised network calls, dangerous imports, system commands, and excessively long scripts. Submissions passing these preliminary checks enter our processing queue system. This was done as it catches many classes of user errors early, saving compute for valid submissions and increases robustness of the software system. (["0013-code-calidation-in-submission-service"](../model/adrs/0012-code-validation-in-submission-service.md)). These submissions are also stored in a submission database along with the test results. This is done as it supports a deeper learning loop through visible mistakes and progress and provides groundwork for analytics or future AI-based feedback tools.
 
-Our execution architecture employs dedicated message queues for each supported programming language, with submissions routed to language-specific queues (Python, Java, etc.).Each programming language operates its own isolated execution environment (sandbox) within separate containers, consuming tasks exclusively from their respective message queues. This design ensures complete isolation—execution services maintain no direct external connections beyond their queue interfaces, while also providing a scalable pipeline for code submissions and ensures consisten test handling. (["queue-system-code-execution"](../model/adrs/0010-queue-system-for-code-execution.md)).
+Our execution architecture employs dedicated message queues for each supported programming language, with submissions routed to language-specific queues (Python, Java, etc.).Each programming language operates its own isolated execution environment (sandbox) within separate containers, consuming tasks exclusively from their respective message queues. This design ensures complete isolation—execution services maintain no direct external connections beyond their queue interfaces, while also providing a scalable pipeline for code submissions and ensures consisten test handling. (["0014-task-queue-based-submission"](../model/adrs/0010-queue-system-for-code-execution.md)).
 
 The Execution Service utilises NSJail, a Linux process sandboxing tool that restricts filesystem access to minimal jail environments, limits CPU and memory usage, prevents network calls, and blocks unauthorised system calls. This multi-layered security approach combines containerisation, message queue isolation, and process-level sandboxing to create robust protection against malicious or poorly written code.
-(["sandboxing-NSJail"](../model/adrs/0016-sandboxing-with-nsjail.md)).
+(["0016-sandboxing-NSJail"](../model/adrs/0016-sandboxing-with-nsjail.md)).
 
+After task execution, results are published to a central output queue monitored by the Submission Service. Results are retrieved and submission database records updated accordingly. The Front-End Service polls the Submission Service at regular intervals (every 1-2 seconds) to check for updated results, as direct communication with Execution Services is prohibited for security isolation.
 
-
-
-
-
-
+Our queue architecture maintains 1 + n message queues, where n represents the number of supported programming languages—one queue per language plus a shared output queue for results consolidation. (["0010-queue-system-for-code-execution"](../model/adrs/0010-queue-system-for-code-execution.md)).
 
 
 ## Trade-Offs and Architectural Decisions
