@@ -135,11 +135,11 @@ We accepted this overhead as essential for our educational mission. Running untr
 
 ### Queue-Based Architecture vs. Deployment Complexity
 
-Our reliance on AWS Simple Queue Service (SQS) provides reliable decoupling between Submission and Execution Services, enabling horizontal scaling of code execution workers under variable loads. This managed service approach offers excellent reliability and throughput for bursty, compute-intensive workloads typical of educational platforms.
+Our queue-based execution system, as documented in ADR-0010, provides reliable decoupling between Submission and Execution Services through language-specific routing to dedicated Java and Python worker environments. This approach enables horizontal scaling of code execution workers under variable loads while ensuring appropriate execution environments are dynamically assigned based on test language requirements.
 
-However, this introduces additional infrastructure complexity requiring SQS queue provisioning, IAM role configuration for producer/consumer policies, and CloudWatch alarm setup for monitoring. Each deployment environment must replicate this infrastructure, and troubleshooting distributed systems requires sophisticated tooling and expertise.
+However, this introduces additional infrastructure complexity requiring queue provisioning, dedicated Docker image maintenance for each programming language, and comprehensive monitoring systems for distributed task execution. Each deployment environment must replicate this multi-language infrastructure, and troubleshooting the language-routing logic requires sophisticated tooling and expertise in queue management systems.
 
-The reliability and scaling benefits of managed message queues justify this operational overhead, particularly given the unpredictable nature of educational workloads where assignment deadlines create dramatic traffic spikes. ([0010-queue-system-for-code-execution.md](../model/adrs/0010-queue-system-for-code-execution.md))
+The reliability and scaling benefits of our queue-based, language-specific execution system justify this operational overhead, particularly given the unpredictable nature of educational workloads where assignment deadlines create dramatic traffic spikes across multiple programming languages. ([0010-queue-system-for-code-execution.md](../model/adrs/0010-queue-system-for-code-execution.md))
 
 ### Microservices Benefits vs. Operational Overhead
 
