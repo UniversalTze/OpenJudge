@@ -31,7 +31,8 @@ writing documentation, and developing
 │   └── subscriber - 20%
 ├── tests
 │   └── scalability-tests
-│       ├── deadline-rush.js 50%
+│       ├── deadline-rush.js 70%
+│       ├── full-pipeline-rush.js 70%
 │       ├── problem.js  50%
 │       ├── tests.js  30%
 │   └── security-tests
