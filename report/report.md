@@ -38,6 +38,7 @@ In addition, the functional requirements of the program were:
 A context diagram for our project has been provided:
 ![OpenJudge Software Context](../model/images/OpenJudgeSystemContext.png)
 
+**Code**: ![Software-Context](../model/SoftwareContext.dsl)
 
 ## Changes
 During development, the team made several strategic adjustments to strengthen our core quality attributes whilst adapting to practical constraints:
@@ -68,9 +69,15 @@ This alternative architecture retains the existing microservices layout but repl
 #### Container Diagram 
 ![Alternative Architecture 1 Container](../model/images/AltArchitecture-1-Container.png)
 
+**Code**: ![Alt-Architecture-1-Container](../model/Alt-Architecture-1-Container.dsl)
+
+
+
 
 #### Deployment Diagram
-![Alternative Architecture 1 Container](../model/images/AltArchitecture-1-Deployment.png)
+![Alternative Architecture 1 Deployment](../model/images/AltArchitecture-1-Deployment.png)
+
+**Code**: ![Alt-Architecture-1-Deployment](../model/Alt-Architecture-1-Deployment.dsl)
 
 In contrast to this hybrid approach, the second alternative explored was a comprehensive pure event-driven architecture.
 
@@ -92,13 +99,11 @@ The architecture employs Apache Kafka topics to categorise different event types
 #### Container
 ![Alternative Architecture 2 Container](../model/images/AlternativeArchitecture-2-Container.png)
 
+**Code**: ![Alt-Architecture-2-Container](../model/Alt-Architecture-2-Container.dsl)
+
 Most importantly, adopting an event-driven architecture using Kafka would have significantly extended the implementation timeline due to the team’s limited experience with such patterns and Kafka’s operational overhead. Ensuring reliable event ordering, managing duplicate message handling, and configuring dead letter queues adds considerable complexity that would have delayed the delivery of core functionality of OpenJudge.
 
 However, if the team had more experience with event-driven architectures tools and extended project timelines, this approach would likely have provided superior long-term scalability and maintainability characteristics. The comprehensive audit capabilities and natural resilience patterns align exceptionally well with educational platform requirements where understanding user behaviour and maintaining system reliability are paramount concerns.
-
-
-
-
 
 
 ## Architecture
