@@ -114,14 +114,6 @@ resource "aws_ecs_task_definition" "ProblemsAPITask" {
           value = "production"
         },
         {
-          name  = "FRONTEND_URL"
-          value = "http://${aws_lb.FrontendLoadBalancer.dns_name}"
-        },
-        {
-          name  = "AUTH_SERVICE_URL"
-          value = "http://${aws_lb.AuthenticationAPILoadBalancer.dns_name}"
-        },
-        {
           name  = "SQLALCHEMY_DATABASE_URI"
           value = "postgresql+asyncpg://${var.PROBLEMS_DATABASE_USER}:${var.PROBLEMS_DATABASE_PASSWORD}@${aws_db_instance.ProblemDatabase.endpoint}/${var.PROBLEMS_DATABASE_NAME}"
         }

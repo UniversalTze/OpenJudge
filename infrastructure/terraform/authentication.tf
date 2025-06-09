@@ -119,11 +119,11 @@ resource "aws_ecs_task_definition" "AuthenticationAPITask" {
         },
         {
           name  = "FRONTEND_URL"
-          value = "http://${aws_lb.FrontendLoadBalancer.dns_name}"
+          value = "https://www.openjudge.software"
         },
         {
           name  = "API_GATEWAY_URL"
-          value = "http://${aws_lb.APIGatewayLoadBalancer.dns_name}"
+          value = "https://api.openjudge.software"
         },
         {
           name  = "JWT_SECRET"

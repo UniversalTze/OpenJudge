@@ -102,7 +102,7 @@ resource "aws_ecs_task_definition" "FrontendTask" {
         },
         {
           name  = "VITE_API_GATEWAY_URL"
-          value = "http://${aws_lb.APIGatewayLoadBalancer.dns_name}"
+          value = "https://api.openjudge.software"
         },
       ]
     }
@@ -211,7 +211,6 @@ resource "aws_security_group" "FrontendLoadBalancerSecurityGroup" {
   description = "Frontend LB Security Group Controlling External Input/Output"
   vpc_id      = data.aws_vpc.default.id
 
-  # Allows incoming HTTP (Port 80 TCP) traffic from any IP address (0.0.0.0/0)
   ingress {
     from_port   = 80
     to_port     = 80
@@ -229,7 +228,6 @@ resource "aws_security_group" "FrontendLoadBalancerSecurityGroup" {
     description      = "Allow HTTPS traffic from internet"
   }
 
-  # Allows outgoing HTTP (Port 80 TCP) traffic to any IP address (0.0.0.0/0)
   egress {
     from_port   = 0
     to_port     = 0

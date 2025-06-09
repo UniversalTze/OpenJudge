@@ -110,7 +110,7 @@ resource "aws_ecs_task_definition" "APIGatewayTask" {
         },
         {
           name  = "FRONTEND_URL"
-          value = "http://${aws_lb.FrontendLoadBalancer.dns_name}"
+          value = "https://www.openjudge.software"
         },
         {
           name  = "AUTH_SERVICE_URL"
