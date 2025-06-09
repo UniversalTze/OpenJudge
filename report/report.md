@@ -40,7 +40,7 @@ A context diagram for our project has been provided:
 
 
 ## Changes
-During development, we made several strategic adjustments to strengthen our core quality attributes whilst adapting to practical constraints:
+During development, the team made several strategic adjustments to strengthen our core quality attributes whilst adapting to practical constraints:
 - Real-time to Asynchronous Feedback Model: Originally, to provide real-time feedback a persistent WebSocket connections. However, to maintain absolute security isolation of execution environments, an asynchronous polling-based approach was adpoted. This change preserves rapid feedback whilst ensuring no direct network connections can compromise sandbox integrity. In addition, delays on the scale of 1–2 seconds—such as those introduced by a small backlog in queues and periodic polling—are an acceptable trade-offs. ([0017-no-realtime-feedback](../model/adrs/0017-no-realtime-feedback.md)). 
 - Extensibility Elevation: Initially conceived as a supporting requirement, extensibility became a primary ASR due to its fundamental importance for educational platforms serving diverse learning needs. The team's architecture now explicitly supports seamless integration of new programming languages and learning tools. ([0019-Extensibility](../model/adrs/0019-Extensibility-ASR.md)).
 - AI-Enhanced Learning Integration: We expanded scope to include Large Language Model (LLM) integration, providing contextual hints and explanations for failed test cases. This enhancement directly supports our educational mission by offering tailored guidance rather than generic error messages. ([0020-LLM-Integration](../model/adrs/0020-LLM-Integration.md)).
@@ -89,7 +89,16 @@ The architecture employs Apache Kafka topics to categorise different event types
 - Debugging distributed workflows becomes significantly more challenging compared to traditional REST API tracing. Identifying the root cause of a failed submission might require examining dozens of events across multiple Kafka topics and correlating them through the EventStore, demanding sophisticated observability tooling and expertise. Eventual consistency replaces the immediate consistency of traditional database transactions, requiring careful consideration of how data propagation delays might affect user experience.
 - Infrastructure overhead increases substantially with the need to maintain Kafka clusters, Zookeeper ensembles (for older Kafka versions), and EventStore instances, along with their associated monitoring and backup systems. Event schema evolution presents ongoing challenges, as changes to event structures must maintain backward compatibility whilst enabling system evolution.
 
-Most critically for this project, the implementation timeline would be significantly extended due to the team's unfamiliarity with event-driven patterns and Kafka's operational requirements. The complexity of achieving reliable event ordering, handling duplicate message processing, and implementing proper dead letter queue strategies would substantially delay the delivery of core functionality. Whilst this architecture offers superior long-term scalability and observability, the immediate practical constraints of team expertise and project timeline make it unsuitable for initial implementation, though it remains an excellent target for future architectural evolution once the team develops the necessary distributed systems expertise.
+#### Container
+![Alternative Architecture 2 Container](../model/Alt-Architecture-2-Container.dsl)
+
+Most importantly, adopting an event-driven architecture using Kafka would have significantly extended the implementation timeline due to the team’s limited experience with such patterns and Kafka’s operational overhead. Ensuring reliable event ordering, managing duplicate message handling, and configuring dead letter queues adds considerable complexity that would have delayed the delivery of core functionality of OpenJudge.
+
+However, if the team had more experience with event-driven architectures tools and extended project timelines, this approach would likely have provided superior long-term scalability and maintainability characteristics. The comprehensive audit capabilities and natural resilience patterns align exceptionally well with educational platform requirements where understanding user behaviour and maintaining system reliability are paramount concerns.
+
+
+
+
 
 
 ## Architecture
