@@ -258,7 +258,7 @@ The security analysis confirms our layered security approach is fundamentally so
 
 Our security implementation exceeds initial requirements through multiple validated protection layers. JWT-based authentication with EdDSA signing ([JWT Authentication](../services/auth/core/jwt.go)) provides cryptographically secure token validation, while the API gateway enforces comprehensive authorisation middleware with token revocation checking ([API Gateway Middleware](services/gateway/middleware.py:16-42)).
 
-Multi-layered rate limiting protects against abuse with endpoint-specific thresholds: 5 submissions per minute for code execution, 5 login attempts per minute for authentication, and 100 overall requests per minute ([API Gateway Middleware](services/gateway/middleware.py:16-42)). The sandboxed execution environment employs nsjail for resource isolation with strict limits on memory, CPU, file system access, and network connectivity ([Sandboxed Execution](../services/execution/src/sandbox/secure_executor.py)).
+Multi-layered rate limiting protects against abuse with endpoint-specific thresholds: 5 submissions per minute for code execution, 5 login attempts per minute for authentication, and 100 overall requests per minute ([API Gateway Middleware](services/gateway/middleware.py:16-42)). The sandboxed execution environment includes nsjail implementation framework (currently disabled in production for resource isolation with strict limits on memory, CPU, file system access, and network connectivity ([Sandboxed Execution](../services/execution/src/sandbox/secure_executor.py)).
 
 Testing confirms the effectiveness of authentication mechanisms, whilst malicious code injection attempts are successfully contained within sandboxed execution environments. The zero-trust approach to execution service isolation has proven robust under various attack scenarios, with dedicated security testing documented in tests/security-tests/.
 
@@ -302,6 +302,11 @@ Implementation revealed the substantial operational overhead accompanying micros
 
 **Queue-Based Architecture Value**
 The message queue approach proved more valuable than expected for handling variable educational workloads. The decoupling between submission and execution services provided natural load balancing and fault tolerance, allowing the system to gracefully handle assignment deadline traffic spikes without service degradation. This validated our architectural decision to prioritise asynchronous processing over synchronous execution, despite the latency trade-offs.
+
+**Implementation Gaps and Technical Debt**
+During development, certain security features had to be temporarily disabled due to deployment complexity. Most notably, the NSJail sandboxing implementation exists in the codebase but is currently commented out in production due to container privilege requirements that conflicted with our AWS ECS deployment constraints. The current system uses basic process isolation through subprocess.Popen(), which provides functional code execution but lacks the comprehensive resource limitations that NSJail would provide. This represents technical debt that should be addressed in future iterations, particularly before production deployment in environments where enhanced security isolation is critical.
+
+Similarly, some middleware components including rate limiting required environment-specific configuration that was deferred to focus on core functionality delivery. These implementation gaps highlight the importance of early infrastructure planning and the trade-offs between development velocity and security completeness in this project timeline.
 
 ### Architectural Decision Retrospective
 
@@ -354,3 +359,6 @@ This project reinforced several crucial principles for complex software developm
 Most importantly, the project demonstrated that whilst security and educational quality represent non-negotiable requirements for educational platforms, achieving them requires careful consideration of all quality attributes and their interactions. Success ultimately depends not just on meeting individual requirements but on finding optimal balance across all system qualities to deliver genuine educational value to learners.
 
 The transparency-first approach we championed proves that educational platforms can simultaneously maintain high security standards while providing the open, supportive learning environment that students deserve. This balance, whilst challenging to achieve, represents the future direction for educational technology that truly serves learners rather than gatekeeping their progress.
+
+### References
+Used Grammarly AI for grammar correction and rephrasing sentences
