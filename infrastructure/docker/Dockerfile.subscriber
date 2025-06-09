@@ -12,4 +12,4 @@ COPY . /app
 RUN --mount=type=cache,target=/root/.cache/uv \
     uv sync --frozen
 ENV PATH="/app/.venv/bin:$PATH"
-CMD ["celery", "-A", "main", "worker"]
+CMD ["celery", "-A", "main", "worker", "--autoscale=11,2"]
