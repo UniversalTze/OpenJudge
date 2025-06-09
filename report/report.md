@@ -123,7 +123,7 @@ The decision to employ asynchronous message queues for communication between Sub
 
 However, this design introduces inherent latency in user feedback. The asynchronous nature requires front-end polling of the Submission Service for results, creating delays that vary with polling frequency and system load. Under normal conditions, users experience 1-3 second delays for result retrieval, though this increases during peak usage periods.
 
-We consciously prioritised security isolation over immediate responsiveness. The alternative—direct WebSocket connections to execution services—would have provided real-time feedback but compromised our fundamental security requirement of complete execution environment isolation.
+We consciously prioritised security isolation over immediate responsiveness. The alternative—direct WebSocket connections to execution services—would have provided real-time feedback but compromised our fundamental security requirement of complete execution environment isolation.  ([0017-no-realtime-feedback.md](../model/adrs/0017-no-realtime-feedback.md))
 
 ### Security Isolation vs. Performance Overhead
 
@@ -131,7 +131,7 @@ Our comprehensive security implementation layers multiple isolation mechanisms: 
 
 The trade-off manifests in increased computational overhead and implementation complexity. Managing container lifecycles, orchestrating message queue communication, and implementing process-level sandboxing requires significantly more resources than direct code execution. Additionally, the operational complexity of managing multiple isolation layers increases debugging difficulty and deployment coordination requirements.
 
-We accepted this overhead as essential for our educational mission. Running untrusted student code without comprehensive isolation would create unacceptable security risks that could compromise the entire platform and user data.
+We accepted this overhead as essential for our educational mission. Running untrusted student code without comprehensive isolation would create unacceptable security risks that could compromise the entire platform and user data.  ([0016-sandboxing-with-nsjail.md](../model/adrs/0016-sandboxing-with-nsjail.md))
 
 ### Queue-Based Architecture vs. Deployment Complexity
 
@@ -139,7 +139,7 @@ Our reliance on AWS Simple Queue Service (SQS) provides reliable decoupling betw
 
 However, this introduces additional infrastructure complexity requiring SQS queue provisioning, IAM role configuration for producer/consumer policies, and CloudWatch alarm setup for monitoring. Each deployment environment must replicate this infrastructure, and troubleshooting distributed systems requires sophisticated tooling and expertise.
 
-The reliability and scaling benefits of managed message queues justify this operational overhead, particularly given the unpredictable nature of educational workloads where assignment deadlines create dramatic traffic spikes.
+The reliability and scaling benefits of managed message queues justify this operational overhead, particularly given the unpredictable nature of educational workloads where assignment deadlines create dramatic traffic spikes. ([0010-queue-system-for-code-execution.md](../model/adrs/0010-queue-system-for-code-execution.md))
 
 ### Microservices Benefits vs. Operational Overhead
 
@@ -147,7 +147,7 @@ Our microservices architecture provides excellent separation of concerns, enabli
 
 The cost is substantial operational complexity through service discovery requirements, inter-service communication management, distributed logging coordination, and comprehensive monitoring across multiple containers. Each service requires independent deployment pipelines, health checks, and monitoring dashboards, significantly increasing operational burden compared to monolithic alternatives.
 
-For our educational platform, the benefits of independent scaling (particularly for execution services) and technology flexibility (enabling language-specific optimisations) outweigh the operational complexity costs.
+For our educational platform, the benefits of independent scaling (particularly for execution services) and technology flexibility (enabling language-specific optimisations) outweigh the operational complexity costs. ([0002-microservices-architecture.md](../model/adrs/0002-microservices-architecture.md))
 
 ## Architecture Critique
 
