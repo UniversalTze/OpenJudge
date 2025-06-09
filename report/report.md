@@ -107,9 +107,39 @@ However, if the team had more experience with event-driven architectures tools a
 
 
 ## Architecture
-During the designing phase, it was identified that a monolith architecture would not suffice for this software to achieve its ASRs. Thus, it was intially into a Front-End that handles UI interaction and Back-End which manages business logic, api requests and databases. Workers would also be used for asynchronous tasks in the backe end. [Seperation-Front-End-BackEnd-Worker-Logic](../model/adrs/0001-independent-services.md).
+During the designing phase, it was identified that a monolith architecture would not suffice for this software to achieve its ASRs. Thus, it was intially into a Front-End that handles UI interaction and Back-End which manages business logic, api requests and databases. Workers would also be used for asynchronous tasks in the back end. ([Seperation-Front-End-BackEnd-Worker-Logic](../model/adrs/0001-independent-services.md)).
 
-After further developing, the team identified that this software relied on core services in order to achieve the quality attributes of the proposal found [here](../model/proposal.md). These included: Authenthication, Front-End, Gateway Problems, Submission, Code Execution (test runner). Thus, it was decided that a microservice architecture and utilises message queues for asynchronous communication between specific services would be optimal for this software. It was believed that doing this enhanced scalability, maintainability, and team productivity, where each team member can focus on building their own service in parallel. [Microservices-Architecture](../model/adrs/0002-microservices-architecture.md).
+After further developing, the team identified that this software relied on core services in order to achieve the quality attributes of the proposal found [here](../model/proposal.md). These included: Authenthication, Front-End, Gateway Problems, Submission, Code Execution (test runner). Thus, it was decided that a microservice architecture and utilises message queues for asynchronous communication between specific services would be optimal for this software. It was believed that doing this enhanced scalability, maintainability, and team productivity, where each team member can focus on building their own service in parallel. ([Microservices-Architecture](../model/adrs/0002-microservices-architecture.md)). Container and deployment diagrams of the chosen architecture can be seen below. 
+
+### Container Diagram
+![Container-Diagram-Chosen-Arch](../model/images/ChoseArchitecture-Container.png)
+
+**Code**: ![Container-Code-Chosen-Arch](../model/ChosenArchitecture-container.dsl)
+
+
+### Deployment Diagram
+![Deployment-Diagram-Chosen-Arch](../model/images/ChoseArchitecture-Deployment.png)
+**Code**: ![Deployment-Code-Chosen-Arch](../model/ChosenArchitecture-Deployment.dsl.dsl)
+
+AWS was utilised to provide a scalable, reliable, and managed infrastructure that reduces operational overhead. The team's familiarity with AWS from previous experience was also a major reason for selecting it as the deployment platform. Core services adopted include ECS and ECR for containerised microservice deployment, ElastiCache for fast token revocation checks, S3 for object storage, SQS for asynchronous task handling, and RDS for persistent relational data. This approach enables the team to focus on application logic while leveraging AWS's operational maturity and ecosystem. ([Service-Deployment](../model/adrs/0011-service-deployment.md)). 
+
+### System Flow and User Journey
+
+The user experience begins with registration, where individuals provide email credentials and secure passwords. Our Authentication Service validates these details, securely hashes passwords using Argon2, and stores credentials in a dedicated authentication database. Email verification confirms user identity before account activation.
+
+Upon successful authentication, users receive JWT access and refresh tokens that authenticate subsequent requests. The API Gateway validates these tokens and enforces access control policies, ensuring users can only access their own data and submissions whilst preventing unauthorised access to system resources.
+
+User interactions flow through our front-end application, which forwards API requests to the API Gateway. Following successful authentication and authorisation, the gateway routes traffic to appropriate backend services including Authentication, Problem, Submission, and Execution services. Each core service maintains its own dedicated database, ensuring data isolation and preventing cross-service data corruption.
+
+### Code Submission
+
+When users submit code solutions, our Submission Service performs initial security inspection, checking for malicious content including unauthorised network calls, dangerous imports, system commands, and excessively long scripts. Submissions passing these preliminary checks enter our processing queue system. This was done as it catches many classes of user errors early, saving compute for valid submissions and increases robustness of the software system. ([Code-Validation-In-Submission-Service](../model/adrs/0012-code-validation-in-submission-service.md)). 
+
+
+
+
+
+
 
 
 
@@ -119,35 +149,35 @@ Our architectural journey involved several critical trade-offs where competing q
 
 ### Asynchronous Communication vs. Real-Time Responsiveness
 
-The decision to employ asynchronous message queues for communication between Submission and Execution Services, as documented in ADR-0017, represents our most significant architectural trade-off. This approach decouples services effectively, allowing the platform to handle submission traffic spikes by queuing tasks and enabling considerable scalability improvements while maintaining the security isolation requirements outlined in our decision.
+The decision to employ asynchronous message queues for communication between Submission and Execution Services represents our most significant architectural trade-off. This approach decouples services effectively, allowing the platform to handle submission traffic spikes by queuing tasks and enabling considerable scalability improvements.
 
-However, this design introduces the deliberate latency trade-off accepted in ADR-0017. The asynchronous nature requires front-end polling of the Submission Service for results, creating delays that vary with polling frequency and system load. Under normal conditions, users experience 1-3 second delays for result retrieval, though this increases during peak usage periods, within the acceptable latency parameters we established.
+However, this design introduces inherent latency in user feedback. The asynchronous nature requires front-end polling of the Submission Service for results, creating delays that vary with polling frequency and system load. Under normal conditions, users experience 1-3 second delays for result retrieval, though this increases during peak usage periods.
 
-We consciously prioritised security isolation over immediate responsiveness, as documented in our architectural decision. The alternative—direct WebSocket connections to execution services—would have provided real-time feedback but compromised our fundamental security requirement of complete execution environment isolation. ([0017-no-realtime-feedback.md](../model/adrs/0017-no-realtime-feedback.md))
+We consciously prioritised security isolation over immediate responsiveness. The alternative—direct WebSocket connections to execution services—would have provided real-time feedback but compromised our fundamental security requirement of complete execution environment isolation.
 
 ### Security Isolation vs. Performance Overhead
 
-Our comprehensive security implementation, as documented in ADR-0016, layers multiple isolation mechanisms: Docker containerisation, message queue communication boundaries, and NSJail process sandboxing. This defence-in-depth strategy leverages Linux namespace tooling to effectively protect against malicious code whilst containing resource consumption through syscall limitations, filesystem access controls, and network isolation.
+Our comprehensive security implementation layers multiple isolation mechanisms: Docker containerisation, message queue communication boundaries, and NSJail process sandboxing. This defence-in-depth strategy effectively protects against malicious code whilst containing resource consumption.
 
-The trade-off manifests in increased computational overhead and implementation complexity. Managing container lifecycles, orchestrating message queue communication, and implementing NSJail's process-level sandboxing requires significantly more resources than direct code execution. Additionally, the operational complexity of managing multiple isolation layers increases debugging difficulty and deployment coordination requirements, with the added constraint of Linux-only deployment environments.
+The trade-off manifests in increased computational overhead and implementation complexity. Managing container lifecycles, orchestrating message queue communication, and implementing process-level sandboxing requires significantly more resources than direct code execution. Additionally, the operational complexity of managing multiple isolation layers increases debugging difficulty and deployment coordination requirements.
 
-We accepted this overhead as essential for our educational mission. Running untrusted student code without comprehensive isolation would create unacceptable security risks that could compromise the entire platform and user data. ([0016-sandboxing-with-nsjail.md](../model/adrs/0016-sandboxing-with-nsjail.md))
+We accepted this overhead as essential for our educational mission. Running untrusted student code without comprehensive isolation would create unacceptable security risks that could compromise the entire platform and user data.
 
 ### Queue-Based Architecture vs. Deployment Complexity
 
-Our queue-based execution system, as documented in ADR-0010, provides reliable decoupling between Submission and Execution Services through language-specific routing to dedicated Java and Python worker environments. This approach enables horizontal scaling of code execution workers under variable loads while ensuring appropriate execution environments are dynamically assigned based on test language requirements.
+Our reliance on AWS Simple Queue Service (SQS) provides reliable decoupling between Submission and Execution Services, enabling horizontal scaling of code execution workers under variable loads. This managed service approach offers excellent reliability and throughput for bursty, compute-intensive workloads typical of educational platforms.
 
-However, this introduces additional infrastructure complexity requiring queue provisioning, dedicated Docker image maintenance for each programming language, and comprehensive monitoring systems for distributed task execution. Each deployment environment must replicate this multi-language infrastructure, and troubleshooting the language-routing logic requires sophisticated tooling and expertise in queue management systems.
+However, this introduces additional infrastructure complexity requiring SQS queue provisioning, IAM role configuration for producer/consumer policies, and CloudWatch alarm setup for monitoring. Each deployment environment must replicate this infrastructure, and troubleshooting distributed systems requires sophisticated tooling and expertise.
 
-The reliability and scaling benefits of our queue-based, language-specific execution system justify this operational overhead, particularly given the unpredictable nature of educational workloads where assignment deadlines create dramatic traffic spikes across multiple programming languages. ([0010-queue-system-for-code-execution.md](../model/adrs/0010-queue-system-for-code-execution.md))
+The reliability and scaling benefits of managed message queues justify this operational overhead, particularly given the unpredictable nature of educational workloads where assignment deadlines create dramatic traffic spikes.
 
 ### Microservices Benefits vs. Operational Overhead
 
-Our microservices architecture, as documented in ADR-0002, provides excellent separation of concerns, enabling independent development teams, technology choices, and scaling decisions. Fault isolation ensures that failures in one service don't cascade throughout the system, improving overall reliability.
+Our microservices architecture provides excellent separation of concerns, enabling independent development teams, technology choices, and scaling decisions. Fault isolation ensures that failures in one service don't cascade throughout the system, improving overall reliability.
 
 The cost is substantial operational complexity through service discovery requirements, inter-service communication management, distributed logging coordination, and comprehensive monitoring across multiple containers. Each service requires independent deployment pipelines, health checks, and monitoring dashboards, significantly increasing operational burden compared to monolithic alternatives.
 
-For our educational platform, the benefits of independent scaling (particularly for execution services) and technology flexibility (enabling language-specific optimisations) outweigh the operational complexity costs, aligning with the trade-offs accepted in our architectural decision.  ([0002-microservices-architecture.md](../model/adrs/0002-microservices-architecture.md))
+For our educational platform, the benefits of independent scaling (particularly for execution services) and technology flexibility (enabling language-specific optimisations) outweigh the operational complexity costs.
 
 ## Architecture Critique
 
