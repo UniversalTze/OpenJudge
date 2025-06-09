@@ -194,6 +194,8 @@ Our evaluation strategy validates both functional requirements and critical qual
 - Authentication bypass attempt validation
 - Input sanitisation verification across all user entry points
 
+- We had planned this, but due to time constraints, we were unable to achieve the exact results.
+
 **Functional Testing Coverage**
 - End-to-end user workflows from registration through submission
 - Multi-language execution testing across Python and Java environments
@@ -215,20 +217,6 @@ The successful integration of LLM services during development demonstrates the a
 
 **Deployability: Adequate with Operational Considerations**
 Whilst containerisation provides deployment consistency across environments, the operational complexity presents ongoing challenges. Deployment orchestration requires careful coordination of multiple services and dependencies. Infrastructure as Code approaches mitigate some complexity, but the learning curve for new team members remains significant.
-
-### Success Metrics Summary
-
-[PLACEHOLDER: Detailed Success Metrics Table]
-
-| Quality Attribute | Achievement Level | Supporting Evidence |
-|------------------|------------------|-------------------|
-| Security | 95% | Comprehensive protection with minor operational considerations |
-| Scalability | 85% | Strong performance with some latency concerns under peak load |
-| Extensibility | 90% | Proven through successful feature additions during development |
-| Functional Requirements | [X]% | Based on test coverage and pass rates |
-| Overall ASR Achievement | [X]% | Weighted average based on priority |
-
-The architecture successfully demonstrates its capability to deliver core educational platform functionality whilst maintaining strong security posture and supporting future growth requirements.
 
 ## Reflection and Lessons Learnt
 
