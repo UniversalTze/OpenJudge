@@ -2,8 +2,10 @@ import http, { get, post } from "k6/http";
 import { check, sleep } from "k6";
 import { Counter} from "k6/metrics";
 import { problem } from "./problem.js"
+import encoding from 'k6/encoding';
 
-const ENDPOINT = __ENV.ENDPOINT;
+// Remove trailing slash to prevent double slashes in URLs
+const ENDPOINT = (__ENV.ENDPOINT || "").replace(/\/$/, "");
 const USERNAME = __ENV.USERNAME;
 const PASSWORD = __ENV.PASSWORD;
 const USERID = __ENV.USERID
@@ -45,24 +47,49 @@ const submission = {
 }
 
 export function setup() {
-    // Prepare or fetch data
+    // Check health endpoint
+    console.log(`Raw ENDPOINT: ${__ENV.ENDPOINT}`);
+    console.log(`Cleaned ENDPOINT: ${ENDPOINT}`);
+    console.log(`Testing health at: ${ENDPOINT}/health`);
+    const healthReq = http.get(`${ENDPOINT}/health`);
+    console.log(`Health check status: ${healthReq.status}, body: ${healthReq.body}`);
     
-    const req = http.get(`${__ENV.ENDPOINT}/health`)
-    check(req, {
+    check(healthReq, {
         'Gateway health status 200': (r) => r.status === 200,
     });
-    const payload = JSON.stringify({
-    email: USERNAME,
-    password: PASSWORD 
+
+    if (healthReq.status !== 200) {
+        console.log("Health check failed, but continuing with login attempt...");
+    }
+
+    // Attempt login
+    const loginPayload = JSON.stringify({
+        email: USERNAME,
+        password: PASSWORD 
     });
 
-    const request = http.post(`${__ENV.ENDPOINT}/login`, payload, params)
-    if (request.status != 200) {
-        throw new Error("Login failed")
+    console.log(`Attempting login with: ${USERNAME}`);
+    const loginRequest = http.post(`${ENDPOINT}/login`, loginPayload, params);
+    console.log(`Login status: ${loginRequest.status}, body: ${loginRequest.body}`);
+    
+    if (loginRequest.status !== 200) {
+        console.error(`Login failed with status: ${loginRequest.status}`);
+        console.error(`Response body: ${loginRequest.body}`);
+        throw new Error(`Login failed with status ${loginRequest.status}: ${loginRequest.body}`);
     }
-    GLOBALTOKEN = request.json().accessToken;
-    console.log()
-    return GLOBALTOKEN ;
+
+    const loginData = loginRequest.json();
+    GLOBALTOKEN = loginData.accessToken || loginData.access_token;
+    
+    // Extract user ID from JWT token
+    const tokenParts = GLOBALTOKEN.split('.');
+    const payload = JSON.parse(encoding.b64decode(tokenParts[1], 'rawstd', 's'));
+    const userId = payload.sub;
+    
+    console.log(`Login successful, token obtained: ${GLOBALTOKEN ? 'Yes' : 'No'}`);
+    console.log(`User ID from token: ${userId}`);
+    
+    return { token: GLOBALTOKEN, userId: userId };
 }
 
 // Auth Header for every request.
@@ -123,24 +150,37 @@ function GetSubmissionStatus (attempts, URL, endpoint_note, tag_note, GLOBALTOKE
  * Normal Circumstances - easy. Small load of people accessing problems, submission and looking at problems. 
  * Low load and gentle increase in load.
  */
-export function Normal_Circumstance(GLOBALTOKEN) {
+export function Normal_Circumstance(data) {
 	attempted.add(1, { tag: "normal circumstances" });
-    const here = getAuthHeaders(GLOBALTOKEN)
-    console.log(getAuthHeaders(GLOBALTOKEN))
+    const token = data.token;
+    const userId = data.userId;
+    
+    console.log(getAuthHeaders(token))
     let getURL = `${ENDPOINT}/problems`;
-    let response = http.get(getURL, null, getAuthHeaders(GLOBALTOKEN));
+    let response = http.get(getURL, getAuthHeaders(token));
     check(response, {
         'problems request status 200': (r) => r.status === 200,
     });
     
+    // Create submission with proper user_id
+    const submissionPayload = {
+        user_id: userId,
+        problem_id: problem.id,
+        language: "java",
+        code: "public class Solution {\n    public static boolean IsPalindrome(int x) {\n        if (x < 0) return false; // negative numbers are not palindromes\n\n        int original = x;\n        int reversed = 0;\n\n        while (x != 0) {\n            int digit = x % 10;\n            if (reversed > (Integer.MAX_VALUE - digit) / 10) {\n                return false; // handle overflow\n            }\n            reversed = reversed * 10 + digit;\n            x /= 10;\n        }\n\n        return original == reversed;\n    }\n}"
+    };
+    
     let postURL = `${ENDPOINT}/submission`;
-    let sub = http.post(postURL, submission, getAuthHeaders(GLOBALTOKEN))
+    console.log(`Submitting to: ${postURL}`);
+    console.log(`Submission payload:`, JSON.stringify(submissionPayload));
+    let sub = http.post(postURL, JSON.stringify(submissionPayload), getAuthHeaders(token))
+    console.log(`Submission response status: ${sub.status}, body: ${sub.body}`);
     check(sub, {
-        'submission post request status 200': (r) => r.status === 201,
+        'submission post request status 201': (r) => r.status === 201,
     })
     let taskId;
     try {
-        const data = submission.json();
+        const data = sub.json();
         console.log(data);
         taskId = data.submission_id;
     } catch (e) {
@@ -152,7 +192,7 @@ export function Normal_Circumstance(GLOBALTOKEN) {
     if (Math.random() < 0.25 && taskId) {
         let resultURL = `${ENDPOINT}/submission/${taskId}`
 		let attempts = 6;  // One minute to complete analysis under low load.
-		GetSubmissionStatus(attempts, resultURL, "GET /submission/{id}", "normal circumstances", GLOBALTOKEN)
+		GetSubmissionStatus(attempts, resultURL, "GET /submission/{id}", "normal circumstances", token)
 	}
 
     sleep(60);
