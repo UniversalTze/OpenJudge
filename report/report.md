@@ -19,7 +19,7 @@ The delivered solution validates our architectural decisions whilst highlighting
 
 The OpenJudge platform addresses a persistent challenge in computer science education: the pedagogical limitations of traditional online judges that prioritise competitive assessment over genuine learning. Platforms such as LeetCode, whilst popular, often frustrate students with cryptic "Wrong Answer" responses and hidden test cases that provide little educational value.
 
-THe solution fundamentally reimagines this approach by embracing transparency as a core educational principle. Every test case, expected output, and failure explanation becomes a learning opportunity rather than an obstacle to overcome through guesswork.
+The solution fundamentally reimagines this approach by embracing transparency as a core educational principle. Every test case, expected output, and failure explanation becomes a learning opportunity rather than an obstacle to overcome through guesswork.
 
 From the [proposal](../model/proposal.md), the key Architecturally Significant Requirements (ASRs) for this project were: 
 - Security (Quality Attribute) - OpenJudge's core feature of executing potentially unsafe or malicious user submitted code leads to significant security risks alongside those already commonly place in web development.
@@ -38,7 +38,7 @@ In addition, the functional requirements of the program were:
 A context diagram for our project has been provided:
 ![OpenJudge Software Context](../model/images/OpenJudgeSystemContext.png)
 
-**Code**: ![Software-Context](../model/SoftwareContext.dsl)
+**Code**: [Software-Context](../model/SoftwareContext.dsl)
 
 ## Changes
 During development, the team made several strategic adjustments to strengthen our core quality attributes whilst adapting to practical constraints:
@@ -69,7 +69,7 @@ This alternative architecture retains the existing microservices layout but repl
 #### Container Diagram 
 ![Alternative Architecture 1 Container](../model/images/AltArchitecture-1-Container.png)
 
-**Code**: ![Alt-Architecture-1-Container](../model/Alt-Architecture-1-Container.dsl)
+**Code**: [Alt-Architecture-1-Container](../model/Alt-Architecture-1-Container.dsl)
 
 
 
@@ -77,7 +77,7 @@ This alternative architecture retains the existing microservices layout but repl
 #### Deployment Diagram
 ![Alternative Architecture 1 Deployment](../model/images/AltArchitecture-1-Deployment.png)
 
-**Code**: ![Alt-Architecture-1-Deployment](../model/Alt-Architecture-1-Deployment.dsl)
+**Code**: [Alt-Architecture-1-Deployment](../model/Alt-Architecture-1-Deployment.dsl)
 
 In contrast to this hybrid approach, the second alternative explored was a comprehensive pure event-driven architecture.
 
@@ -99,7 +99,7 @@ The architecture employs Apache Kafka topics to categorise different event types
 #### Container
 ![Alternative Architecture 2 Container](../model/images/AlternativeArchitecture-2-Container.png)
 
-**Code**: ![Alt-Architecture-2-Container](../model/Alt-Architecture-2-Container.dsl)
+**Code**: [Alt-Architecture-2-Container](../model/Alt-Architecture-2-Container.dsl)
 
 Most importantly, adopting an event-driven architecture using Kafka would have significantly extended the implementation timeline due to the team’s limited experience with such patterns and Kafka’s operational overhead. Ensuring reliable event ordering, managing duplicate message handling, and configuring dead letter queues adds considerable complexity that would have delayed the delivery of core functionality of OpenJudge.
 
@@ -107,46 +107,43 @@ However, if the team had more experience with event-driven architectures tools a
 
 
 ## Architecture
-During the designing phase, it was identified that a monolith architecture would not suffice for this software to achieve its ASRs. Thus, it was intially into a Front-End that handles UI interaction and Back-End which manages business logic, api requests and databases. Workers would also be used for asynchronous tasks in the back end. ([Seperation-Front-End-BackEnd-Worker-Logic](../model/adrs/0001-independent-services.md)).
+During the designing phase, it was identified that a monolith architecture would not suffice for this software to achieve its ASRs. Thus, it was intially into a Front-End that handles UI interaction and Back-End which manages business logic, api requests and databases. Workers would also be used for asynchronous tasks in the back end. (["0001-independent-Front-End-BackEnd-Worker-Logic](../model/adrs/0001-independent-services.md)).
 
-After further developing, the team identified that this software relied on core services in order to achieve the quality attributes of the proposal found [here](../model/proposal.md). These included: Authenthication, Front-End, Gateway Problems, Submission, Code Execution (test runner). Thus, it was decided that a microservice architecture and utilises message queues for asynchronous communication between specific services would be optimal for this software. It was believed that doing this enhanced scalability, maintainability, and team productivity, where each team member can focus on building their own service in parallel. ([Microservices-Architecture](../model/adrs/0002-microservices-architecture.md)). Container and deployment diagrams of the chosen architecture can be seen below. 
+After further developing, the team identified that this software relied on core services in order to achieve the quality attributes of the proposal found [here](../model/proposal.md). These included: Authenthication, Front-End, Gateway Problems, Submission, Code Execution (test runner). Thus, it was decided that a microservice architecture and utilises message queues for asynchronous communication between specific services would be optimal for this software. It was believed that doing this enhanced scalability, maintainability, and team productivity, where each team member can focus on building their own service in parallel. ([0002-microservices-Architecture](../model/adrs/0002-microservices-architecture.md)). Container and deployment diagrams of the chosen architecture can be seen below. 
 
 ### Container Diagram
 ![Container-Diagram-Chosen-Arch](../model/images/ChoseArchitecture-Container.png)
 
-**Code**: ![Container-Code-Chosen-Arch](../model/ChosenArchitecture-container.dsl)
+**Code**: [Container-Code-Chosen-Arch](../model/ChosenArchitecture-container.dsl)
 
 
 ### Deployment Diagram
 ![Deployment-Diagram-Chosen-Arch](../model/images/ChoseArchitecture-Deployment.png)
-**Code**: ![Deployment-Code-Chosen-Arch](../model/ChosenArchitecture-Deployment.dsl.dsl)
+**Code**: [Deployment-Code-Chosen-Arch](../model/ChosenArchitecture-Deployment.dsl.dsl)
 
-AWS was utilised to provide a scalable, reliable, and managed infrastructure that reduces operational overhead. The team's familiarity with AWS from previous experience was also a major reason for selecting it as the deployment platform. Core services adopted include ECS and ECR for containerised microservice deployment, ElastiCache for fast token revocation checks, S3 for object storage, SQS for asynchronous task handling, and RDS for persistent relational data. This approach enables the team to focus on application logic while leveraging AWS's operational maturity and ecosystem. ([Service-Deployment](../model/adrs/0011-service-deployment.md)). 
+AWS was utilised to provide a scalable, reliable, and managed infrastructure that reduces operational overhead. The team's familiarity with AWS from previous experience was also a major reason for selecting it as the deployment platform. Core services adopted include ECS and ECR for containerised microservice deployment, ElastiCache for fast token revocation checks, S3 for object storage, SQS for asynchronous task handling, and RDS for persistent relational data. This approach enables the team to focus on application logic while leveraging AWS's operational maturity and ecosystem. ([0011-service-deployment](../model/adrs/0011-service-deployment.md)). 
 
 ### System Flow and User Journey
 
 The user experience begins with registration, where individuals provide email credentials and secure passwords. Our Authentication Service validates these details, securely hashes passwords using Argon2, and stores credentials in a dedicated authentication database. Email verification confirms user identity before account activation.
 
-Upon successful authentication, users receive JWT access and refresh tokens that authenticate subsequent requests. JWT was used as they provide a stateless approach, reducing the need for session persistence across multiple services. JWTs simplify scaling and integration between services while allowing authentication data to be securely transmitted within signed tokens.  (["JWT-session-token"](../model/adrs/0008-jwts-over-sessions.md)).
-The API Gateway validates these tokens and enforces access control policies, ensuring users can only access their own data and submissions whilst preventing unauthorised access to system resources. (["Middleware-API-Gateway"](../model/adrs/0009-middleware-in-api-gateway.md)).
+Upon successful authentication, users receive JWT access and refresh tokens that authenticate subsequent requests. JWT was used as they provide a stateless approach, reducing the need for session persistence across multiple services. JWTs simplify scaling and integration between services while allowing authentication data to be securely transmitted within signed tokens.  (["0008-jwts-session-token"](../model/adrs/0008-jwts-over-sessions.md)).
+The API Gateway validates these tokens and enforces access control policies, ensuring users can only access their own data and submissions whilst preventing unauthorised access to system resources. (["0009-middleware-API-Gateway"](../model/adrs/0009-middleware-in-api-gateway.md)).
 
 User interactions flow through our front-end application, which forwards API requests to the API Gateway. Following successful authentication and authorisation, the gateway routes traffic to appropriate backend services including Authentication, Problem, Submission, and Execution services. Each core service maintains its own dedicated database, ensuring data isolation and preventing cross-service data corruption.
 
 ### Code Submission + Execution Service
 
-When users submit code solutions, our Submission Service performs initial security inspection, checking for malicious content including unauthorised network calls, dangerous imports, system commands, and excessively long scripts. Submissions passing these preliminary checks enter our processing queue system. This was done as it catches many classes of user errors early, saving compute for valid submissions and increases robustness of the software system. (["Code-Validation-In-Submission-Service"](../model/adrs/0012-code-validation-in-submission-service.md)). 
+When users submit code solutions, our Submission Service performs initial security inspection, checking for malicious content including unauthorised network calls, dangerous imports, system commands, and excessively long scripts. Submissions passing these preliminary checks enter our processing queue system. This was done as it catches many classes of user errors early, saving compute for valid submissions and increases robustness of the software system. (["0013-code-calidation-in-submission-service"](../model/adrs/0012-code-validation-in-submission-service.md)). These submissions are also stored in a submission database along with the test results. This is done as it supports a deeper learning loop through visible mistakes and progress and provides groundwork for analytics or future AI-based feedback tools.
 
-Our execution architecture employs dedicated message queues for each supported programming language, with submissions routed to language-specific queues (Python, Java, etc.).Each programming language operates its own isolated execution environment (sandbox) within separate containers, consuming tasks exclusively from their respective message queues. This design ensures complete isolation—execution services maintain no direct external connections beyond their queue interfaces, while also providing a scalable pipeline for code submissions and ensures consisten test handling. (["queue-system-code-execution"](../model/adrs/0010-queue-system-for-code-execution.md)).
+Our execution architecture employs dedicated message queues for each supported programming language, with submissions routed to language-specific queues (Python, Java, etc.).Each programming language operates its own isolated execution environment (sandbox) within separate containers, consuming tasks exclusively from their respective message queues. This design ensures complete isolation—execution services maintain no direct external connections beyond their queue interfaces, while also providing a scalable pipeline for code submissions and ensures consisten test handling. (["0014-task-queue-based-submission"](../model/adrs/0010-queue-system-for-code-execution.md)).
 
 The Execution Service utilises NSJail, a Linux process sandboxing tool that restricts filesystem access to minimal jail environments, limits CPU and memory usage, prevents network calls, and blocks unauthorised system calls. This multi-layered security approach combines containerisation, message queue isolation, and process-level sandboxing to create robust protection against malicious or poorly written code.
-(["sandboxing-NSJail"](../model/adrs/0016-sandboxing-with-nsjail.md)).
+(["0016-sandboxing-NSJail"](../model/adrs/0016-sandboxing-with-nsjail.md)).
 
+After task execution, results are published to a central output queue monitored by the Submission Service. Results are retrieved and submission database records updated accordingly. The Front-End Service polls the Submission Service at regular intervals (every 1-2 seconds) to check for updated results, as direct communication with Execution Services is prohibited for security isolation.
 
-
-
-
-
-
+Our queue architecture maintains 1 + n message queues, where n represents the number of supported programming languages—one queue per language plus a shared output queue for results consolidation. (["0010-queue-system-for-code-execution"](../model/adrs/0010-queue-system-for-code-execution.md)).
 
 
 ## Trade-Offs and Architectural Decisions
@@ -254,18 +251,39 @@ The security analysis confirms our layered security approach is fundamentally so
 
 ### Quality Attribute Achievement Assessment
 
-**Security: Exceptional Achievement**
-Our security implementation exceeds initial requirements through multiple validated protection layers. Testing confirms the effectiveness of authentication mechanisms, whilst malicious code injection attempts were successfully contained within sandboxed execution environments. The zero-trust approach to execution service isolation has proven robust under various attack scenarios.
+**Security**
 
-**Scalability: Strong Performance**
-[PLACEHOLDER: Specific Load Testing Metrics]
-The system successfully handled [X] concurrent users with automatic scaling responses functioning as designed. Queue-based decoupling effectively managed submission bursts, with execution services scaling independently based on queue depth metrics. Response time degradation remained within acceptable educational platform limits even under peak load conditions.
+Our security implementation exceeds initial requirements through multiple validated protection layers. JWT-based authentication with EdDSA signing ([JWT Authentication](../services/auth/core/jwt.go)) provides cryptographically secure token validation, while the API gateway enforces comprehensive authorisation middleware with token revocation checking ([API Gateway Middleware](services/gateway/middleware.py:16-42)).
 
-**Extensibility: Validated Through Implementation**
-The successful integration of LLM services during development demonstrates the architecture's extensibility in practice. New language support can be added through standardised container deployment processes, and the problem definition schema accommodates diverse test case types without requiring schema migrations. The modular approach has proven effective for incremental capability enhancement.
+Multi-layered rate limiting protects against abuse with endpoint-specific thresholds: 5 submissions per minute for code execution, 5 login attempts per minute for authentication, and 100 overall requests per minute ([API Gateway Middleware](services/gateway/middleware.py:16-42)). The sandboxed execution environment includes nsjail implementation framework (currently disabled in production) for resource isolation with strict limits on memory, CPU, file system access, and network connectivity ([Sandboxed Execution](../services/execution/src/sandbox/secure_executor.py)).
 
-**Deployability: Adequate with Operational Considerations**
-Whilst containerisation provides deployment consistency across environments, the operational complexity presents ongoing challenges. Deployment orchestration requires careful coordination of multiple services and dependencies. Infrastructure as Code approaches mitigate some complexity, but the learning curve for new team members remains significant.
+Testing confirms the effectiveness of authentication mechanisms, whilst malicious code injection attempts are successfully contained within sandboxed execution environments. The zero-trust approach to execution service isolation has proven robust under various attack scenarios, with dedicated security testing documented in tests/security-tests/.
+
+**Scalability**
+
+The system architecture inherently supports horizontal scaling through queue-based decoupling and independent service scaling. K6 performance tests (tests/scalabiility-tests/tests.js) are implemented to validate system performance under load, with comprehensive test scenarios ready for execution to demonstrate scaling capabilities.
+
+The microservices architecture allows independent scaling of compute-intensive execution services separate from user-facing API services. SQS-based submission queues provide elastic buffering for code execution workloads, while ECS auto-scaling responds to queue depth metrics and CPU utilisation patterns.
+
+Database scaling is supported through RDS configurations, and the stateless service design enables seamless horizontal scaling without session management complexity. Load testing results will demonstrate the system's ability to handle concurrent submissions and maintain response times within educational platform requirements.
+
+**Extensibility**
+
+The successful integration of LLM services during development demonstrates the architecture's extensibility in practice ([0020-LLM-Integration](../model/adrs/0020-LLM-Integration.md)). The modular executor framework enables straightforward language support additions through standardized interfaces - Python and Java executors both inherit from AbstractExecutor with consistent patterns for test file generation, execution commands, and result processing ([Python Executor Implementation](../services/execution/src/executor/python.py)), ([Java Executor Implementation](../services/execution/src/executor/java.py)), ([Abstract Executor Pattern](../services/execution/src/executor/abstract_executor.py)).
+
+New language support can be added through standardised container deployment processes using dedicated Dockerfiles, separate execution queues, and language-specific security policies as outlined in the extensibility ASR ([0019-Extensibility](../model/adrs/0019-Extensibility-ASR.md)). The problem definition schema accommodates diverse test case types without requiring schema migrations, supporting JSON-based input/output validation across programming languages.
+
+The architecture prioritizes educational platform needs with per-language submission queues and execution services, enabling support for diverse courses, curricula, and emerging programming languages. The modular approach has proven effective for incremental capability enhancement while maintaining security isolation between language environments.
+
+**Deployability**
+
+The OpenJudge system demonstrates excellent deployability through multiple automation layers. The project includes a complete CI/CD pipeline ([CI/CD pipeline](../.github/workflows/main.yaml) - Please note that these can't be run yet since we don't have access to github actions) that automatically builds and pushes Docker images to ECR for all eight microservices, followed by Terraform-managed infrastructure deployment.
+
+Docker containerisation provides consistent deployment across environments with dedicated Dockerfiles for each service (authentication, frontend, gateway, problems, submission, subscriber, and execution engines for Java/Python). The docker-compose.yml orchestrates local development with proper networking and dependency management between services.
+
+Infrastructure as Code is implemented through comprehensive Terraform configurations covering all AWS resources including ECS services, RDS databases, SQS queues, and Route53 DNS management. The Taskfile.yml provides simplified deployment commands (task deploy, task destroy) that abstract complex Terraform operations while maintaining full environment variable configuration.
+
+The deployment pipeline demonstrates enterprise-grade practices with automated image building, infrastructure validation, and coordinated multi-service deployment, significantly reducing operational complexity compared to manual processes.
 
 ## Reflection and Lessons Learnt
 
@@ -281,6 +299,11 @@ Implementation revealed the substantial operational overhead accompanying micros
 
 **Queue-Based Architecture Value**
 The message queue approach proved more valuable than expected for handling variable educational workloads. The decoupling between submission and execution services provided natural load balancing and fault tolerance, allowing the system to gracefully handle assignment deadline traffic spikes without service degradation. This validated our architectural decision to prioritise asynchronous processing over synchronous execution, despite the latency trade-offs.
+
+**Implementation Gaps**
+During development, certain security features had to be temporarily disabled due to deployment complexity. Most notably, the NSJail sandboxing implementation exists in the codebase but is currently commented out in production due to container privilege requirements that conflicted with our AWS ECS deployment constraints. The current system uses basic process isolation through subprocess.Popen(), which provides functional code execution but lacks the comprehensive resource limitations that NSJail would provide. This represents technical debt that should be addressed in future iterations, particularly before production deployment in environments where enhanced security isolation is critical.
+
+Similarly, some middleware components including rate limiting required environment-specific configuration that was deferred to focus on core functionality delivery. These implementation gaps highlight the importance of early infrastructure planning and the trade-offs between development velocity and security completeness in this project timeline.
 
 ### Architectural Decision Retrospective
 
@@ -333,3 +356,6 @@ This project reinforced several crucial principles for complex software developm
 Most importantly, the project demonstrated that whilst security and educational quality represent non-negotiable requirements for educational platforms, achieving them requires careful consideration of all quality attributes and their interactions. Success ultimately depends not just on meeting individual requirements but on finding optimal balance across all system qualities to deliver genuine educational value to learners.
 
 The transparency-first approach we championed proves that educational platforms can simultaneously maintain high security standards while providing the open, supportive learning environment that students deserve. This balance, whilst challenging to achieve, represents the future direction for educational technology that truly serves learners rather than gatekeeping their progress.
+
+### References
+Used Grammarly AI for grammar correction and rephrasing sentences

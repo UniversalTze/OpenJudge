@@ -59,4 +59,4 @@ ENV PATH="/venv/bin:$PATH"
 RUN python --version && java -version && javac -version
 
 # Start the Celery worker
-CMD ["celery", "-A", "src.receiver.celery", "worker", "--loglevel=info"]
+CMD ["celery", "-A", "src.receiver.celery", "worker", "--loglevel=info", "--autoscale=11,2"]
