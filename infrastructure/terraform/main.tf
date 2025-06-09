@@ -14,7 +14,7 @@ terraform {
 }
 
 provider "aws" {
-  region = "us-east-1" # TODO - CHECK IF WE CAN USE VARIABLE
+  region = "us-east-1"
   default_tags {
     tags = {
       Course     = "CSSE6400"

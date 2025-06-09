@@ -145,7 +145,6 @@ resource "aws_db_instance" "SubmissionDatabase" {
   # Accessibility
   vpc_security_group_ids = [aws_security_group.SubmissionDatabaseSecurityGroup.id]
   publicly_accessible    = false
-  # TODO - ADD IN SUBNET IF TIME!
   # db_subnet_group_name         = aws_db_subnet_group.default.name
 
   # Other Paramaters
@@ -460,36 +459,3 @@ resource "null_resource" "summary_submission" {
     EOT
   }
 }
-
-############################################################################
-# Extraneous TF code - add back in if it works/is needed
-
-
-# RDS Subnet group TODO - ADD BACK IN IF TIME ALLOWS!
-# resource "aws_db_subnet_group" "default" {
-#   name       = "submission-db-subnet-group"
-#   subnet_ids = data.aws_subnets.default.ids
-# }
-
-# IAM ROLES SHOULD BE DEFINED IN MAIN - TODO - DELETE LATER IF UNECESSARY!
-# # IAM role for ECS task execution
-# data "aws_iam_policy_document" "ecs_task_exec_assume" {
-#   statement {
-#     effect = "Allow"
-#     principals {
-#       type        = "Service"
-#       identifiers = ["ecs-tasks.amazonaws.com"]
-#     }
-#     actions = ["sts:AssumeRole"]
-#   }
-# }
-
-# resource "aws_iam_role" "ecs_task_execution_role" {
-#   name               = "ecsTaskExecutionRole"
-#   assume_role_policy = data.aws_iam_policy_document.ecs_task_exec_assume.json
-# }
-
-# resource "aws_iam_role_policy_attachment" "ecs_task_execution_role_policy" {
-#   role       = aws_iam_role.ecs_task_execution_role.name
-#   policy_arn = "arn:aws:iam::aws:policy/service-role/AmazonECSTaskExecutionRolePolicy"
-# }

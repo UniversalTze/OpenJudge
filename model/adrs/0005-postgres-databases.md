@@ -1,10 +1,5 @@
-TODO: Write an ADR about choosing postgres for our databases.
-ASSIGNED TO: 
-
-https://csse6400.uqcloud.net/handouts/adr.pdf using this format
-
 **Date:** 2025-05-13 \
-**Status:** Proposed \
+**Status:** Accepted \
 **Summary** \
 *In the context of* delivering a project with that requires storing persistent user data, 
 a postgress db was proposed to the group. This service was used due to the simplicity in 

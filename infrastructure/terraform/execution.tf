@@ -30,7 +30,6 @@ resource "aws_security_group" "ExecutionSecurityGroup" {
   name        = "ExecutionSecurityGroup"
   description = "Execution Security Group Blocking External Input/Output"
 
-  # TODO - We can probably just remove this useless ingress block
   ingress {
     from_port   = 0
     to_port     = 0
@@ -39,7 +38,6 @@ resource "aws_security_group" "ExecutionSecurityGroup" {
     description = "No inbound traffic allowed"
   }
 
-  # TODO - SET UP SO ONLY SQS TRAFFIC ALLOWED - THIS IS STILL BROADER THAN NECESSARY!
   # Allow HTTPS outbound to port 443 (required for SQS API)
   egress {
     from_port   = 443
@@ -70,7 +68,7 @@ resource "aws_ecs_service" "ExecutionPythonService" {
   network_configuration {
     subnets          = data.aws_subnets.private.ids
     security_groups  = [aws_security_group.ExecutionSecurityGroup.id]
-    assign_public_ip = true # TODO - CHANGE THIS TO A NAT GATEWAY INSTEAD!
+    assign_public_ip = true 
   }
 }
 
@@ -124,7 +122,6 @@ resource "aws_ecs_task_definition" "ExecutionPythonTask" {
           name  = "LANGUAGE"
           value = "python"
         },
-        # TODO - ADD IN SANDBOX VARIABLE!!!
       ]
     }
   ])
@@ -147,7 +144,7 @@ resource "aws_ecs_service" "ExecutionJavaService" {
   network_configuration {
     subnets          = data.aws_subnets.private.ids
     security_groups  = [aws_security_group.ExecutionSecurityGroup.id]
-    assign_public_ip = true # TODO - CHANGE THIS TO A NAT GATEWAY INSTEAD!
+    assign_public_ip = true
   }
 }
 
@@ -201,7 +198,6 @@ resource "aws_ecs_task_definition" "ExecutionJavaTask" {
           name  = "LANGUAGE"
           value = "java"
         },
-        # TODO - ADD IN SANDBOX VARIABLE!!!
       ]
     }
   ])
