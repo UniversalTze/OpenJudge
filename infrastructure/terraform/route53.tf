@@ -1,8 +1,7 @@
 ############################################################################
 # Route 53 Zone
-data "aws_route53_zone" "main" {
+resource "aws_route53_zone" "main" {
   name         = "openjudge.software"
-  private_zone = false
 }
 
 ############################################################################
@@ -28,6 +27,7 @@ resource "aws_acm_certificate" "api_cert" {
 ############################################################################
 # Certificate Validation Records
 resource "aws_route53_record" "frontend_cert_validation" {
+  depends_on = [aws_acm_certificate.frontend_cert]
   for_each = {
     for dvo in aws_acm_certificate.frontend_cert.domain_validation_options : dvo.domain_name => {
       name   = dvo.resource_record_name
@@ -36,7 +36,7 @@ resource "aws_route53_record" "frontend_cert_validation" {
     }
   }
 
-  zone_id = data.aws_route53_zone.main.zone_id
+  zone_id = resource.aws_route53_zone.main.zone_id
   name    = each.value.name
   type    = each.value.type
   ttl     = 60
@@ -46,6 +46,8 @@ resource "aws_route53_record" "frontend_cert_validation" {
 }
 
 resource "aws_route53_record" "api_cert_validation" {
+  depends_on = [aws_acm_certificate.api_cert]
+
   for_each = {
     for dvo in aws_acm_certificate.api_cert.domain_validation_options : dvo.domain_name => {
       name   = dvo.resource_record_name
@@ -54,7 +56,7 @@ resource "aws_route53_record" "api_cert_validation" {
     }
   }
 
-  zone_id = data.aws_route53_zone.main.zone_id
+  zone_id = resource.aws_route53_zone.main.zone_id
   name    = each.value.name
   type    = each.value.type
   ttl     = 60
@@ -82,7 +84,7 @@ resource "aws_acm_certificate_validation" "api_cert_validation" {
 }
 
 resource "aws_route53_record" "www" {
-  zone_id = data.aws_route53_zone.main.zone_id
+  zone_id = resource.aws_route53_zone.main.zone_id
   name    = "www"
   type    = "A"
 
@@ -94,7 +96,7 @@ resource "aws_route53_record" "www" {
 }
 
 resource "aws_route53_record" "api" {
-  zone_id = data.aws_route53_zone.main.zone_id
+  zone_id = resource.aws_route53_zone.main.zone_id
   name    = "api"
   type    = "A"
 

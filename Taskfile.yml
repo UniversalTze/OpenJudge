@@ -175,7 +175,7 @@ tasks:
   import:
     desc: Import the project.
     cmds:
-      - cd infrastructure/terraform && terraform import aws_route53_zone.main Z0075900JI3Y3PVBRJSK
+      - cd infrastructure/terraform && terraform init && terraform plan && terraform import aws_route53_zone.main Z0075900JI3Y3PVBRJSK
     silent: false
     env:
       TF_VAR_AWS_REGION: "{{.AWS_REGION}}"
