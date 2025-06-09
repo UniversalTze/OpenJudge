@@ -97,9 +97,6 @@ During the designing phase, we identified that a monolith architecture would not
 
 After further developing, the team identified that this software relied on core services in order to achieve the quality attributes of the proposal found [here](../model/proposal.md). These included: Authenthication, Front-End, Gateway Problems, Submission, Code Execution (test runner). Thus, it was decided that a microservice architecture and utilises message queues for asynchronous communication between specific services would be optimal for this software. It was believed that doing this enhanced scalability, maintainability, and team productivity, where each team member can focus on building their own service in parallel. [Microservices-Architecture](../model/adrs/0002-microservices-architecture.md).
 
-
-
-
 ## Trade-Offs
 TODO: Describe and justify the trade-offs made in designing the architecture.
 ASSIGNED TO:
