@@ -30,7 +30,7 @@ app = FastAPI(title="OpenJudge API Gateway", lifespan=lifespan)
 
 # Process time, rate limiting, and authorization middleware
 # app.middleware("http")(process_time)
-# app.middleware("http")(rate_limit_middleware)
+app.middleware("http")(rate_limit_middleware)
 app.middleware("http")(authorise_request)
 
 # # Security middleware
