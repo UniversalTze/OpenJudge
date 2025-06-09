@@ -303,7 +303,7 @@ Implementation revealed the substantial operational overhead accompanying micros
 **Queue-Based Architecture Value**
 The message queue approach proved more valuable than expected for handling variable educational workloads. The decoupling between submission and execution services provided natural load balancing and fault tolerance, allowing the system to gracefully handle assignment deadline traffic spikes without service degradation. This validated our architectural decision to prioritise asynchronous processing over synchronous execution, despite the latency trade-offs.
 
-**Implementation Gaps and Technical Debt**
+**Implementation Gaps**
 During development, certain security features had to be temporarily disabled due to deployment complexity. Most notably, the NSJail sandboxing implementation exists in the codebase but is currently commented out in production due to container privilege requirements that conflicted with our AWS ECS deployment constraints. The current system uses basic process isolation through subprocess.Popen(), which provides functional code execution but lacks the comprehensive resource limitations that NSJail would provide. This represents technical debt that should be addressed in future iterations, particularly before production deployment in environments where enhanced security isolation is critical.
 
 Similarly, some middleware components including rate limiting required environment-specific configuration that was deferred to focus on core functionality delivery. These implementation gaps highlight the importance of early infrastructure planning and the trade-offs between development velocity and security completeness in this project timeline.
