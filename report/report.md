@@ -36,11 +36,12 @@ In addition, the functional requirements of the program were:
 - Secure Code Execution: A user-friendly UI will be provided for submitting code. Code will be executed in isolated, sandboxed Docker containers hosted on AWS (using services such as Fargate) along with basic load balancing implemented via AWS services.
 
 A context diagram for our project has been provided:
-![OpenJudge Software Context](2025_P5_OpenJudge/model/images/OpenJudgeSystemContext.png)
+![OpenJudge Software Context](../model/images/OpenJudgeSystemContext.png)
 
+**Code**: ![Software-Context](../model/SoftwareContext.dsl)
 
 ## Changes
-During development, we made several strategic adjustments to strengthen our core quality attributes whilst adapting to practical constraints:
+During development, the team made several strategic adjustments to strengthen our core quality attributes whilst adapting to practical constraints:
 - Real-time to Asynchronous Feedback Model: Originally, to provide real-time feedback a persistent WebSocket connections. However, to maintain absolute security isolation of execution environments, an asynchronous polling-based approach was adpoted. This change preserves rapid feedback whilst ensuring no direct network connections can compromise sandbox integrity. In addition, delays on the scale of 1–2 seconds—such as those introduced by a small backlog in queues and periodic polling—are an acceptable trade-offs. ([0017-no-realtime-feedback](../model/adrs/0017-no-realtime-feedback.md)). 
 - Extensibility Elevation: Initially conceived as a supporting requirement, extensibility became a primary ASR due to its fundamental importance for educational platforms serving diverse learning needs. The team's architecture now explicitly supports seamless integration of new programming languages and learning tools. ([0019-Extensibility](../model/adrs/0019-Extensibility-ASR.md)).
 - AI-Enhanced Learning Integration: We expanded scope to include Large Language Model (LLM) integration, providing contextual hints and explanations for failed test cases. This enhancement directly supports our educational mission by offering tailored guidance rather than generic error messages. ([0020-LLM-Integration](../model/adrs/0020-LLM-Integration.md)).
@@ -66,11 +67,17 @@ This alternative architecture retains the existing microservices layout but repl
 - Most importantly, this design violates one of the core principles of the project: to fully sandbox the test runner service with no external dependencies beyond the input event queue. Introducing external connections undermines this goal and increases the system's attack surface.
 
 #### Container Diagram 
-![Alternative Architecture 1 Container](2025_P5_OpenJudge/model/images/AltArchitecture-1-Container.png)
+![Alternative Architecture 1 Container](../model/images/AltArchitecture-1-Container.png)
+
+**Code**: ![Alt-Architecture-1-Container](../model/Alt-Architecture-1-Container.dsl)
+
+
 
 
 #### Deployment Diagram
-![Alternative Architecture 1 Container](2025_P5_OpenJudge/model/images/AltArchitecture-1-Deployment.png)
+![Alternative Architecture 1 Deployment](../model/images/AltArchitecture-1-Deployment.png)
+
+**Code**: ![Alt-Architecture-1-Deployment](../model/Alt-Architecture-1-Deployment.dsl)
 
 In contrast to this hybrid approach, the second alternative explored was a comprehensive pure event-driven architecture.
 
@@ -89,11 +96,18 @@ The architecture employs Apache Kafka topics to categorise different event types
 - Debugging distributed workflows becomes significantly more challenging compared to traditional REST API tracing. Identifying the root cause of a failed submission might require examining dozens of events across multiple Kafka topics and correlating them through the EventStore, demanding sophisticated observability tooling and expertise. Eventual consistency replaces the immediate consistency of traditional database transactions, requiring careful consideration of how data propagation delays might affect user experience.
 - Infrastructure overhead increases substantially with the need to maintain Kafka clusters, Zookeeper ensembles (for older Kafka versions), and EventStore instances, along with their associated monitoring and backup systems. Event schema evolution presents ongoing challenges, as changes to event structures must maintain backward compatibility whilst enabling system evolution.
 
-Most critically for this project, the implementation timeline would be significantly extended due to the team's unfamiliarity with event-driven patterns and Kafka's operational requirements. The complexity of achieving reliable event ordering, handling duplicate message processing, and implementing proper dead letter queue strategies would substantially delay the delivery of core functionality. Whilst this architecture offers superior long-term scalability and observability, the immediate practical constraints of team expertise and project timeline make it unsuitable for initial implementation, though it remains an excellent target for future architectural evolution once the team develops the necessary distributed systems expertise.
+#### Container
+![Alternative Architecture 2 Container](../model/images/AlternativeArchitecture-2-Container.png)
+
+**Code**: ![Alt-Architecture-2-Container](../model/Alt-Architecture-2-Container.dsl)
+
+Most importantly, adopting an event-driven architecture using Kafka would have significantly extended the implementation timeline due to the team’s limited experience with such patterns and Kafka’s operational overhead. Ensuring reliable event ordering, managing duplicate message handling, and configuring dead letter queues adds considerable complexity that would have delayed the delivery of core functionality of OpenJudge.
+
+However, if the team had more experience with event-driven architectures tools and extended project timelines, this approach would likely have provided superior long-term scalability and maintainability characteristics. The comprehensive audit capabilities and natural resilience patterns align exceptionally well with educational platform requirements where understanding user behaviour and maintaining system reliability are paramount concerns.
 
 
 ## Architecture
-During the designing phase, we identified that a monolith architecture would not suffice for this software to achieve its ASRs. Thus, it was intially into a Front-End that handles UI interaction and Back-End which manages business logic, api requests and databases. Workers would also be used for asynchronous tasks in the backe end. [Seperation-Front-End-BackEnd-Worker-Logic](../model/adrs/0001-independent-services.md).
+During the designing phase, it was identified that a monolith architecture would not suffice for this software to achieve its ASRs. Thus, it was intially into a Front-End that handles UI interaction and Back-End which manages business logic, api requests and databases. Workers would also be used for asynchronous tasks in the backe end. [Seperation-Front-End-BackEnd-Worker-Logic](../model/adrs/0001-independent-services.md).
 
 After further developing, the team identified that this software relied on core services in order to achieve the quality attributes of the proposal found [here](../model/proposal.md). These included: Authenthication, Front-End, Gateway Problems, Submission, Code Execution (test runner). Thus, it was decided that a microservice architecture and utilises message queues for asynchronous communication between specific services would be optimal for this software. It was believed that doing this enhanced scalability, maintainability, and team productivity, where each team member can focus on building their own service in parallel. [Microservices-Architecture](../model/adrs/0002-microservices-architecture.md).
 
@@ -194,6 +208,8 @@ Our evaluation strategy validates both functional requirements and critical qual
 - Authentication bypass attempt validation
 - Input sanitisation verification across all user entry points
 
+- We had planned this, but due to time constraints, we were unable to achieve the exact results instead we ran a static code security analysis tool.
+
 **Functional Testing Coverage**
 - End-to-end user workflows from registration through submission
 - Multi-language execution testing across Python and Java environments
@@ -215,20 +231,6 @@ The successful integration of LLM services during development demonstrates the a
 
 **Deployability: Adequate with Operational Considerations**
 Whilst containerisation provides deployment consistency across environments, the operational complexity presents ongoing challenges. Deployment orchestration requires careful coordination of multiple services and dependencies. Infrastructure as Code approaches mitigate some complexity, but the learning curve for new team members remains significant.
-
-### Success Metrics Summary
-
-[PLACEHOLDER: Detailed Success Metrics Table]
-
-| Quality Attribute | Achievement Level | Supporting Evidence |
-|------------------|------------------|-------------------|
-| Security | 95% | Comprehensive protection with minor operational considerations |
-| Scalability | 85% | Strong performance with some latency concerns under peak load |
-| Extensibility | 90% | Proven through successful feature additions during development |
-| Functional Requirements | [X]% | Based on test coverage and pass rates |
-| Overall ASR Achievement | [X]% | Weighted average based on priority |
-
-The architecture successfully demonstrates its capability to deliver core educational platform functionality whilst maintaining strong security posture and supporting future growth requirements.
 
 ## Reflection and Lessons Learnt
 
@@ -254,7 +256,7 @@ Our mid-development pivot from Flask to FastAPI proved highly beneficial, partic
 The decision to maintain separate databases for each service provided good isolation but increased operational complexity substantially. In retrospect, a shared database with robust access controls might have simplified deployment whilst maintaining adequate service separation. However, the separate database approach better supports future service independence and potential team scaling scenarios.
 
 **LLM Integration Success**
-The successful integration of AI-powered learning assistance validated our extensibility claims whilst providing genuine educational value. This feature demonstrates how well-designed architectures can accommodate unexpected opportunities for enhancement without requiring fundamental restructuring.
+The successful integration of AI-powered learning assistance validated our extensibility claims while providing genuine educational value. This feature demonstrates how well-designed architectures can accommodate unexpected opportunities for enhancement without requiring fundamental restructuring.
 
 ### Project Management Learnings
 
@@ -264,10 +266,13 @@ The project would have benefited from more comprehensive up-front planning, part
 **Infrastructure Constraint Impact**
 Limited IAM permissions within the university AWS environment constrained some deployment automation ambitions, particularly around CI/CD pipeline implementation. This highlighted the critical importance of understanding infrastructure limitations early in the design process and planning architectural decisions accordingly.
 
+**Testing**
+The project could have undergone more testing, particularly with Security (considering we built the service ourselves). Also, we could have done more load K6 testing. Better time management and team familiarity will definitely help with this in future.
+
 ### Alternative Approaches We Would Consider
 
 **Simplified Initial Implementation**
-Starting with a simpler monolithic architecture and evolving towards microservices might have accelerated initial development whilst providing better understanding of system requirements. The learning curve for microservices patterns and distributed systems concepts proved significant, and a more gradual architectural evolution could have provided deeper understanding whilst maintaining development momentum.
+Starting with a simpler monolithic architecture and evolving towards microservices might have accelerated initial development, whilst providing a better understanding of system requirements. The learning curve for microservices patterns and distributed systems concepts proved significant, and a more gradual architectural evolution could have provided deeper understanding whilst maintaining development momentum.
 
 **Enhanced Monitoring and Observability**
 Implementing comprehensive monitoring, distributed tracing, and observability tools from the project's inception would have greatly simplified debugging and performance optimisation efforts. The complexity of troubleshooting issues across multiple services became apparent only during integration testing phases.
@@ -290,22 +295,6 @@ The event-driven nature of our system provides excellent foundations for compreh
 
 This project reinforced several crucial principles for complex software development. Understanding team capabilities, infrastructure constraints, and user experience requirements early in the design process proves essential for successful delivery. The experience highlighted the value of iterative development approaches when dealing with complex distributed systems, where theoretical designs often require practical refinement during implementation phases.
 
-Most importantly, the project demonstrated that whilst security and educational quality represent non-negotiable requirements for educational platforms, achieving them requires careful consideration of all quality attributes and their interactions. Success ultimately depends not just on meeting individual requirements, but on finding optimal balance across all system qualities to deliver genuine educational value to learners.
+Most importantly, the project demonstrated that whilst security and educational quality represent non-negotiable requirements for educational platforms, achieving them requires careful consideration of all quality attributes and their interactions. Success ultimately depends not just on meeting individual requirements but on finding optimal balance across all system qualities to deliver genuine educational value to learners.
 
-The transparency-first approach we championed proves that educational platforms can simultaneously maintain high security standards whilst providing the open, supportive learning environment that students deserve. This balance, whilst challenging to achieve, represents the future direction for educational technology that truly serves learners rather than gatekeeping their progress.
-
----
-
-## Appendices
-
-### Appendix A: Architectural Decision Records
-
-[PLACEHOLDER: ADR References and Summaries]
-
-### Appendix B: Technical Implementation Details
-
-[PLACEHOLDER: Key Implementation Code Snippets and Configurations]
-
-### Appendix C: Test Results and Performance Metrics
-
-[PLACEHOLDER: Comprehensive Testing Documentation and Results]
+The transparency-first approach we championed proves that educational platforms can simultaneously maintain high security standards while providing the open, supportive learning environment that students deserve. This balance, whilst challenging to achieve, represents the future direction for educational technology that truly serves learners rather than gatekeeping their progress.
