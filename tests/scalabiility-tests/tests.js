@@ -1,4 +1,4 @@
-import http, { get } from "k6/http";
+import http, { get, post } from "k6/http";
 import { check, sleep } from "k6";
 import { Counter} from "k6/metrics";
 import { problem } from "./problem.js"

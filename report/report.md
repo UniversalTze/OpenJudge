@@ -118,7 +118,7 @@ After further developing, the team identified that this software relied on core 
 
 
 ### Deployment Diagram
-![Deployment-Diagram-Chosen-Arch](../model/images/ChoseArchitecture-Deployment.png)
+![Deployment-Diagram-Chosen-Arch](../model/images/ChosenArchitecture-Deployment.png)
 **Code**: [Deployment-Code-Chosen-Arch](../model/ChosenArchitecture-Deployment.dsl.dsl)
 
 AWS was utilised to provide a scalable, reliable, and managed infrastructure that reduces operational overhead. The team's familiarity with AWS from previous experience was also a major reason for selecting it as the deployment platform. Core services adopted include ECS and ECR for containerised microservice deployment, ElastiCache for fast token revocation checks, S3 for object storage, SQS for asynchronous task handling, and RDS for persistent relational data. This approach enables the team to focus on application logic while leveraging AWS's operational maturity and ecosystem. ([0011-service-deployment](../model/adrs/0011-service-deployment.md)). 
