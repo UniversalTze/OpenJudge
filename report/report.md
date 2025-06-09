@@ -278,22 +278,6 @@ The event-driven nature of our system provides excellent foundations for compreh
 
 This project reinforced several crucial principles for complex software development. Understanding team capabilities, infrastructure constraints, and user experience requirements early in the design process proves essential for successful delivery. The experience highlighted the value of iterative development approaches when dealing with complex distributed systems, where theoretical designs often require practical refinement during implementation phases.
 
-Most importantly, the project demonstrated that whilst security and educational quality represent non-negotiable requirements for educational platforms, achieving them requires careful consideration of all quality attributes and their interactions. Success ultimately depends not just on meeting individual requirements, but on finding optimal balance across all system qualities to deliver genuine educational value to learners.
+Most importantly, the project demonstrated that whilst security and educational quality represent non-negotiable requirements for educational platforms, achieving them requires careful consideration of all quality attributes and their interactions. Success ultimately depends not just on meeting individual requirements but on finding optimal balance across all system qualities to deliver genuine educational value to learners.
 
-The transparency-first approach we championed proves that educational platforms can simultaneously maintain high security standards whilst providing the open, supportive learning environment that students deserve. This balance, whilst challenging to achieve, represents the future direction for educational technology that truly serves learners rather than gatekeeping their progress.
-
----
-
-## Appendices
-
-### Appendix A: Architectural Decision Records
-
-[PLACEHOLDER: ADR References and Summaries]
-
-### Appendix B: Technical Implementation Details
-
-[PLACEHOLDER: Key Implementation Code Snippets and Configurations]
-
-### Appendix C: Test Results and Performance Metrics
-
-[PLACEHOLDER: Comprehensive Testing Documentation and Results]
+The transparency-first approach we championed proves that educational platforms can simultaneously maintain high security standards while providing the open, supportive learning environment that students deserve. This balance, whilst challenging to achieve, represents the future direction for educational technology that truly serves learners rather than gatekeeping their progress.
