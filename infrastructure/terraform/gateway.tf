@@ -216,6 +216,15 @@ resource "aws_security_group" "APIGatewayLoadBalancerSecurityGroup" {
     description = "Allow inbound HTTP from anywhere"
   }
 
+  ingress {
+    from_port        = 443
+    to_port          = 443
+    protocol         = "tcp"
+    cidr_blocks      = ["0.0.0.0/0"]
+    ipv6_cidr_blocks = ["::/0"]
+    description      = "Allow HTTPS traffic from internet"
+  }
+
   # Allows outgoing HTTP (Port 80 TCP) traffic to any IP address (0.0.0.0/0)
   egress {
     from_port   = 0
