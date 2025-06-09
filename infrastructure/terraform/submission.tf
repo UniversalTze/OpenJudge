@@ -56,10 +56,10 @@ resource "aws_security_group" "SubmissionAPILoadBalancerSecurityGroup" {
 
   # Incoming requests via gateway
   ingress {
-    from_port       = 80
-    to_port         = 80
-    protocol        = "tcp"
-    security_groups = [aws_security_group.APIGatewaySecurityGroup.id, aws_security_group.APIGatewayLoadBalancerSecurityGroup.id]
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   ingress {
@@ -87,7 +87,7 @@ resource "aws_security_group" "SubmissionDatabaseSecurityGroup" {
     from_port       = 5432
     to_port         = 5432
     protocol        = "tcp"
-    security_groups = [aws_security_group.SubmissionAPISecurityGroup.id]
+    security_groups = [aws_security_group.SubmissionAPISecurityGroup.id, aws_security_group.SubmissionResultReceiverSecurityGroup.id]
   }
 
   egress {
@@ -108,11 +108,11 @@ resource "aws_security_group" "SubmissionResultReceiverSecurityGroup" {
 
   # Allow outbound traffic to RDS
   egress {
-    from_port       = 5432
-    to_port         = 5432
-    protocol        = "tcp"
-    security_groups = [aws_security_group.SubmissionDatabaseSecurityGroup.id]
-    description     = "Allow outbound to RDS PostgreSQL"
+    from_port   = 5432
+    to_port     = 5432
+    protocol    = "tcp"
+    cidr_blocks = ["0.0.0.0/0"]
+    description = "Allow outbound to RDS PostgreSQL"
   }
 
   # Allow outbound traffic to SQS
@@ -403,7 +403,41 @@ resource "aws_appautoscaling_policy" "SubmissionResultReceiverAutoScalingPolicy"
 
 ############################################################################
 # Alarms
-# TODO - ADD IN SQS QUEUE BASED ALARM FOR SUBMISSION WORKER!
+resource "aws_cloudwatch_metric_alarm" "scale_up_sqs_output_queue_alarm" {
+  alarm_name          = "scale_up_sqs_output_queue_alarm"
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = 3
+  period              = 30
+  metric_name         = "ApproximateNumberOfMessagesVisible"
+  namespace           = "AWS/SQS"
+  statistic           = "Average"
+  threshold           = 15
+  dimensions = {
+    QueueName = aws_sqs_queue.ExecutionResultsQueue.name
+  }
+
+  alarm_actions = [
+    aws_appautoscaling_policy.SubmissionResultReceiverAutoScalingPolicy.arn
+  ]
+}
+
+resource "aws_cloudwatch_metric_alarm" "scale_down_sqs_output_queue_alarm" {
+  alarm_name          = "scale_down_sqs_output_queue_alarm"
+  comparison_operator = "LessThanThreshold"
+  evaluation_periods  = 3
+  period              = 60
+  metric_name         = "ApproximateNumberOfMessagesVisible"
+  namespace           = "AWS/SQS"
+  statistic           = "Average"
+  threshold           = 10
+  dimensions = {
+    QueueName = aws_sqs_queue.ExecutionResultsQueue.name
+  }
+
+  alarm_actions = [
+    aws_appautoscaling_policy.SubmissionResultReceiverAutoScalingPolicy.arn
+  ]
+}
 
 
 ############################################################################

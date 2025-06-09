@@ -262,7 +262,77 @@ resource "aws_appautoscaling_policy" "ExecutionJavaAutoScalingPolicy" {
 
 ############################################################################
 # Alarms
-# TODO - ADD IN SQS QUEUE BASED ALARM FOR EACH LANGUAGE!
+resource "aws_cloudwatch_metric_alarm" "scale_up_sqs_python_queue_alarm" {
+  alarm_name          = "scale_up_sqs_python_queue_alarm"
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = 3
+  period              = 30
+  metric_name         = "ApproximateNumberOfMessagesVisible"
+  namespace           = "AWS/SQS"
+  statistic           = "Average"
+  threshold           = 15
+  dimensions = {
+    QueueName = aws_sqs_queue.ExecutionPythonQueue.name
+  }
+
+  alarm_actions = [
+    aws_appautoscaling_policy.ExecutionPythonAutoScalingPolicy.arn
+  ]
+}
+
+resource "aws_cloudwatch_metric_alarm" "scale_up_sqs_java_queue_alarm" {
+  alarm_name          = "scale_up_sqs_java_queue_alarm"
+  comparison_operator = "GreaterThanThreshold"
+  evaluation_periods  = 3
+  period              = 30
+  metric_name         = "ApproximateNumberOfMessagesVisible"
+  namespace           = "AWS/SQS"
+  statistic           = "Average"
+  threshold           = 15
+  dimensions = {
+    QueueName = aws_sqs_queue.ExecutionJavaQueue.name
+  }
+
+  alarm_actions = [
+    aws_appautoscaling_policy.ExecutionJavaAutoScalingPolicy.arn
+  ]
+}
+
+resource "aws_cloudwatch_metric_alarm" "scale_down_sqs_python_queue_alarm" {
+  alarm_name          = "scale_down_sqs_python_queue_alarm"
+  comparison_operator = "LessThanThreshold"
+  evaluation_periods  = 3
+  period              = 60
+  metric_name         = "ApproximateNumberOfMessagesVisible"
+  namespace           = "AWS/SQS"
+  statistic           = "Average"
+  threshold           = 10
+  dimensions = {
+    QueueName = aws_sqs_queue.ExecutionPythonQueue.name
+  }
+
+  alarm_actions = [
+    aws_appautoscaling_policy.ExecutionPythonAutoScalingPolicy.arn,
+  ]
+}
+
+resource "aws_cloudwatch_metric_alarm" "scale_down_sqs_java_queue_alarm" {
+  alarm_name          = "scale_down_sqs_java_queue_alarm"
+  comparison_operator = "LessThanThreshold"
+  evaluation_periods  = 3
+  period              = 60
+  metric_name         = "ApproximateNumberOfMessagesVisible"
+  namespace           = "AWS/SQS"
+  statistic           = "Average"
+  threshold           = 10
+  dimensions = {
+    QueueName = aws_sqs_queue.ExecutionJavaQueue.name
+  }
+
+  alarm_actions = [
+    aws_appautoscaling_policy.ExecutionJavaAutoScalingPolicy.arn,
+  ]
+}
 
 ############################################################################
 # Output

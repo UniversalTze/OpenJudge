@@ -249,7 +249,8 @@ resource "aws_elasticache_replication_group" "TokenRevocationList" {
   subnet_group_name          = aws_elasticache_subnet_group.TokenRevocationListSubnetGroup.name
   security_group_ids         = [aws_security_group.TokenRevocationListSecurityGroup.id]
   automatic_failover_enabled = false
-  transit_encryption_enabled = true
+  transit_encryption_enabled = false
+  apply_immediately          = true
 }
 
 resource "aws_elasticache_subnet_group" "TokenRevocationListSubnetGroup" {
@@ -266,6 +267,13 @@ resource "aws_security_group" "TokenRevocationListSecurityGroup" {
     to_port         = 6379
     protocol        = "tcp"
     security_groups = [aws_security_group.APIGatewaySecurityGroup.id]
+  }
+
+  ingress {
+    from_port   = 0
+    to_port     = 0
+    protocol    = "-1"
+    cidr_blocks = ["0.0.0.0/0"]
   }
 
   egress {
