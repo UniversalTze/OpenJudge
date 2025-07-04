@@ -28,3 +28,6 @@ task run:submission:        Run the submission service in development mode.
 task run:subscriber:        Run the subscriber service in development mode.
 task test:gateway:          Run the API Gateway in development mode, and then runs unit tests against this service.
 ```
+
+## Summary
+This project utilises a microservice architecture and was deployed on AWS. More information on this project about tradeoff, testing, design etc can be found [here](./report/report.md). 
