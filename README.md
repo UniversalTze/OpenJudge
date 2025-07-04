@@ -34,4 +34,4 @@ task test:gateway:          Run the API Gateway in development mode, and then ru
 ## Summary
 This project utilises a microservice architecture and was deployed on AWS. More information on this project about tradeoff, testing, design etc can be found [here](./report/report.md). 
 To run this service in its intended environment, copy the [.envfile](./.env.example) into a .env file and fill in the necessary information/keys required (**# put ....**).  
-Github actions for this repo has been turned off it was disabled during the development of our project. An alternative to this was **TaskFile**, which was what was used for our CI/CD pipeline. **Terraform** was also used to manage our infrastructure when deploying to AWS. 
+For CI/CD pipeline, **TaskFile**, was used to simplify running commands to start services. Code has been written for Github actions (for pushes to main to ensure continous functionality), but it has been turned off for this as it was disabled during the development of our project. **Terraform** was also used to manage our infrastructure when deploying to AWS. 
