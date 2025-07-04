@@ -31,3 +31,4 @@ task test:gateway:          Run the API Gateway in development mode, and then ru
 
 ## Summary
 This project utilises a microservice architecture and was deployed on AWS. More information on this project about tradeoff, testing, design etc can be found [here](./report/report.md). 
+To run this service in this intended environment, create a copy of the [.envfile](./env.example). 
