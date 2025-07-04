@@ -1,8 +1,10 @@
 # OpenJudge
 
-## Link
+## Links
 
 [openjudge.software](https://www.openjudge.software)
+
+**Youtube Demo**: [openjudge.Demo](https://www.youtube.com/watch?v=n1Z3grA97Mg)
 
 ## Getting Started
 
@@ -31,4 +33,4 @@ task test:gateway:          Run the API Gateway in development mode, and then ru
 
 ## Summary
 This project utilises a microservice architecture and was deployed on AWS. More information on this project about tradeoff, testing, design etc can be found [here](./report/report.md). 
-To run this service in this intended environment, create a copy of the [.envfile](./.env.example). 
+To run this service in its intended environment, copy the [.envfile](./.env.example) into a .env file and fill in the necessary information/keys required (**# put ....**).  
